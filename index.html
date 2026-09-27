@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EnergyShift VN — Hệ Thống Hỗ Trợ Quyết Định Điều Chỉnh Lịch Sản Xuất</title>
+  <meta name="description" content="Hệ thống hỗ trợ người lập kế hoạch kiểm tra xem lịch sản xuất tuần này có đáng thay đổi để giảm tổng chi phí vận hành hay không, dựa trên biểu giá điện EVN TOU và ràng buộc vật lý.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- Left Sidebar (Enterprise Energy Manager Style) -->
+  <aside class="app-sidebar" id="appSidebar">
+    <div class="sidebar-header">
+      <div class="brand-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+      </div>
+      <div class="brand-info">
+        <span class="brand-title">EnergyShift VN</span>
+        <span class="brand-subtitle">Quyết định dựa trên dữ liệu</span>
+      </div>
+    </div>
+
+    <!-- Interactive Scenario Switcher -->
+    <div class="sidebar-scenario-box">
+      <div class="scenario-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Kịch bản kiểm thử
+      </div>
+      <select id="scenarioSelect" class="scenario-select" aria-label="Chọn kịch bản kiểm tra">
+        <option value="scenario1">Tuần 37 — THAY ĐỔI LỊCH (B2)</option>
+        <option value="scenario2">Tuần 38 — QUY TẮC ĐƠN GIẢN (B1)</option>
+        <option value="scenario3">Tuần 39 — GIỮ NGUYÊN (B0)</option>
+        <option value="scenario4">Tuần 40 — ĐO THÊM DỮ LIỆU</option>
+      </select>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Điều hướng chính">
+      <button class="nav-item active" id="navDashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        Bảng điều khiển quyết định
+      </button>
+      <button class="nav-item" id="navGantt" onclick="document.getElementById('ganttSection').scrollIntoView({behavior: 'smooth'})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" x2="21" y1="6" y2="6"/><line x1="10" x2="21" y1="12" y2="12"/><line x1="10" x2="21" y1="18" y2="18"/><path d="M4 6h1v12H4"/></svg>
+        Tiến độ Gantt & Biểu giá EVN
+      </button>
+      <button class="nav-item" id="navElecChart" onclick="document.getElementById('elecChartSection').scrollIntoView({behavior: 'smooth'})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        Biểu đồ tiền điện 24H (B0 vs B2)
+      </button>
+      <button class="nav-item" id="navAnalytics" onclick="document.getElementById('analyticsGrid').scrollIntoView({behavior: 'smooth'})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 17v-4"/><path d="M12 17V7"/><path d="M17 17v-8"/></svg>
+        Phân tích cơ cấu & Tỷ trọng phụ tải
+      </button>
+      <button class="nav-item" id="navPlans" onclick="document.getElementById('plansGrid').scrollIntoView({behavior: 'smooth'})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+        So sánh 3 mức (B0 / B1 / B2)
+      </button>
+      <button class="nav-item" id="navValidation" onclick="document.getElementById('validationSection').scrollIntoView({behavior: 'smooth'})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+        Kiểm tra 5 ràng buộc độc lập
+      </button>
+      <button class="nav-item" id="navSensitivity" onclick="document.getElementById('sensitivitySection').scrollIntoView({behavior: 'smooth'})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Phân tích 3 mức Thấp / Cao
+      </button>
+      <button class="nav-item" id="navJobs" onclick="document.getElementById('jobsSection').scrollIntoView({behavior: 'smooth'})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+        Chi tiết điều chuyển đơn hàng
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span>Hệ thống AISC'26 • Bản V2.0</span>
+      <span class="tabular">v2.4.1</span>
+    </div>
+  </aside>
+
+  <!-- Main Viewport -->
+  <div class="app-main">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <div class="facility-badge">
+          <span class="status-indicator-dot" id="facilityStatusDot"></span>
+          Cụm Ép Phun C01 — Xưởng Nhựa Kỹ Thuật
+        </div>
+        <div class="week-selector">
+          <span>Chu kỳ:</span>
+          <strong>Tuần hiện tại (08/09 - 14/09/2026)</strong>
+        </div>
+      </div>
+      <div class="top-bar-right">
+        <button class="btn-secondary" id="btnExportMemo" onclick="showDecisionMemo()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Xuất Tờ Trình <span class="kbd-badge">M</span>
+        </button>
+        <button class="btn-primary" id="btnSyncData" onclick="renderDashboard()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Đối Chiếu Dữ Liệu
+        </button>
+      </div>
+    </header>
+
+    <!-- MES Secondary Filter Bar (UI1 Style) -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <span class="filter-label">KHU VỰC:</span>
+        <span class="filter-pill">Khu A - Ép Phun Lô</span>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">DÂY CHUYỀN:</span>
+        <span class="filter-pill">Line 01 (Máy 160T - 250T)</span>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">BIỂU GIÁ ĐIỆN:</span>
+        <span class="filter-pill">EVN QĐ 1279/QĐ-BCT (22kV - 110kV)</span>
+      </div>
+      <div class="data-health-badge">
+        <span>Nguồn: <strong>ERP SAP + Đồng Hồ Đo Năng Lượng</strong></span>
+        <span class="confidence-chip" id="dataReadinessText">Dữ liệu sẵn sàng: 94%</span>
+      </div>
+    </div>
+
+    <!-- Scrollable Content -->
+    <main class="content-scroll" id="mainContent">
+      <!-- 1. CORE DECISION HERO (CÂU HỎI MỖI TUẦN) -->
+      <section class="verdict-hero-card" id="verdictHeroCard" aria-labelledby="verdictHeading">
+        <div class="verdict-text-block">
+          <p class="verdict-core-question">“Lịch sản xuất tuần này có đáng đổi để giảm tổng chi phí vận hành không?”</p>
+          <div class="verdict-pill-row">
+            <span class="verdict-badge" id="verdictBadge">THAY ĐỔI LỊCH SẢN XUẤT</span>
+          </div>
+          <h1 class="verdict-main-heading" id="verdictHeading" style="margin-top: 10px;">Khuyến nghị áp dụng phương án phối hợp B2</h1>
+          <p class="verdict-explanation" id="verdictExplanation">
+            Phương án B2 thỏa mãn tuyệt đối 5/5 ràng buộc vật lý, tận dụng năng lực linh hoạt giữa máy 160T và 200T để chuyển 3 công việc tiêu thụ lớn tránh hoàn toàn khung giờ cao điểm.
+          </p>
+        </div>
+
+        <div class="verdict-summary-kpis">
+          <div class="verdict-kpi-item">
+            <span class="kpi-title">Tổng chi phí dự kiến</span>
+            <span class="kpi-value tabular" id="kpiTotalCost">15.820.000 đ</span>
+            <span class="kpi-delta delta-good tabular" id="kpiDeltaCost">↓ Giảm 2.630.000 đ (-14.2%)</span>
+          </div>
+          <div class="verdict-kpi-item">
+            <span class="kpi-title">Tiết kiệm tiền điện</span>
+            <span class="kpi-value tabular" id="kpiElectricitySaved" style="color: #15803d;">2.980.000 đ</span>
+            <span class="kpi-delta delta-neutral tabular">Theo biểu giá TOU</span>
+          </div>
+          <div class="verdict-kpi-item">
+            <span class="kpi-title">Công việc điều chuyển</span>
+            <span class="kpi-value tabular" id="kpiJobsShifted">3 công việc</span>
+            <span class="kpi-delta delta-good tabular">0 trễ hạn / 0 vi phạm</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. THREE-LEVEL PLAN COMPARISON (B0 vs B1 vs B2) -->
+      <section aria-labelledby="plansHeading">
+        <h2 id="plansHeading" class="section-title" style="margin-bottom: 12px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+          So sánh ba mức: Lịch hiện tại → Quy tắc đơn giản → Phương án phối hợp
+        </h2>
+        <div class="comparison-grid" id="plansGrid">
+          <!-- Populated by app.js -->
+        </div>
+      </section>
+
+      <!-- 3. INTERACTIVE GANTT TIMELINE & EVN TOU TARIFF CHART -->
+      <section class="gantt-section-card" id="ganttSection" aria-labelledby="ganttHeading">
+        <div class="gantt-header-row">
+          <h2 id="ganttHeading" class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Biểu đồ tiến độ chạy máy & Biểu giá điện EVN theo khung giờ (TOU)
+          </h2>
+
+          <div class="gantt-controls">
+            <div class="gantt-view-toggle">
+              <button class="gantt-tab-btn active" data-plan="compare" id="btnViewCompare">So sánh B0 vs B2 <span class="kbd-badge">1</span></button>
+              <button class="gantt-tab-btn" data-plan="b0" id="btnViewB0">Lịch B0 <span class="kbd-badge">2</span></button>
+              <button class="gantt-tab-btn" data-plan="b1" id="btnViewB1">Lịch B1 <span class="kbd-badge">3</span></button>
+              <button class="gantt-tab-btn" data-plan="b2" id="btnViewB2">Lịch B2 <span class="kbd-badge">4</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tariff Legends -->
+        <div class="tariff-legend">
+          <span>Biểu giá QĐ 1279/QĐ-BCT:</span>
+          <div class="legend-item">
+            <span class="legend-color-swatch swatch-offpeak"></span>
+            <span>Thấp điểm (1.190 đ/kWh)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color-swatch swatch-normal"></span>
+            <span>Bình thường (1.833 đ/kWh)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color-swatch swatch-peak"></span>
+            <span>Cao điểm (3.398 đ/kWh)</span>
+          </div>
+          <div class="legend-item" style="margin-left: 12px;">
+            <span class="legend-color-swatch swatch-setup"></span>
+            <span>Chuẩn bị / Thay khuôn (Setup)</span>
+          </div>
+        </div>
+
+        <!-- Gantt Canvas -->
+        <div class="gantt-canvas-wrapper">
+          <div class="gantt-timeline-container">
+            <!-- Time Axis Header -->
+            <div class="gantt-time-header">
+              <div style="font-size:13px; font-weight:700; color:var(--text-secondary); letter-spacing:0.04em;">MÁY ÉP</div>
+              <div class="gantt-time-slots">
+                <span class="time-slot-label">00:00</span>
+                <span class="time-slot-label">03:00</span>
+                <span class="time-slot-label">06:00</span>
+                <span class="time-slot-label">09:00</span>
+                <span class="time-slot-label">12:00</span>
+                <span class="time-slot-label">15:00</span>
+                <span class="time-slot-label">18:00</span>
+                <span class="time-slot-label">21:00</span>
+                <span class="time-slot-label">24:00</span>
+              </div>
+            </div>
+
+            <!-- Machine Lanes -->
+            <div class="gantt-lanes" id="ganttLanes">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3.5 HOURLY ELECTRICITY BILL & LOAD LINE CHART (24H PROFILE) -->
+      <section class="elec-chart-card" id="elecChartSection" aria-labelledby="elecChartHeading">
+        <div class="elec-chart-header">
+          <div>
+            <h2 id="elecChartHeading" class="section-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              Biểu đồ tiền điện & phụ tải theo giờ (24H Profile — So sánh B0 vs B2)
+            </h2>
+            <p style="font-size:12.5px; color:var(--text-muted); margin-top:3px;">
+              Cơ chế cắt đỉnh nhọn (Peak Shaving) từ giờ cao điểm (3.398 đ/kWh) sang giờ thấp điểm đêm (1.190 đ/kWh) theo biểu giá EVN TOU
+            </p>
+          </div>
+
+          <div class="elec-chart-controls">
+            <div class="elec-toggle-group">
+              <button id="btnMetricCost" class="chart-toggle-btn active" onclick="switchChartMetric('cost')">Tiền điện (VNĐ/h)</button>
+              <button id="btnMetricPower" class="chart-toggle-btn" onclick="switchChartMetric('power')">Công suất tải (kW)</button>
+            </div>
+
+            <div class="elec-chart-legend">
+              <div class="chart-legend-item">
+                <span class="legend-line-indicator line-b0"></span>
+                <span>Lịch gốc (B0)</span>
+              </div>
+              <div class="chart-legend-item">
+                <span class="legend-line-indicator line-b2"></span>
+                <span>Lịch đề xuất (B2)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="elec-chart-canvas-box">
+          <svg id="elecLineChartSvg" class="elec-chart-svg" viewBox="0 0 950 330" aria-label="Biểu đồ đường tiền điện 24 giờ"></svg>
+          <div id="chartTooltip" class="chart-hover-tooltip"></div>
+        </div>
+      </section>
+
+      <!-- 3.6 ADVANCED ANALYTICS & INSIGHT CHARTS -->
+      <section class="analytics-grid" id="analyticsGrid" aria-label="Biểu đồ phân tích cơ cấu chi phí và tải điện">
+        <!-- Chart 1: Cost Breakdown (Stacked Comparison) -->
+        <div class="analytics-card" id="cardCostBreakdown">
+          <div class="analytics-card-header">
+            <div>
+              <h3 class="analytics-card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 17v-4"/><path d="M12 17V7"/><path d="M17 17v-8"/></svg>
+                Cơ cấu Chi phí Vận hành (B0 vs B1 vs B2)
+              </h3>
+              <p class="analytics-card-subtitle">So sánh Tiền điện EVN, Phí thay khuôn và Phí ngoài giờ để đối chiếu hiệu quả ròng</p>
+            </div>
+          </div>
+
+          <div class="cost-breakdown-container" id="costBreakdownContent">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+
+          <div class="cost-breakdown-legend">
+            <div class="cost-legend-chip">
+              <span class="chip-color" style="background:#2563eb;"></span>
+              <span>Tiền điện EVN</span>
+            </div>
+            <div class="cost-legend-chip">
+              <span class="chip-color" style="background:#f59e0b;"></span>
+              <span>Phí thay khuôn (Setup)</span>
+            </div>
+            <div class="cost-legend-chip">
+              <span class="chip-color" style="background:#8b5cf6;"></span>
+              <span>Làm thêm ca (Overtime)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart 2: TOU Energy Distribution (% kWh) -->
+        <div class="analytics-card" id="cardTouDist">
+          <div class="analytics-card-header">
+            <div>
+              <h3 class="analytics-card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+                Tỷ trọng Điện năng theo Khung giá (kWh)
+              </h3>
+              <p class="analytics-card-subtitle">Chuyển dịch cơ cấu phụ tải từ giờ Cao điểm sang Thấp điểm rẻ hơn 65%</p>
+            </div>
+          </div>
+
+          <div class="tou-dist-container" id="touDistContent">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+
+          <div class="cost-breakdown-legend">
+            <div class="cost-legend-chip">
+              <span class="chip-color" style="background:#ef4444;"></span>
+              <span>Cao điểm (3.398đ)</span>
+            </div>
+            <div class="cost-legend-chip">
+              <span class="chip-color" style="background:#94a3b8;"></span>
+              <span>Bình thường (1.833đ)</span>
+            </div>
+            <div class="cost-legend-chip">
+              <span class="chip-color" style="background:#10b981;"></span>
+              <span>Thấp điểm (1.190đ)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart 3: Transformer Peak Load Monitor -->
+        <div class="transformer-monitor-card" id="cardTransformer">
+          <div class="analytics-card-header">
+            <div>
+              <h3 class="analytics-card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Giám sát An toàn Phụ tải Đỉnh Trạm Biến Áp (Pmax vs Định mức 200 kW)
+              </h3>
+              <p class="analytics-card-subtitle">Đảm bảo công suất huy động đồng thời của 5 máy ép không vượt giới hạn định mức trạm 250 kVA</p>
+            </div>
+            <span id="transSafetyBadge" class="plan-status-pill pill-active">✅ An toàn trạm (+27.5%)</span>
+          </div>
+
+          <div id="transformerMonitorContent">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. TWO-COLUMN: INDEPENDENT VALIDATION & SENSITIVITY ANALYSIS -->
+      <div class="two-col-grid">
+        <!-- Independent Operational Verification -->
+        <section class="validation-card" id="validationSection" aria-labelledby="validationHeading">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h2 id="validationHeading" class="section-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+              Kiểm tra độc lập: 5 Ràng buộc vật lý
+            </h2>
+            <span class="validation-header-badge">Bộ kiểm tra độc lập</span>
+          </div>
+          <p style="font-size:12px; color:var(--text-muted); margin: -4px 0 6px;">
+            Nguyên tắc bảo vệ người dùng: Tách rời bộ tìm phương án và bộ kiểm tra. Một lịch rẻ trên giấy nhưng vi phạm điều kiện xưởng sẽ bị loại bỏ ngay.
+          </p>
+          <div class="constraint-checklist" id="validationList">
+            <!-- Rendered by app.js -->
+          </div>
+        </section>
+
+        <!-- Sensitivity & Robustness Analysis -->
+        <section class="sensitivity-card" id="sensitivitySection" aria-labelledby="sensitivityHeading">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h2 id="sensitivityHeading" class="section-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Độ chắc chắn & Phân tích 3 mức số liệu
+            </h2>
+            <span class="plan-status-pill pill-active">Kiểm soát rủi ro</span>
+          </div>
+          <p style="font-size:12px; color:var(--text-muted); margin: -4px 0 6px;">
+            Thử nghiệm lại với 3 mức THẤP / CƠ SỞ / CAO khi dữ liệu công suất hoặc thời gian có dung sai. Nếu kết luận bị đảo chiều, hệ thống yêu cầu ĐO THÊM.
+          </p>
+          <table class="sensitivity-table" aria-label="Bảng phân tích độ nhạy 3 kịch bản">
+            <thead>
+              <tr>
+                <th>Kịch bản</th>
+                <th>Giả định công suất</th>
+                <th>Δ Chi phí vs B0</th>
+                <th>Kết luận</th>
+              </tr>
+            </thead>
+            <tbody id="sensitivityTbody">
+              <!-- Rendered by app.js -->
+            </tbody>
+          </table>
+          <div class="robustness-verdict-box" id="sensitivityNote">
+            <!-- Rendered by app.js -->
+          </div>
+        </section>
+      </div>
+
+      <!-- 5. DETAILED JOB SCHEDULING & COST IMPACT TABLE -->
+      <section class="table-section-card" id="jobsSection" aria-labelledby="jobsHeading">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <h2 id="jobsHeading" class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            Chi tiết điều chuyển từng đơn hàng & Mức độ tin cậy dữ liệu
+          </h2>
+          <span style="font-size:12.5px; color:var(--text-muted);">Minh bạch căn cứ cho từng quyết định thay đổi</span>
+        </div>
+
+        <div class="data-table-wrapper">
+          <table class="data-table" aria-label="Danh sách điều chuyển đơn hàng sản xuất">
+            <thead>
+              <tr>
+                <th>Mã Đơn</th>
+                <th>Sản phẩm / Khách hàng</th>
+                <th>Máy cũ → Máy mới</th>
+                <th>Thời điểm cũ → Thời điểm mới</th>
+                <th>Δ Tiền điện</th>
+                <th>Δ Phí đổi khuôn</th>
+                <th>Mức tin cậy</th>
+                <th>Căn cứ & Ghi chú kỹ thuật</th>
+              </tr>
+            </thead>
+            <tbody id="jobsTbody">
+              <!-- Rendered by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Modal: Job Inspection Details -->
+<div class="modal-overlay" id="jobDetailModal" role="dialog" aria-modal="true" aria-labelledby="modalJobTitle">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalJobTitle">Chi tiết công việc sản xuất</h3>
+      <button class="modal-close-btn" onclick="closeModal()" aria-label="Đóng">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalJobBody"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Decision Memo (Tờ trình phê duyệt) -->
+<div class="modal-overlay" id="memoModal" role="dialog" aria-modal="true" aria-labelledby="memoTitle">
+  <div class="modal-card" style="max-width: 750px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="memoTitle">Tờ Trình Phê Duyệt Lịch Sản Xuất (In / Xuất PDF)</h3>
+      <button class="modal-close-btn" onclick="closeModal()" aria-label="Đóng">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="memoContent"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Đóng</button>
+      <button class="btn-primary" onclick="window.print()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        In Tờ Trình
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
