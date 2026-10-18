@@ -6,11 +6,16 @@ from pathlib import Path
 import subprocess
 import socket
 import sys
+import argparse
 import time
 import urllib.request
 import websocket
 
 ROOT = Path(__file__).resolve().parents[1]
+parser = argparse.ArgumentParser()
+parser.add_argument('--input-only', action='store_true')
+parser.add_argument('--base-url', default='http://127.0.0.1:8765')
+args = parser.parse_args()
 OUT = ROOT / 'work/ui-qa'
 OUT.mkdir(parents=True, exist_ok=True)
 # Never attach to or close a debugger belonging to another browser session.
@@ -73,7 +78,7 @@ def check(condition, label):
 try:
     for _ in range(80):
         try:
-            request = urllib.request.Request('http://127.0.0.1:9345/json/new?http://127.0.0.1:8765', method='PUT')
+            request = urllib.request.Request('http://127.0.0.1:9345/json/new?' + args.base_url, method='PUT')
             with urllib.request.urlopen(request, timeout=2) as response:
                 target = json.load(response)
             break
@@ -146,11 +151,11 @@ try:
     run_checks(js, click, wait, check, run, command, OUT)
     failures = [e for e in events if e.get('method') == 'Runtime.exceptionThrown']
     assert not failures, 'Browser JavaScript exception'
-    summary = {'browser': 'headless Microsoft Edge via CDP', 'all_checks_pass': True, 'scope': 'input-only' if '--input-only' in sys.argv else 'full-regression',
+    summary = {'browser': 'headless Microsoft Edge via CDP', 'all_checks_pass': True, 'base_url': args.base_url, 'scope': 'input-only' if '--input-only' in sys.argv else 'full-regression',
                'javascript_exceptions': len(failures),
                'screenshots': (['work/ui-qa/desktop.png','work/ui-qa/mobile.png'] if '--input-only' not in sys.argv else []) + ['work/ui-qa/input-desktop.png','work/ui-qa/input-mobile.png'],
                'flows': (['default CHANGE','unknown MEASURE','extra-cost KEEP','quantity invalid','baseline invalid','stale response','untrusted reference as text','JSON export roundtrip','JSON file upload'] if '--input-only' not in sys.argv else []) + ['profile persistence','draft recovery','CSV mapping memory','extra-column preservation','explicit lot reconfirmation','new plan cost reset','day shift confirmation','structured workshop fields','storage denied','input desktop/mobile','workspace file restore','CSV file BOM/CRLF preservation'],
-               'source_sha256': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in ['index.html','app.js','live.css','backend/app.py','input-model.js','input-desk.js']},
+               'source_sha256': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in ['index.html','app.js','live.css','backend/app.py','input-model.js','input-desk.js','api-client.js','deployment-config.js']},
                'limitations': 'One local browser run, synthetic data. Does not certify all browsers or industrial operation.'}
     (ROOT / ('docs/evaluation/input_ui_qa.json' if '--input-only' in sys.argv else 'docs/evaluation/live_ui_qa.json')).write_text(json.dumps(summary, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(summary), flush=True)

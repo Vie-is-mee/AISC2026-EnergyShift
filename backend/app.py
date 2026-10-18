@@ -1,4 +1,4 @@
-"""Local-only demo API. Serve only explicitly public assets, never the repository."""
+"""Demo API with explicit local/Render origins. Never serve the repository."""
 from dataclasses import asdict
 from datetime import datetime, timedelta
 import json
@@ -10,16 +10,21 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.cors import CORSMiddleware
 
 from .analysis import analyze
 from .validation import parse_json
+from .deployment import allowed_hosts, allowed_origins, build_sha
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ID = "editable-cell"
 MAX_BYTES = 512 * 1024
 analysis_lock = Lock()
-app = FastAPI(title="EnergyShift local demo", docs_url=None, redoc_url=None, openapi_url=None)
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"])
+FRONTEND_ORIGINS = allowed_origins()
+app = FastAPI(title="EnergyShift demo", docs_url=None, redoc_url=None, openapi_url=None)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts())
+app.add_middleware(CORSMiddleware, allow_origins=FRONTEND_ORIGINS,
+                   allow_methods=["GET", "POST"], allow_headers=["Content-Type"], allow_credentials=False)
 
 
 def error(status, code, why, field="$", fix="Correct the input and try again"):
@@ -30,9 +35,9 @@ def error(status, code, why, field="$", fix="Correct the input and try again"):
 @app.middleware("http")
 async def local_headers(request, call_next):
     origin = request.headers.get("origin")
-    if request.method == "POST" and origin and origin not in (
+    if request.method == "POST" and origin and origin not in FRONTEND_ORIGINS and origin not in (
             "http://" + request.headers.get("host", ""), "https://" + request.headers.get("host", "")):
-        return error(403, "FOREIGN_ORIGIN", "Only this local page may submit browser requests")
+        return error(403, "FOREIGN_ORIGIN", "Browser origin is not configured for this demo")
     response = await call_next(request)
     response.headers["Cache-Control"] = "no-store"
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -65,10 +70,25 @@ def input_desk_script():
     return FileResponse(ROOT / "input-desk.js", media_type="text/javascript")
 
 
+@app.get("/deployment-config.js")
+def deployment_config():
+    return FileResponse(ROOT / "deployment-config.js", media_type="text/javascript")
+
+
+@app.get("/api-client.js")
+def api_client_script():
+    return FileResponse(ROOT / "api-client.js", media_type="text/javascript")
+
+
 @app.get("/api/demo/health")
 def health():
-    sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    return {"status": "OK", "mode": "LOCAL_SYNTHETIC_DEMO", "schema_version": "demo-3",
+    sha = build_sha()
+    if not sha:
+        try:
+            sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True, timeout=2).stdout.strip()
+        except (OSError, subprocess.TimeoutExpired):
+            sha = "UNKNOWN"
+    return {"status": "OK", "mode": "HOSTED_SYNTHETIC_DEMO" if build_sha() else "LOCAL_SYNTHETIC_DEMO", "schema_version": "demo-3",
             "build_sha": sha or "UNKNOWN", "analysis_busy": analysis_lock.locked()}
 
 

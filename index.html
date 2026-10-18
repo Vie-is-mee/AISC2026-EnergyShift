@@ -13,6 +13,8 @@
       content="Demo local: kiểm chứng lịch, tính chi phí B0/B1 và đánh giá rủi ro từ dữ liệu đầu vào."
     />
     <link rel="stylesheet" href="/live.css" />
+    <script src="/deployment-config.js" defer></script>
+    <script src="/api-client.js" defer></script>
     <script src="/app.js" defer></script>
     <script src="/input-model.js" defer></script>
     <script src="/input-desk.js" defer></script>
@@ -20,8 +22,11 @@
   <body>
     <header class="live-header">
       <a class="live-brand" href="/">ϟ EnergyShift <small>VN</small></a
-      ><span class="live-pill">DEMO LOCAL · demo-3</span
+      ><span class="live-pill">DEMO · demo-3</span
       ><span id="health" class="live-muted">Đang kết nối engine…</span>
+      <button id="retryConnection" type="button" hidden>
+        Kết nối lại engine
+      </button>
     </header>
     <main>
       <div class="live-intro">

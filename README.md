@@ -5,6 +5,12 @@ Hỗ trợ quyết định điều chỉnh lịch sản xuất dựa trên tính
 Frontend HTML/CSS/JavaScript hiện tại nhận kết quả tính thật từ API local.
 Dữ liệu mẫu là SYNTHETIC; đây chưa phải hệ thống vận hành công nghiệp hoàn chỉnh.
 
+## Xem demo trên Internet
+
+Đã có `vercel.json`, `render.yaml`, `.env.vercel.example` và `.env.render.example`.
+Vercel phục vụ frontend, Render Free chạy engine Python. Không cần API key model.
+Làm theo [hướng dẫn deploy miễn phí từng bước](docs/DEPLOY_FREE.md).
+
 ## Chạy giao diện local
 
 Python 3.11, từ thư mục gốc repository:

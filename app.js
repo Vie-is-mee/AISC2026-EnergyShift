@@ -407,7 +407,7 @@ $("analyze").addEventListener("click", async () => {
   $("status").textContent =
     "Engine đang kiểm chứng và tìm B1. Có thể mất khoảng 10–30 giây.";
   try {
-    const response = await fetch("/api/demo/analyze", {
+    const response = await apiFetch("/api/demo/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: payload,
@@ -446,7 +446,7 @@ $("analyze").addEventListener("click", async () => {
       errors([
         {
           code: "CONNECTION_ERROR",
-          why: "Không kết nối được API local. Hãy kiểm tra server và chạy lại.",
+          why: "Không kết nối được engine. Nếu dùng Render Free, mở trang backend để chờ khởi động rồi thử lại.",
         },
       ]);
       $("status").textContent = "Chưa có kết quả.";
@@ -472,13 +472,17 @@ $("export").addEventListener("click", () => {
 });
 async function initialize() {
   const stamp = revision;
+  $("retryConnection").hidden = true;
+  $("health").textContent = "Đang kết nối engine…";
+  errors([]);
+  $("errors").hidden = true;
   try {
     const [health, data] = await Promise.all([
-      fetch("/api/demo/health").then((r) => {
+      apiFetch("/api/demo/health").then((r) => {
         if (!r.ok) throw Error();
         return r.json();
       }),
-      fetch("/api/demo/fixtures/editable-cell").then((r) => {
+      apiFetch("/api/demo/fixtures/editable-cell").then((r) => {
         if (!r.ok) throw Error();
         return r.json();
       }),
@@ -486,16 +490,22 @@ async function initialize() {
     sample = data;
     if (stamp === revision) setDataset(data);
     else $("analyze").disabled = pending;
-    $("health").textContent = "Engine local · build " + health.build_sha;
+    $("health").textContent = "Engine · build " + health.build_sha;
     $("status").textContent = "Đã nạp dữ liệu giả lập. Chưa chạy phân tích.";
   } catch {
-    $("health").textContent = "Chưa kết nối API local";
+    $("health").textContent = "Chưa kết nối engine";
+    $("retryConnection").hidden = false;
     errors([
       {
         code: "START_SERVER",
-        why: "Chạy python -m uvicorn backend.app:app --host 127.0.0.1 --port 8765 rồi mở http://127.0.0.1:8765.",
+        why: apiBaseUrl
+          ? "Render Free có thể đang khởi động. Mở " +
+            apiBaseUrl +
+            "/api/demo/health, chờ sẵn sàng rồi bấm Kết nối lại engine. Nếu vẫn lỗi, kiểm tra URL và allowed origins trên Render."
+          : "Chạy python -m uvicorn backend.app:app --host 127.0.0.1 --port 8765 rồi mở http://127.0.0.1:8765.",
       },
     ]);
   }
 }
+$("retryConnection").addEventListener("click", initialize);
 initialize();
