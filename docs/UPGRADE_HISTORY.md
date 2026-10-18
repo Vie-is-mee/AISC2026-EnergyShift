@@ -182,4 +182,6 @@ Thêm `.env`/`.env.*` vào .gitignore và hướng dẫn trong README.
 Kiểm chứng bằng git check-ignore và git diff --cached; không cần test engine
 cho thay đổi file cấu hình. Chưa cài SDK, đọc .env hoặc gọi API. Tích hợp sau
 chỉ dùng backend và không thay đường quyết định B0/B1/policy.
-Nhánh: `chore/openrouter-env-template`; PR được ghi sau khi tạo.
+Nhánh: `chore/openrouter-env-template`.
+PR: [#4 — prepare local OpenRouter configuration](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/4).
+CI và bản ghi merge chính thức được lưu trên PR. `.env` chỉ tồn tại local.
