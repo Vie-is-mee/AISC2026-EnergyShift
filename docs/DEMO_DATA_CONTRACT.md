@@ -49,25 +49,25 @@ job/machine là thời gian hoàn thành toàn bộ quantity, không phải mỗ
 | Policy | policy-1; ngưỡng VND nguyên không âm, saving_pct 0–100, uncertainty 0–1 (0.15 = 15%) |
 
 `family` biểu diễn nhóm chuyển đổi, **không thay cho `mold_id`**. Bộ verifier
-ở bước tiếp theo phải kiểm tra no-overlap theo máy lẫn khuôn. Chưa mô hình hóa
+ở bước 2 đã kiểm tra no-overlap theo máy lẫn khuôn. Chưa mô hình hóa
 thợ dùng chung, thời gian di chuyển khuôn hoặc khuôn đang gắn trên máy đầu kỳ;
 nếu cần các điều kiện đó phải mở rộng contract trước khi nhận dữ liệu pilot.
 
-Setup dự kiến là khoảng liên tục ngay trước job, chiếm máy, phụ thuộc family
+Setup là khoảng liên tục ngay trước job, chiếm máy và khuôn, phụ thuộc family
 của job trước hoặc initial_family. Same-family bằng 0 chỉ khi được khai báo
-0, không suy diễn từ việc thiếu transition. Bước 1 chưa thực thi quy tắc lịch này.
+0, không suy diễn từ việc thiếu transition. Bước 2 đã thực thi quy tắc lịch này.
 
 ## Phạm vi chi phí
 
 `cost_scope.included = RUN_ELECTRICITY_AND_SETUP` là phạm vi cho cost engine
-sắp triển khai: điện chạy job và chi phí setup được khai báo. Bắt buộc nêu đủ
+đã triển khai ở bước 2: điện chạy job và chi phí setup được khai báo. Bắt buộc nêu đủ
 `LABOR_OVERTIME`, `IDLE_ENERGY`, `SETUP_ENERGY`, `OTHER_COSTS` trong excluded.
 Không coi các khoản bị loại trừ là bằng 0, không gọi kết quả là toàn bộ chi phí
-nhà máy. Chưa có chi phí nào được tính trong bước 1.
+nhà máy. Xem quy tắc số học và ví dụ đối soát trong BASELINE_VERIFICATION.md.
 
 Job không bị chia nhỏ hoặc dừng giữa chừng trong demo-1. Không đổi sản lượng
-để tạo tiết kiệm. Deadline dự kiến là ràng buộc cứng, không đánh đổi bằng phạt.
-Cost engine bước 2 cần chốt số học/rounding; solver không được âm thầm làm tròn
+để tạo tiết kiệm. Deadline là ràng buộc cứng, không đánh đổi bằng phạt.
+Cost engine dùng số hữu tỷ và HALF_UP theo từng đoạn; solver không được âm thầm làm tròn
 duration hoặc thời điểm input sang grid gây lệch so sánh B0/B1/B2.
 
 ## Kết quả data gate
@@ -92,9 +92,10 @@ Khi lỗi: `status=BLOCKED_INVALID`, snapshot/hash null, errors là danh sách
 Lỗi cú pháp, duplicate JSON keys và số không hữu hạn bị từ chối. Người dùng
 phải sửa dữ liệu; không biến lỗi input thành khuyến nghị MEASURE_FIRST.
 
-**READY chỉ là data readiness.** Chưa xác nhận start/end nằm trong release/due,
-không chồng máy/khuôn, đủ setup hoặc calendar chứa toàn job. Những kiểm tra đó
-thuộc verifier lịch độc lập bước 2. Chưa có run_id, API, solver hay verdict.
+**READY chỉ là data readiness.** Chạy thêm `--baseline` để kiểm chứng start/end,
+release/due, máy/khuôn, setup và calendar; chỉ lịch PASS mới được tính chi phí.
+CLI trả BASELINE_VERIFIED hoặc BASELINE_INVALID; xem BASELINE_VERIFICATION.md.
+Chưa có run_id, API, solver hay verdict kinh tế.
 
 ## Contract output engine dự kiến (chưa triển khai)
 
