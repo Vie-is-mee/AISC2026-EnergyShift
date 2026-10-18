@@ -1,5 +1,5 @@
 {
-  "schema_version": "demo-1",
+  "schema_version": "demo-2",
   "metadata": {
     "dataset_id": "editable-cell-01",
     "source_type": "SYNTHETIC",
@@ -78,17 +78,35 @@
         "M1": {
           "duration_min": 120,
           "avg_kw": 22.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 1000,
+            "duration_min": 120,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J1-M1-v2"
+          }
         },
         "M2": {
           "duration_min": 135,
           "avg_kw": 25.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 1000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J1-M2-v2"
+          }
         },
         "M3": {
           "duration_min": 135,
           "avg_kw": 25.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 1000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J1-M3-v2"
+          }
         }
       }
     },
@@ -103,17 +121,35 @@
         "M1": {
           "duration_min": 120,
           "avg_kw": 24.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 2000,
+            "duration_min": 120,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J2-M1-v2"
+          }
         },
         "M2": {
           "duration_min": 135,
           "avg_kw": 27.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 2000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J2-M2-v2"
+          }
         },
         "M3": {
           "duration_min": 135,
           "avg_kw": 27.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 2000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J2-M3-v2"
+          }
         }
       }
     },
@@ -128,17 +164,35 @@
         "M1": {
           "duration_min": 120,
           "avg_kw": 26.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 3000,
+            "duration_min": 120,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J3-M1-v2"
+          }
         },
         "M2": {
           "duration_min": 135,
           "avg_kw": 29.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 3000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J3-M2-v2"
+          }
         },
         "M3": {
           "duration_min": 135,
           "avg_kw": 29.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 3000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J3-M3-v2"
+          }
         }
       }
     },
@@ -153,17 +207,35 @@
         "M1": {
           "duration_min": 135,
           "avg_kw": 31.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 4000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J4-M1-v2"
+          }
         },
         "M2": {
           "duration_min": 120,
           "avg_kw": 28.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 4000,
+            "duration_min": 120,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J4-M2-v2"
+          }
         },
         "M3": {
           "duration_min": 135,
           "avg_kw": 31.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 4000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J4-M3-v2"
+          }
         }
       }
     },
@@ -178,17 +250,35 @@
         "M1": {
           "duration_min": 135,
           "avg_kw": 33.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 5000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J5-M1-v2"
+          }
         },
         "M2": {
           "duration_min": 120,
           "avg_kw": 30.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 5000,
+            "duration_min": 120,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J5-M2-v2"
+          }
         },
         "M3": {
           "duration_min": 135,
           "avg_kw": 33.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 5000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J5-M3-v2"
+          }
         }
       }
     },
@@ -203,17 +293,35 @@
         "M1": {
           "duration_min": 135,
           "avg_kw": 35.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 6000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J6-M1-v2"
+          }
         },
         "M2": {
           "duration_min": 120,
           "avg_kw": 32.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 6000,
+            "duration_min": 120,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J6-M2-v2"
+          }
         },
         "M3": {
           "duration_min": 135,
           "avg_kw": 35.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 6000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J6-M3-v2"
+          }
         }
       }
     },
@@ -228,17 +336,35 @@
         "M1": {
           "duration_min": 135,
           "avg_kw": 37.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 7000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J7-M1-v2"
+          }
         },
         "M2": {
           "duration_min": 135,
           "avg_kw": 37.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 7000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J7-M2-v2"
+          }
         },
         "M3": {
           "duration_min": 120,
           "avg_kw": 34.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 7000,
+            "duration_min": 120,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J7-M3-v2"
+          }
         }
       }
     },
@@ -253,17 +379,35 @@
         "M1": {
           "duration_min": 135,
           "avg_kw": 39.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 8000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J8-M1-v2"
+          }
         },
         "M2": {
           "duration_min": 135,
           "avg_kw": 39.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 8000,
+            "duration_min": 135,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J8-M2-v2"
+          }
         },
         "M3": {
           "duration_min": 120,
           "avg_kw": 36.0,
-          "power_source": "SYNTHETIC"
+          "power_source": "SYNTHETIC",
+          "lot_confirmation": {
+            "quantity": 8000,
+            "duration_min": 120,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-lot-J8-M3-v2"
+          }
         }
       }
     }
@@ -401,7 +545,34 @@
         "minutes": 0,
         "incremental_cost_vnd": 0
       }
-    ]
+    ],
+    "initial_mold_by_machine": {
+      "M1": "K1",
+      "M2": "K4",
+      "M3": "K7"
+    },
+    "mold_change_by_machine": {
+      "M1": {
+        "minutes": 30,
+        "incremental_cost_vnd": 25000,
+        "source_type": "SYNTHETIC",
+        "reference": "synthetic-mechanical-change-M1-v2"
+      },
+      "M2": {
+        "minutes": 30,
+        "incremental_cost_vnd": 25000,
+        "source_type": "SYNTHETIC",
+        "reference": "synthetic-mechanical-change-M2-v2"
+      },
+      "M3": {
+        "minutes": 30,
+        "incremental_cost_vnd": 25000,
+        "source_type": "SYNTHETIC",
+        "reference": "synthetic-mechanical-change-M3-v2"
+      }
+    },
+    "family_transition_scope": "ADDITIONAL_CLEANING_ONLY",
+    "mold_occupancy_policy": "HOLD_UNTIL_REPLACEMENT_COMPLETE"
   },
   "tariff": {
     "provenance": "SYNTHETIC_SAMPLE_NOT_A_CURRENT_TARIFF_CLAIM",

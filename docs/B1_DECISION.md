@@ -1,5 +1,9 @@
 # Bước 3 — B1 single-move và quyết định có bằng chứng
 
+**Bằng chứng số tiền/counts bên dưới thuộc demo-1 tại bước 3.** Contract hiện
+hành là [demo-2](DEMO2_DATA_CONTRACT.md); B0/B1 hiện tính thêm đổi khuôn vật lý.
+Không dùng lại 157.918 VND làm kết quả build hiện tại.
+
 ```console
 python -m backend backend/fixtures/editable_cell.json --analyze
 python -m unittest discover -s backend/tests -v

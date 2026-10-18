@@ -9,6 +9,7 @@ from pathlib import Path
 
 from backend.costing import cost_schedule
 from backend.verifier import verify_schedule
+from backend.tests.support import profile
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -29,7 +30,7 @@ class ScheduleTests(unittest.TestCase):
         # fixture to one A job, so the explicit A/B transition matrix is valid.
         self.data["setup"]["initial_family_by_machine"]["M3"] = "B"
         self.data["jobs"] = self.data["jobs"][:1]
-        self.data["jobs"][0]["eligible"] = {"M1": {"duration_min": duration, "avg_kw": power, "power_source": "SYNTHETIC"}}
+        self.data["jobs"][0]["eligible"] = {"M1": profile(1000, duration, power)}
         self.data["current_schedule"] = [{"job_id": "J1", "machine_id": "M1", "start": start}]
         self.schedule = copy.deepcopy(self.data["current_schedule"])
 
@@ -63,7 +64,7 @@ class ScheduleTests(unittest.TestCase):
         self.failed("INSUFFICIENT_SETUP")
 
     def test_exact_setup_gap_passes(self):
-        self.schedule[1]["start"] = "2026-10-19T10:30:00+07:00"
+        self.schedule[1]["start"] = "2026-10-19T11:00:00+07:00"
         self.assertEqual(verify_schedule(self.data, self.schedule)["status"], "PASS")
 
     def test_before_release(self):
@@ -156,7 +157,7 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(total, sum(j["total_vnd"] for j in cost["by_job"].values()))
         self.assertEqual(total, sum(cost["by_component"].values()))
         self.assertEqual(cost["by_component"]["RUN_ELECTRICITY"], sum(cost["electricity_by_band"].values()))
-        self.assertEqual(cost["by_component"]["SETUP"], 300000)
+        self.assertEqual(cost["by_component"]["SETUP"], 425000)
 
     def test_power_edit_recomputes_energy_and_cost(self):
         self.single()
@@ -185,7 +186,8 @@ class ScheduleTests(unittest.TestCase):
 
     def test_alternative_machine_uses_its_own_duration_and_power(self):
         self.single(start="2026-10-19T04:00:00+07:00")
-        self.data["jobs"][0]["eligible"]["M2"] = {"duration_min": 90, "avg_kw": 10.0, "power_source": "SYNTHETIC"}
+        self.data["jobs"][0]["eligible"]["M2"] = profile(1000, 90, 10.0)
+        self.data["jobs"][0]["mold_id"] = "K4"
         self.schedule[0]["machine_id"] = "M2"
         report = cost_schedule(self.data, self.schedule)
         self.assertEqual(report["cost"]["total_vnd"], 27495)

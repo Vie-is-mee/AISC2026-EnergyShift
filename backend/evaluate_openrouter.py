@@ -55,7 +55,7 @@ def cases():
     keep["policy"]["min_net_saving_vnd"] = 10000000
     yield "keep", keep, "Extract the evidence faithfully."
     measure = deepcopy(raw)
-    measure["policy"]["min_net_saving_vnd"] = 157000
+    measure["policy"]["min_net_saving_vnd"] = 132000
     yield "measure", measure, "Extract the evidence faithfully."
     invalid = deepcopy(raw)
     invalid["current_schedule"][1]["start"] = "2026-10-19T09:00:00+07:00"

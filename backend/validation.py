@@ -32,7 +32,7 @@ def validate_input(raw) -> GateResult:
     except ValidationError as exc:
         return GateResult("BLOCKED_INVALID", [
             Issue(".".join(map(str, e["loc"])) or "$", e["type"], e["msg"],
-                  "Correct this field to match docs/DEMO_DATA_CONTRACT.md")
+                  "Correct this field to match docs/DEMO2_DATA_CONTRACT.md")
             for e in exc.errors(include_input=False, include_url=False)
         ])
 
@@ -66,9 +66,18 @@ def validate_input(raw) -> GateResult:
     dates += [a.start for a in data.current_schedule]
     dates += [v for w in data.tariff.windows for v in (w.start, w.end)]
     if any(d.utcoffset() != expected_offset for d in dates):
-        issue("metadata.timezone", "OFFSET_MISMATCH", "demo-1 dates must match UTC+07:00", "Use +07:00 timestamps")
+        issue("metadata.timezone", "OFFSET_MISMATCH", "demo-2 dates must match UTC+07:00", "Use +07:00 timestamps")
 
     for i, job in enumerate(data.jobs):
+        for machine_id, profile in job.eligible.items():
+            confirmation = profile.lot_confirmation
+            if confirmation.quantity != job.quantity or confirmation.duration_min != profile.duration_min:
+                issue(f"jobs.{i}.eligible.{machine_id}.lot_confirmation", "LOT_CONFIRMATION_MISMATCH",
+                      "Duration confirmation does not match this quantity and duration",
+                      "Reconfirm duration for the new lot; update quantity/duration and its evidence together")
+            if data.metadata.source_type == "SYNTHETIC" and confirmation.source_type != "SYNTHETIC":
+                issue(f"jobs.{i}.eligible.{machine_id}.lot_confirmation", "PROVENANCE_MISMATCH",
+                      "Synthetic input cannot claim confirmed factory duration", "Label confirmation SYNTHETIC")
         if job.mold_id not in molds:
             issue(f"jobs.{i}.mold_id", "UNKNOWN_MOLD", "Mold does not exist", "Declare the physical mold")
         if not set(job.eligible) <= machines:
@@ -93,6 +102,19 @@ def validate_input(raw) -> GateResult:
 
     if set(data.setup.initial_family_by_machine) != machines:
         issue("setup.initial_family_by_machine", "INITIAL_STATE_INCOMPLETE", "Each machine needs an initial family", "Declare exactly all machine IDs")
+    if set(data.setup.initial_mold_by_machine) != machines:
+        issue("setup.initial_mold_by_machine", "INITIAL_MOLD_INCOMPLETE", "Each machine needs a mold ID or explicit null", "Declare the initial mounted mold, or null for an empty machine")
+    mounted = [m for m in data.setup.initial_mold_by_machine.values() if m is not None]
+    if not set(mounted) <= molds:
+        issue("setup.initial_mold_by_machine", "UNKNOWN_MOLD", "Initial mold does not exist", "Use declared mold IDs")
+    if len(mounted) != len(set(mounted)):
+        issue("setup.initial_mold_by_machine", "INITIAL_MOLD_CONFLICT", "A physical mold is initially mounted twice", "Confirm one initial location per mold")
+    if set(data.setup.mold_change_by_machine) != machines:
+        issue("setup.mold_change_by_machine", "MOLD_CHANGE_INCOMPLETE", "Every machine needs explicit mold-change time/cost", "Supply additional physical changeover assumptions")
+    for machine_id, change in data.setup.mold_change_by_machine.items():
+        if data.metadata.source_type == "SYNTHETIC" and change.source_type != "SYNTHETIC":
+            issue(f"setup.mold_change_by_machine.{machine_id}", "PROVENANCE_MISMATCH",
+                  "Synthetic fixture cannot claim measured mold changeover", "Label the assumption SYNTHETIC")
     transitions = set()
     for i, t in enumerate(data.setup.transitions):
         key = (t.machine_id, t.from_family, t.to_family)
@@ -122,7 +144,7 @@ def validate_input(raw) -> GateResult:
         issue("tariff.windows", "TARIFF_COVERAGE", "Tariff does not end at horizon", "Complete coverage to horizon end")
     excluded = data.cost_scope.excluded
     if len(excluded) != len(set(excluded)) or set(excluded) != {"LABOR_OVERTIME", "IDLE_ENERGY", "SETUP_ENERGY", "OTHER_COSTS"}:
-        issue("cost_scope.excluded", "COST_SCOPE_INCOMPLETE", "demo-1 must disclose all unmodeled components", "List each excluded component exactly once")
+        issue("cost_scope.excluded", "COST_SCOPE_INCOMPLETE", "demo-2 must disclose all unmodeled components", "List each excluded component exactly once")
     if issues:
         return GateResult("BLOCKED_INVALID", issues)
 

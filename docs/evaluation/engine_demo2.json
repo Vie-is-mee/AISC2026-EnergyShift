@@ -1,0 +1,331 @@
+{
+  "evaluated_at": "2026-10-18T21:12:11.461464+07:00",
+  "environment": {
+    "python": "3.11.8",
+    "os": "Windows"
+  },
+  "schema_version": "demo-2",
+  "summary": {
+    "cases": 4,
+    "runs": 4,
+    "all_checks_pass": true,
+    "repeatability_assessed": false
+  },
+  "cases": [
+    {
+      "case": "change",
+      "repeatable": null,
+      "median_seconds": 8.4474,
+      "runs": [
+        {
+          "seconds": 8.4474,
+          "decision": "CHANGE",
+          "expected_decision_matches": true,
+          "invariants": {
+            "b0_pass": true,
+            "b1_pass": true,
+            "b1_not_worse": true,
+            "at_most_one_move": true,
+            "components_reconcile": true
+          },
+          "input_hash": "sha256:6862dfaeb5d98a168906d72d9fbdc3568417c9561f460870806c89fbdf5e32e7",
+          "b1_schedule": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "start": "2026-10-19T08:00:00+07:00"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "start": "2026-10-19T12:00:00+07:00"
+            },
+            {
+              "job_id": "J3",
+              "machine_id": "M1",
+              "start": "2026-10-19T16:00:00+07:00"
+            },
+            {
+              "job_id": "J4",
+              "machine_id": "M2",
+              "start": "2026-10-19T22:00:00+07:00"
+            },
+            {
+              "job_id": "J5",
+              "machine_id": "M2",
+              "start": "2026-10-19T12:00:00+07:00"
+            },
+            {
+              "job_id": "J6",
+              "machine_id": "M2",
+              "start": "2026-10-19T16:00:00+07:00"
+            },
+            {
+              "job_id": "J7",
+              "machine_id": "M3",
+              "start": "2026-10-19T09:00:00+07:00"
+            },
+            {
+              "job_id": "J8",
+              "machine_id": "M3",
+              "start": "2026-10-19T14:00:00+07:00"
+            }
+          ],
+          "comparison": {
+            "saving_vnd": 132918,
+            "saving_pct": 8.949369,
+            "saving_by_component_vnd": {
+              "RUN_ELECTRICITY": 57918,
+              "SETUP": 75000
+            },
+            "changed_assignments": 1,
+            "derived_setup_effects": [
+              {
+                "job_id": "J4",
+                "before_setup_start": "2026-10-19T07:30:00+07:00",
+                "after_setup_start": "2026-10-19T21:30:00+07:00",
+                "before_setup_vnd": 50000,
+                "after_setup_vnd": 25000
+              },
+              {
+                "job_id": "J5",
+                "before_setup_start": "2026-10-19T11:00:00+07:00",
+                "after_setup_start": "2026-10-19T11:30:00+07:00",
+                "before_setup_vnd": 75000,
+                "after_setup_vnd": 25000
+              }
+            ]
+          },
+          "search": {
+            "algorithm": "single-job exhaustive grid search with baseline-start alternatives",
+            "grid_minutes": 30,
+            "max_candidates": 5000,
+            "evaluated_candidates": 1056,
+            "rejected_candidates": 627,
+            "valid_candidates": 429,
+            "search_complete": true,
+            "termination": "GRID_EXHAUSTED",
+            "runtime_seconds": 8.312144,
+            "optimality": "NOT_PROVEN_GLOBAL_OPTIMAL"
+          }
+        }
+      ]
+    },
+    {
+      "case": "keep",
+      "repeatable": null,
+      "median_seconds": 8.4227,
+      "runs": [
+        {
+          "seconds": 8.4227,
+          "decision": "KEEP_CURRENT",
+          "expected_decision_matches": true,
+          "invariants": {
+            "b0_pass": true,
+            "b1_pass": true,
+            "b1_not_worse": true,
+            "at_most_one_move": true,
+            "components_reconcile": true
+          },
+          "input_hash": "sha256:46a4d4a8131f3d2b1fa04b91b27daa7aa2e2450e2e27a7e7dde481a285755442",
+          "b1_schedule": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "start": "2026-10-19T08:00:00+07:00"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "start": "2026-10-19T12:00:00+07:00"
+            },
+            {
+              "job_id": "J3",
+              "machine_id": "M1",
+              "start": "2026-10-19T16:00:00+07:00"
+            },
+            {
+              "job_id": "J4",
+              "machine_id": "M2",
+              "start": "2026-10-19T22:00:00+07:00"
+            },
+            {
+              "job_id": "J5",
+              "machine_id": "M2",
+              "start": "2026-10-19T12:00:00+07:00"
+            },
+            {
+              "job_id": "J6",
+              "machine_id": "M2",
+              "start": "2026-10-19T16:00:00+07:00"
+            },
+            {
+              "job_id": "J7",
+              "machine_id": "M3",
+              "start": "2026-10-19T09:00:00+07:00"
+            },
+            {
+              "job_id": "J8",
+              "machine_id": "M3",
+              "start": "2026-10-19T14:00:00+07:00"
+            }
+          ],
+          "comparison": {
+            "saving_vnd": 132918,
+            "saving_pct": 8.949369,
+            "saving_by_component_vnd": {
+              "RUN_ELECTRICITY": 57918,
+              "SETUP": 75000
+            },
+            "changed_assignments": 1,
+            "derived_setup_effects": [
+              {
+                "job_id": "J4",
+                "before_setup_start": "2026-10-19T07:30:00+07:00",
+                "after_setup_start": "2026-10-19T21:30:00+07:00",
+                "before_setup_vnd": 50000,
+                "after_setup_vnd": 25000
+              },
+              {
+                "job_id": "J5",
+                "before_setup_start": "2026-10-19T11:00:00+07:00",
+                "after_setup_start": "2026-10-19T11:30:00+07:00",
+                "before_setup_vnd": 75000,
+                "after_setup_vnd": 25000
+              }
+            ]
+          },
+          "search": {
+            "algorithm": "single-job exhaustive grid search with baseline-start alternatives",
+            "grid_minutes": 30,
+            "max_candidates": 5000,
+            "evaluated_candidates": 1056,
+            "rejected_candidates": 627,
+            "valid_candidates": 429,
+            "search_complete": true,
+            "termination": "GRID_EXHAUSTED",
+            "runtime_seconds": 8.349977,
+            "optimality": "NOT_PROVEN_GLOBAL_OPTIMAL"
+          }
+        }
+      ]
+    },
+    {
+      "case": "measure",
+      "repeatable": null,
+      "median_seconds": 7.9573,
+      "runs": [
+        {
+          "seconds": 7.9573,
+          "decision": "MEASURE_FIRST",
+          "expected_decision_matches": true,
+          "invariants": {
+            "b0_pass": true,
+            "b1_pass": true,
+            "b1_not_worse": true,
+            "at_most_one_move": true,
+            "components_reconcile": true
+          },
+          "input_hash": "sha256:896c0c2d419e40f2ddcb05e3cf47012f57a3006032309f364e4b4a45f1e5d221",
+          "b1_schedule": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "start": "2026-10-19T08:00:00+07:00"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "start": "2026-10-19T12:00:00+07:00"
+            },
+            {
+              "job_id": "J3",
+              "machine_id": "M1",
+              "start": "2026-10-19T16:00:00+07:00"
+            },
+            {
+              "job_id": "J4",
+              "machine_id": "M2",
+              "start": "2026-10-19T22:00:00+07:00"
+            },
+            {
+              "job_id": "J5",
+              "machine_id": "M2",
+              "start": "2026-10-19T12:00:00+07:00"
+            },
+            {
+              "job_id": "J6",
+              "machine_id": "M2",
+              "start": "2026-10-19T16:00:00+07:00"
+            },
+            {
+              "job_id": "J7",
+              "machine_id": "M3",
+              "start": "2026-10-19T09:00:00+07:00"
+            },
+            {
+              "job_id": "J8",
+              "machine_id": "M3",
+              "start": "2026-10-19T14:00:00+07:00"
+            }
+          ],
+          "comparison": {
+            "saving_vnd": 132918,
+            "saving_pct": 8.949369,
+            "saving_by_component_vnd": {
+              "RUN_ELECTRICITY": 57918,
+              "SETUP": 75000
+            },
+            "changed_assignments": 1,
+            "derived_setup_effects": [
+              {
+                "job_id": "J4",
+                "before_setup_start": "2026-10-19T07:30:00+07:00",
+                "after_setup_start": "2026-10-19T21:30:00+07:00",
+                "before_setup_vnd": 50000,
+                "after_setup_vnd": 25000
+              },
+              {
+                "job_id": "J5",
+                "before_setup_start": "2026-10-19T11:00:00+07:00",
+                "after_setup_start": "2026-10-19T11:30:00+07:00",
+                "before_setup_vnd": 75000,
+                "after_setup_vnd": 25000
+              }
+            ]
+          },
+          "search": {
+            "algorithm": "single-job exhaustive grid search with baseline-start alternatives",
+            "grid_minutes": 30,
+            "max_candidates": 5000,
+            "evaluated_candidates": 1056,
+            "rejected_candidates": 627,
+            "valid_candidates": 429,
+            "search_complete": true,
+            "termination": "GRID_EXHAUSTED",
+            "runtime_seconds": 7.901259,
+            "optimality": "NOT_PROVEN_GLOBAL_OPTIMAL"
+          }
+        }
+      ]
+    },
+    {
+      "case": "invalid",
+      "repeatable": null,
+      "median_seconds": 0.0081,
+      "runs": [
+        {
+          "seconds": 0.0081,
+          "decision": "BASELINE_INVALID",
+          "expected_decision_matches": true,
+          "invariants": {},
+          "input_hash": "sha256:5ab782a568e1258df673798d7306073be1fc9ac5e650d823bdba841ab7891dbb",
+          "b1_schedule": null,
+          "comparison": null,
+          "search": null
+        }
+      ]
+    }
+  ],
+  "limitations": "Small designed synthetic regression/performance benchmark on this machine; no observed factory savings or industrial model-accuracy claim."
+}

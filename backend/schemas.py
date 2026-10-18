@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator, model_validator
 
 
 class Model(BaseModel):
@@ -21,7 +21,7 @@ class Window(Model):
         if not isinstance(value, datetime) or value.tzinfo is None or value.utcoffset() is None:
             raise ValueError("Use an ISO timestamp with an explicit UTC offset")
         if value.second or value.microsecond:
-            raise ValueError("demo-1 requires whole-minute timestamps")
+            raise ValueError("demo input requires whole-minute timestamps")
         return value
 
     @model_validator(mode="after")
@@ -33,6 +33,7 @@ class Window(Model):
 
 Identifier = Annotated[str, Field(min_length=1, pattern=r"^[A-Za-z0-9_-]+$")]
 Nonnegative = Annotated[float, Field(ge=0)]
+EvidenceReference = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
 class Metadata(Model):
@@ -53,10 +54,18 @@ class Mold(Model):
     # Each ID represents one physical mold; shared use is exclusive.
 
 
+class LotConfirmation(Model):
+    quantity: Annotated[int, Field(gt=0)]
+    duration_min: Annotated[int, Field(gt=0)]
+    source_type: Literal["SYNTHETIC", "MEASURED", "ESTIMATED", "PARTNER_CONFIRMED"]
+    reference: EvidenceReference
+
+
 class Processing(Model):
     duration_min: Annotated[int, Field(gt=0)]
     avg_kw: Nonnegative
     power_source: Literal["SYNTHETIC", "MEASURED", "ESTIMATED"]
+    lot_confirmation: LotConfirmation
 
 
 class Job(Model):
@@ -93,8 +102,19 @@ class Transition(Model):
     incremental_cost_vnd: Annotated[int, Field(ge=0)]
 
 
+class MoldChange(Model):
+    minutes: Annotated[int, Field(gt=0)]
+    incremental_cost_vnd: Annotated[int, Field(ge=0)]
+    source_type: Literal["SYNTHETIC", "MEASURED", "ESTIMATED", "PARTNER_CONFIRMED"]
+    reference: EvidenceReference
+
+
 class Setup(Model):
+    family_transition_scope: Literal["ADDITIONAL_CLEANING_ONLY"]
+    mold_occupancy_policy: Literal["HOLD_UNTIL_REPLACEMENT_COMPLETE"]
     initial_family_by_machine: dict[Identifier, Identifier]
+    initial_mold_by_machine: dict[Identifier, Identifier | None]
+    mold_change_by_machine: dict[Identifier, MoldChange]
     transitions: list[Transition]
 
 
@@ -124,7 +144,7 @@ class Policy(Model):
 
 
 class Dataset(Model):
-    schema_version: Literal["demo-1"]
+    schema_version: Literal["demo-2"]
     metadata: Metadata
     horizon: Window
     machines: Annotated[list[Machine], Field(min_length=1)]
