@@ -122,3 +122,53 @@ Commit triển khai: `08d212f8745892efaa5ae04f7a6174e87d8f7001`.
 PR: [#2 — verify schedules and recost baseline](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/2).
 Kết quả CI và bản ghi merge chính thức được lưu trên PR này; không suy ra trạng
 thái merge từ commit đang nằm trên feature branch.
+
+## Bước 03 — Tìm B1 thực và quyết định từ bằng chứng
+
+Ngày: 18/10/2026 (Asia/Ho_Chi_Minh). Bước 02 merge PR #2,
+commit `06ba3293a841346949a1af98b76c8e237bcd32cc`.
+Phạm vi: B1 của T05, policy và sensitivity cơ bản để kiểm tra quyết định;
+API T06 và nối UI vẫn là bước tiếp theo.
+
+### Điểm yếu được xử lý
+
+Chưa có phương án được tạo từ input và chưa có kết luận phụ thuộc tính toán.
+Một move có thể ảnh hưởng setup job khác, nên phải recost toàn lịch. Chưa có
+B2 thì không được tuyên bố B1 đủ tốt so với B2.
+
+### Công nghệ và kỹ thuật
+
+- Bounded single-job grid search giữ B0 làm incumbent; mỗi candidate qua
+  verifier và recost độc lập. Không cộng dồn move hoặc sửa assignment job khác.
+- Grid 30 phút và giờ gốc ngoài grid, không làm tròn input; generator và budget
+  5.000 candidate, tie giữ B0, thứ tự duyệt xác định; xuất counts/runtime/scope.
+- LOW/BASE/HIGH cố định lịch và dùng cùng power parameter cho B0/B1; scale chỉ
+  SYNTHETIC/ESTIMATED, không khẳng định robust trước mọi tổ hợp biến độc lập.
+- Policy Fraction xét ngưỡng VND AND %, trả CHANGE/KEEP_CURRENT/MEASURE_FIRST.
+  B2 NOT_RUN; USE_SIMPLE_RULE chỉ dùng khi có phép so B1/B2 thật.
+- Report run_id/input_hash, chi phí, component delta, job đổi, setup ảnh hưởng,
+  reason_codes/evidence_ids; CLI --analyze offline. Chi tiết: B1_DECISION.md.
+
+### Đã kiểm chứng
+
+- **20 tests mới, tổng 77 tests PASS**, local Python 3.11.8.
+- B1 dời J4 08:00 → 22:00 trên M2, đúng một assignment đổi, verifier PASS.
+  Cost **1.202.304 VND** so B0 **1.360.222 VND**; modeled saving **157.918 VND**
+  = điện **57.918** + setup **100.000**; setup trước J5 được recost và công khai.
+- LOW/BASE/HIGH saving **149.230 / 157.918 / 166.606 VND**, CHANGE chọn B1,
+  B2 chưa đánh giá. Ngưỡng sát lợi ích → MEASURE_FIRST; ngưỡng cao → KEEP_CURRENT.
+- Sửa power đổi verdict thật; B0 sai chặn search; budget hết ghi rõ. Kiểm tra
+  lặp lại, không mutate input, off-grid start và tổng component/hash khớp.
+
+### Giới hạn và bước kế tiếp
+
+Frontend vẫn mockup; chưa API/B2 hoặc chứng cứ nhà máy/ROI thực. Miền tìm kiếm
+single-move có giới hạn; chưa timeout theo giây hoặc ranking điểm cần đo.
+Cost scope vẫn điện chạy + setup; các thành phần khác EXCLUDED.
+Bước 04: local API, input editor và UI lấy dữ liệu từ cùng run snapshot.
+
+Nhánh: `feature/step-03-b1-policy`.
+Commit triển khai: `6b03e137bf3616ab52a9ecbf0434a4808a885339`.
+PR: [#3 — search B1 and generate evidence-based decisions](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/3).
+Kết quả CI và bản ghi merge chính thức được lưu trên PR này; không suy ra trạng
+thái merge từ commit đang nằm trên feature branch.
