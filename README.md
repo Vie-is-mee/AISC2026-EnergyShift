@@ -2,8 +2,28 @@
 
 Hỗ trợ quyết định điều chỉnh lịch sản xuất dựa trên tính khả thi và chi phí.
 
-Frontend HTML/CSS/JavaScript hiện tại là demo minh họa dùng kịch bản khai báo
-sẵn. Backend mới đang được xây theo từng bước; chưa phải hệ thống tối ưu hoàn chỉnh.
+Frontend HTML/CSS/JavaScript hiện tại nhận kết quả tính thật từ API local.
+Dữ liệu mẫu là SYNTHETIC; đây chưa phải hệ thống vận hành công nghiệp hoàn chỉnh.
+
+## Chạy giao diện local
+
+Python 3.11, từ thư mục gốc repository:
+
+```console
+python -m pip install -r requirements.txt
+python -m uvicorn backend.app:app --host 127.0.0.1 --port 8765
+```
+
+Mở **http://127.0.0.1:8765/**. Sau khi cài dependency, giao diện/engine/fixture
+không cần Internet hoặc key OpenRouter. Nạp JSON, sửa input và chọn Chạy phân
+tích. Sửa input làm mất hiệu lực kết quả cũ. B2 hiện CHƯA CHẠY.
+
+Kiểm thử: `python -m pip install -r requirements-dev.txt`, rồi
+`python -m unittest discover -s backend/tests -v` và `node --check app.js`.
+QA trình duyệt Windows/Edge tùy chọn: cài requirements-browser.txt, giữ server
+đang chạy và chạy `python ops/browser_smoke.py` (Edge headless/profile riêng).
+
+Xem [hướng dẫn API, giới hạn và demo đầu cuối](docs/LOCAL_DEMO.md).
 
 ## Backend — B0/B1 với contract demo-3
 
@@ -22,7 +42,7 @@ từ job/máy/thời gian/biểu giá/setup. Lịch FAIL hoặc UNKNOWN không �
 chi phí. Dữ liệu mẫu hoàn toàn SYNTHETIC; phạm vi tính chỉ gồm điện chạy job
 và setup. `--analyze` tạo B1 single-move, kiểm tra LOW/BASE/HIGH trên lịch cố
 định và trả CHANGE / KEEP_CURRENT / MEASURE_FIRST theo ngưỡng cấu hình.
-B2 chưa chạy; frontend chưa nối engine. Sau khi cài dependency, CLI và tests
+B2 chưa chạy; frontend đã nối engine qua API local. Sau khi cài dependency, CLI và tests
 không yêu cầu mạng.
 
 Policy demo-3 dùng bounds công suất độc lập và review chi phí EXCLUDED để
