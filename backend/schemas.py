@@ -66,6 +66,7 @@ class Processing(Model):
     avg_kw: Nonnegative
     power_source: Literal["SYNTHETIC", "MEASURED", "ESTIMATED"]
     lot_confirmation: LotConfirmation
+    power_uncertainty_pct: Annotated[float | None, Field(ge=0, le=1)] = None
 
 
 class Job(Model):
@@ -129,9 +130,29 @@ class Tariff(Model):
     windows: Annotated[list[TariffWindow], Field(min_length=1)]
 
 
+class ExcludedCostReview(Model):
+    status: Literal["BOUNDED", "UNKNOWN"]
+    incremental_min_vnd: int | None
+    incremental_max_vnd: int | None
+    source_type: Literal["SYNTHETIC", "MEASURED", "ESTIMATED", "PARTNER_CONFIRMED"]
+    reference: EvidenceReference
+
+    @model_validator(mode="after")
+    def consistent(self):
+        low, high = self.incremental_min_vnd, self.incremental_max_vnd
+        if self.status == "UNKNOWN":
+            if low is not None or high is not None:
+                raise ValueError("UNKNOWN costs must have null bounds")
+        elif low is None or high is None or low > high:
+            raise ValueError("BOUNDED costs require ordered integer VND bounds")
+        return self
+
+
 class CostScope(Model):
     included: Literal["RUN_ELECTRICITY_AND_SETUP"]
     excluded: list[Literal["LABOR_OVERTIME", "IDLE_ENERGY", "SETUP_ENERGY", "OTHER_COSTS"]]
+    review_scope: Literal["ALL_SINGLE_JOB_MOVES_IN_HORIZON"]
+    excluded_review: dict[str, ExcludedCostReview]
 
 
 class Policy(Model):
@@ -144,7 +165,7 @@ class Policy(Model):
 
 
 class Dataset(Model):
-    schema_version: Literal["demo-2"]
+    schema_version: Literal["demo-3"]
     metadata: Metadata
     horizon: Window
     machines: Annotated[list[Machine], Field(min_length=1)]

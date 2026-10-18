@@ -1,8 +1,8 @@
 # Đánh giá engine và OpenRouter — 18/10/2026
 
 **Artifact và số liệu trên trang này thuộc demo-1 trước nâng cấp khuôn/lô.**
-Giữ nguyên lịch sử đo; engine hiện dùng [demo-2](DEMO2_DATA_CONTRACT.md).
-Chưa chạy lại API live cho demo-2, không suy các kết quả này thành chứng nhận
+Giữ nguyên lịch sử đo; engine hiện dùng [demo-3](DEMO3_ECONOMIC_RISK.md).
+Chưa chạy lại API live cho demo-3, không suy các kết quả này thành chứng nhận
 build hiện tại. Benchmark mới: evaluation/engine_demo2.json.
 
 ## Mục tiêu

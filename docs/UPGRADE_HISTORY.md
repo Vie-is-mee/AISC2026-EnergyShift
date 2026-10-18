@@ -287,3 +287,62 @@ Nhánh: `fix/physical-molds-lot-consistency`.
 Commit triển khai: `a1de7dcbd482caf6815c6f8ecd4a18700c91c0d7`.
 PR: [#6 — physical mold setup and confirmed lot durations](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/6).
 CI và bản ghi merge chính thức được lưu trên PR.
+
+## Ưu tiên 2 — chi phí EXCLUDED và power uncertainty độc lập
+
+Ngày: 18/10/2026 (Asia/Ho_Chi_Minh). Source trước sửa:
+`e194ca03451029d02fe48ca3e076565e936e7597` (PR #6 đã merge).
+
+### Điểm yếu
+
+Lợi ích điện/setup dương có thể không bù overtime/idle/other costs chưa mô
+hình hóa. Ba mức power cùng chiều không bắt được tình huống máy gốc thấp hơn
+ước tính còn máy đích cao hơn. KEEP không được suy thành đã kiểm tra robust
+mọi candidate nếu search chỉ chọn best modeled cost.
+
+### Kỹ thuật áp dụng
+
+- Contract demo-3 yêu cầu review từng khoản EXCLUDED: BOUNDED với incremental
+  VND min/max hoặc UNKNOWN với null. Review áp dụng mọi single-job move trong
+  horizon, có source/reference; không mặc định missing=0. Input cũ bị từ chối.
+- Ledger giữ nguyên điện + setup. Economic assessment tính net bounds sau
+  khoảng chi phí phát sinh; UNKNOWN chặn CHANGE cho B1 có thay đổi.
+- Phân tích tuyến tính bằng Fraction cho power từng job/machine độc lập.
+  Cùng profile dùng cùng power ở cả B0/B1; các profile được sai số ngược chiều.
+  Có radius riêng từng profile, kể cả MEASURED khi khai báo sai số công tơ.
+- Hủy các đoạn chung, gộp coefficients và lấy min/max theo dấu. Cộng rounding
+  allowance để bound vẫn bao phủ HALF_UP từng đoạn. Không duyệt 2^N hoặc dùng
+  LLM tự chấm để kết luận vững.
+- Xét đồng thời ngưỡng VND và percent margin; percent dùng modeled B0 của cùng
+  scenario. CHANGE chỉ khi mọi giá trị trong bounds khai báo đạt, KEEP khi
+  B1 được chọn không thể đạt một ngưỡng, còn lại MEASURE_FIRST.
+- LOW/BASE/HIGH giữ để minh họa, không điều khiển policy. Xuất power drivers,
+  net/margin bounds, trần extra cost và headroom, reason/evidence mới.
+
+### Kiểm chứng
+
+- **19 tests mới, tổng 124 tests PASS** local Python 3.11.8.
+- Tái hiện counterexample máy gốc thấp/máy đích cao: ba mức cùng chiều đều
+  đạt nhưng guard độc lập trả MEASURE_FIRST. Test recost độc lập 9 tổ hợp
+  power để đối soát cả saving và percent margin với bounds.
+- Fixture raw saving vẫn 132.918 VND. Power ±15% cho range bảo thủ
+  124.228,8–141.607,2 VND; review zero SYNTHETIC nên CHANGE. Trần extra cost
+  để vẫn đạt ngưỡng là 24.228 VND, không phải được phép bỏ qua mọi chi phí khác.
+- Overtime UNKNOWN → MEASURE_FIRST; extra overtime 200.000 VND → KEEP_CURRENT.
+- Kiểm tra missing/invalid reviews, provenance, radius override, measured
+  uncertainty, rounding, shared-profile cancellation, ledger không đổi.
+- Artifact economic_risk_demo3.json chứa 4 ca và source hashes; không gọi API thật.
+
+### Giới hạn còn lại
+
+Bounds có điều kiện trên power ranges/review được khai báo, chưa xác minh
+nguồn hoặc đảm bảo sai số thực nằm trong khoảng. Chưa bound duration/setup/
+tariff/outages; percent denominator vẫn modeled B0, không phải tổng nhà máy.
+B1 vẫn chọn theo base modeled cost, chưa robust-optimize toàn miền. Frontend
+vẫn mockup, B2 chưa có. Các báo cáo demo-1/demo-2 giữ nguyên làm lịch sử.
+Contract chi tiết: DEMO3_ECONOMIC_RISK.md.
+
+Nhánh: `fix/economic-risk-guards`.
+Commit triển khai: `6d9eb923e14f1968c09ab658818214a0189ed2d4`.
+PR: [#7 — bound excluded costs and independent power risk](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/7).
+CI và bản ghi merge chính thức được lưu trên PR.

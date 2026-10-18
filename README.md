@@ -5,7 +5,7 @@ Hỗ trợ quyết định điều chỉnh lịch sản xuất dựa trên tính
 Frontend HTML/CSS/JavaScript hiện tại là demo minh họa dùng kịch bản khai báo
 sẵn. Backend mới đang được xây theo từng bước; chưa phải hệ thống tối ưu hoàn chỉnh.
 
-## Backend — B0/B1 với contract demo-2
+## Backend — B0/B1 với contract demo-3
 
 Python 3.11, chạy từ thư mục gốc repository:
 
@@ -25,7 +25,12 @@ và setup. `--analyze` tạo B1 single-move, kiểm tra LOW/BASE/HIGH trên lị
 B2 chưa chạy; frontend chưa nối engine. Sau khi cài dependency, CLI và tests
 không yêu cầu mạng.
 
-- [Contract demo-2: khuôn vật lý và duration theo lô](docs/DEMO2_DATA_CONTRACT.md)
+Policy demo-3 dùng bounds công suất độc lập và review chi phí EXCLUDED để
+quyết định. Khoản chưa biết trả MEASURE_FIRST; LOW/BASE/HIGH chỉ là minh họa.
+Raw savings vẫn đối soát ledger; net bounds nằm riêng trong economic_assessment.
+
+- [Contract demo-3: chi phí bị loại trừ và sai số công suất độc lập](docs/DEMO3_ECONOMIC_RISK.md)
+- [Nền mô hình khuôn và duration theo lô](docs/DEMO2_DATA_CONTRACT.md)
 - [Kiểm chứng lịch, số học và bằng chứng bước 2](docs/BASELINE_VERIFICATION.md)
 - [B1, policy và bằng chứng bước 3](docs/B1_DECISION.md)
 - [Lịch sử nhận diện điểm yếu và nâng cấp](docs/UPGRADE_HISTORY.md)

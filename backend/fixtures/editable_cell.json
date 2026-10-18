@@ -1,5 +1,5 @@
 {
-  "schema_version": "demo-2",
+  "schema_version": "demo-3",
   "metadata": {
     "dataset_id": "editable-cell-01",
     "source_type": "SYNTHETIC",
@@ -629,7 +629,38 @@
       "IDLE_ENERGY",
       "SETUP_ENERGY",
       "OTHER_COSTS"
-    ]
+    ],
+    "review_scope": "ALL_SINGLE_JOB_MOVES_IN_HORIZON",
+    "excluded_review": {
+      "LABOR_OVERTIME": {
+        "status": "BOUNDED",
+        "incremental_min_vnd": 0,
+        "incremental_max_vnd": 0,
+        "source_type": "SYNTHETIC",
+        "reference": "synthetic-no-incremental-cost-assumption-LABOR_OVERTIME"
+      },
+      "IDLE_ENERGY": {
+        "status": "BOUNDED",
+        "incremental_min_vnd": 0,
+        "incremental_max_vnd": 0,
+        "source_type": "SYNTHETIC",
+        "reference": "synthetic-no-incremental-cost-assumption-IDLE_ENERGY"
+      },
+      "SETUP_ENERGY": {
+        "status": "BOUNDED",
+        "incremental_min_vnd": 0,
+        "incremental_max_vnd": 0,
+        "source_type": "SYNTHETIC",
+        "reference": "synthetic-no-incremental-cost-assumption-SETUP_ENERGY"
+      },
+      "OTHER_COSTS": {
+        "status": "BOUNDED",
+        "incremental_min_vnd": 0,
+        "incremental_max_vnd": 0,
+        "source_type": "SYNTHETIC",
+        "reference": "synthetic-no-incremental-cost-assumption-OTHER_COSTS"
+      }
+    }
   },
   "policy": {
     "version": "policy-1",

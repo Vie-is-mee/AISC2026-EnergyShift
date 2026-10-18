@@ -1,7 +1,7 @@
 # EnergyShift demo-1 — hợp đồng dữ liệu (lịch sử)
 
-**Đã được thay bằng [DEMO2_DATA_CONTRACT.md](DEMO2_DATA_CONTRACT.md).**
-Engine hiện chỉ nhận demo-2; không tự thêm xác nhận lô hoặc giả định đổi khuôn
+**Đã được thay bằng [demo-3](DEMO3_ECONOMIC_RISK.md), kế thừa nền demo-2.**
+Engine hiện chỉ nhận demo-3; không tự thêm xác nhận lô hoặc giả định đổi khuôn
 cho input cũ. Nội dung dưới đây lưu phạm vi của các bước trước, không phải
 contract hiện hành.
 

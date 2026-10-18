@@ -32,7 +32,7 @@ def validate_input(raw) -> GateResult:
     except ValidationError as exc:
         return GateResult("BLOCKED_INVALID", [
             Issue(".".join(map(str, e["loc"])) or "$", e["type"], e["msg"],
-                  "Correct this field to match docs/DEMO2_DATA_CONTRACT.md")
+                  "Correct this field to match docs/DEMO3_ECONOMIC_RISK.md")
             for e in exc.errors(include_input=False, include_url=False)
         ])
 
@@ -66,7 +66,7 @@ def validate_input(raw) -> GateResult:
     dates += [a.start for a in data.current_schedule]
     dates += [v for w in data.tariff.windows for v in (w.start, w.end)]
     if any(d.utcoffset() != expected_offset for d in dates):
-        issue("metadata.timezone", "OFFSET_MISMATCH", "demo-2 dates must match UTC+07:00", "Use +07:00 timestamps")
+        issue("metadata.timezone", "OFFSET_MISMATCH", "demo-3 dates must match UTC+07:00", "Use +07:00 timestamps")
 
     for i, job in enumerate(data.jobs):
         for machine_id, profile in job.eligible.items():
@@ -143,8 +143,13 @@ def validate_input(raw) -> GateResult:
     if cursor != data.horizon.end:
         issue("tariff.windows", "TARIFF_COVERAGE", "Tariff does not end at horizon", "Complete coverage to horizon end")
     excluded = data.cost_scope.excluded
+    if set(data.cost_scope.excluded_review) != set(excluded):
+        issue("cost_scope.excluded_review", "EXCLUDED_REVIEW_INCOMPLETE", "Every excluded component needs an explicit review", "Use bounded incremental costs or UNKNOWN; never assume missing is zero")
+    for component, review in data.cost_scope.excluded_review.items():
+        if data.metadata.source_type == "SYNTHETIC" and review.source_type != "SYNTHETIC":
+            issue(f"cost_scope.excluded_review.{component}", "PROVENANCE_MISMATCH", "Synthetic fixture cannot claim measured cost review", "Label review SYNTHETIC")
     if len(excluded) != len(set(excluded)) or set(excluded) != {"LABOR_OVERTIME", "IDLE_ENERGY", "SETUP_ENERGY", "OTHER_COSTS"}:
-        issue("cost_scope.excluded", "COST_SCOPE_INCOMPLETE", "demo-2 must disclose all unmodeled components", "List each excluded component exactly once")
+        issue("cost_scope.excluded", "COST_SCOPE_INCOMPLETE", "demo-3 must disclose all unmodeled components", "List each excluded component exactly once")
     if issues:
         return GateResult("BLOCKED_INVALID", issues)
 
