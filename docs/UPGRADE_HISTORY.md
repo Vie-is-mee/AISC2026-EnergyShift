@@ -167,5 +167,8 @@ single-move có giới hạn; chưa timeout theo giây hoặc ranking điểm c�
 Cost scope vẫn điện chạy + setup; các thành phần khác EXCLUDED.
 Bước 04: local API, input editor và UI lấy dữ liệu từ cùng run snapshot.
 
-Nhánh: `feature/step-03-b1-policy`. PR bổ sung sau khi tạo; CI và merge được
-kiểm chứng trên GitHub trước khi kết thúc bước.
+Nhánh: `feature/step-03-b1-policy`.
+Commit triển khai: `6b03e137bf3616ab52a9ecbf0434a4808a885339`.
+PR: [#3 — search B1 and generate evidence-based decisions](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/3).
+Kết quả CI và bản ghi merge chính thức được lưu trên PR này; không suy ra trạng
+thái merge từ commit đang nằm trên feature branch.
