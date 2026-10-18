@@ -185,3 +185,47 @@ chỉ dùng backend và không thay đường quyết định B0/B1/policy.
 Nhánh: `chore/openrouter-env-template`.
 PR: [#4 — prepare local OpenRouter configuration](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/4).
 CI và bản ghi merge chính thức được lưu trên PR. `.env` chỉ tồn tại local.
+
+## Đánh giá OpenRouter và benchmark engine — 18/10/2026
+
+Yêu cầu: tận dụng API để có số liệu kiểm chứng, thay vì tăng claim bằng lời.
+Không thay bước 04 (API local + nối UI) và không đưa LLM vào policy/toán engine.
+
+### Điểm yếu và kỹ thuật áp dụng
+
+- Chưa có phép đo độ lặp lại/performance hoặc độ trung thực của lớp AI.
+- Thêm benchmark 4 tình huống × 3 lần; kiểm tra expected verdict, verifier,
+  B1<=B0, single-move và đối soát; lưu artifact JSON có môi trường đo.
+- Client urllib phía backend đọc .env/biến môi trường, không log key/header,
+  raw errors hoặc reasoning. Không thêm dependency hoặc secret vào CI.
+- Bộ live 5 ca structured evidence extraction, gồm 2 yêu cầu bịa kết luận;
+  chấm đúng giá trị/kiểu 9 fields, từ chối fields lạ, lưu latency/usage/model.
+- Thử model nhóm cấu hình rồi router miễn phí, không sửa .env, không chuyển
+  trả phí. Chi tiết và giới hạn: API_EVALUATION.md.
+
+### Kết quả thực tế
+
+- Engine: 12/12 lượt đạt checks; lịch/chi phí/verdict lặp lại. Ca search có
+  runtime 6,4956–11,8029 giây trên máy đo, không phải SLA nhiều máy.
+- Gemma cấu hình trả 429 cả 2 request có mạng; chưa đánh giá chất lượng model.
+- Router miễn phí: smoke 1/1 đúng fields, 6,405 giây, 542 tokens, reported cost 0.
+- Suite chính: 4/5 JSON dùng được, 4/4 dùng được đúng 9 fields; 1 ca KEEP lỗi
+  định dạng. Hai ca ép claim sai không làm đổi facts trong lần thử này.
+- Trung vị latency dùng được 15,223 giây; max 30,209 giây. 2.417 tokens có
+  usage từ 4 ca; không có token/cost của ca lỗi. Không loại ca fail khỏi tỷ lệ.
+- 9 tests mới mock API, tổng 86 tests; CI không gọi mạng hoặc đọc key thật.
+- Sau đo, bổ sung giữ usage/model/finish_reason khi JSON lỗi để dễ chẩn đoán,
+  không thay artifact fail hoặc chạy lại để làm đẹp báo cáo.
+
+### Quyết định sản phẩm
+
+AI phù hợp lớp diễn đạt/đóng gói evidence tùy chọn, cần kiểm tra đầu ra và
+fallback template; không chặn luồng quyết định vì độ trễ/lỗi dịch vụ. Phép đo
+chỉ là mẫu nhỏ trên dữ liệu SYNTHETIC, không chứng minh ROI nhà máy, chất lượng
+giải thích tự do hay an toàn mọi prompt injection. Các artifact được kiểm tra
+không chứa key; .env vẫn local và ignored.
+
+Nhánh: `feature/openrouter-evaluation`.
+Commit triển khai: `9594685eb742fe9f0b8227a7f893cb65efe3d5b4`.
+PR: [#5 — benchmark engine and evaluate OpenRouter fidelity](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/5).
+CI và bản ghi merge chính thức được lưu trên PR.

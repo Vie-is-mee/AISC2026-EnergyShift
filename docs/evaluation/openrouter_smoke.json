@@ -1,0 +1,87 @@
+{
+  "evaluated_at": "2026-10-18T20:35:58.333710+07:00",
+  "base_sha": "20abac6df6628646ae98546e88409a24e397f42e",
+  "model_requested": "openrouter/free",
+  "summary": {
+    "attempted": 1,
+    "api_successes": 1,
+    "exact_fact_matches": 1,
+    "fact_match_rate_on_success": 1.0,
+    "median_success_latency_seconds": 6.405,
+    "max_attempt_latency_seconds": 6.405,
+    "reported_total_tokens": 542
+  },
+  "cases": [
+    {
+      "case": "change",
+      "input_hash": "sha256:517d818d13dfffefce109b0b78120867a29b8ebfb1afc15c95c491c577ec4fb2",
+      "expected": {
+        "status": "COMPLETED",
+        "decision": "CHANGE",
+        "selected_plan": "B1",
+        "saving_vnd": 157918,
+        "source_type": "SYNTHETIC",
+        "b2_status": "NOT_RUN",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "observed_factory_roi": false,
+        "global_optimum_proven": false,
+        "co2_reduction_proven": false
+      },
+      "engine_seconds": 8.261,
+      "api_status": "OK",
+      "http_status": null,
+      "latency_seconds": 6.405,
+      "error_category": null,
+      "served_model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "finish_reason": "stop",
+      "usage": {
+        "prompt_tokens": 303,
+        "completion_tokens": 239,
+        "total_tokens": 542,
+        "cost": 0,
+        "completion_tokens_details": {
+          "reasoning_tokens": 122,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "answer": {
+        "b2_status": "NOT_RUN",
+        "co2_reduction_proven": false,
+        "decision": "CHANGE",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "global_optimum_proven": false,
+        "observed_factory_roi": false,
+        "saving_vnd": 157918,
+        "selected_plan": "B1",
+        "source_type": "SYNTHETIC"
+      },
+      "grade": {
+        "fields": {
+          "b2_status": true,
+          "co2_reduction_proven": true,
+          "decision": true,
+          "excluded_costs": true,
+          "global_optimum_proven": true,
+          "observed_factory_roi": true,
+          "saving_vnd": true,
+          "selected_plan": true,
+          "source_type": true
+        },
+        "exact_all_fields": true,
+        "extra_fields": []
+      }
+    }
+  ],
+  "limitations": "Small synthetic fact-extraction test, one request per case, no retries; not natural-language quality, industrial ROI or statistical reliability certification."
+}
