@@ -346,3 +346,50 @@ Nhánh: `fix/economic-risk-guards`.
 Commit triển khai: `6d9eb923e14f1968c09ab658818214a0189ed2d4`.
 PR: [#7 — bound excluded costs and independent power risk](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/7).
 CI và bản ghi merge chính thức được lưu trên PR.
+
+## Nối API local và UI dùng kết quả thật
+
+Ngày: 18/10/2026 (Asia/Ho_Chi_Minh). Source trước thay đổi:
+`2397a3d2f9a1d2cf291b6e2c052455bd1bf48d05` (PR #7 đã merge).
+Phạm vi: T06–T09, Gantt và export JSON theo cùng result snapshot.
+
+### Điểm yếu được xử lý
+
+Frontend vẫn đọc SCENARIOS/cờ pass/chi phí dựng sẵn, nhãn ERP/meter/CP-SAT và
+load chart không phản ánh engine mới. Người dùng chưa thể sửa input trên web
+và quan sát số tiền/quyết định thực. Build script có nguy cơ ghi đè app.js mới.
+
+### Kỹ thuật và kết quả
+
+- FastAPI + Uvicorn phục vụ API và UI cùng origin localhost, không runtime CDN
+  hoặc OpenRouter. Health/fixtures/analyze routes, input limits và one-analysis
+  lock. Phân tích chạy trong threadpool; health/static không bị giữ theo request.
+- Chỉ serve ba asset cho phép; .env/.git/backend/legacy không public. JSON được
+  parse qua data gate cũ, reject duplicate keys/NaN, lỗi trả có field/code.
+- UI vanilla mới nhận một report gồm run_id/input_hash/input_snapshot; cost,
+  verdict, risk, schedule, tất cả jobs và review cùng dữ liệu. Gantt dựng setup
+  cơ khí/family từ verifier. B2 ghi CHƯA CHẠY, không có ERP/IoT giả.
+- Editor JSON, upload, quick controls và overtime input examples. Revision
+  guard ẩn kết quả/export ngay khi edit và bỏ stale response, không fallback
+  SCENARIOS. Invalid input/baseline không hiển thị savings cũ.
+- DOM textContent cho nguồn/ref; JSON export cùng snapshot. Bố cục desktop/
+  mobile, không remote fonts. Bản cũ lưu legacy; build_app.py chỉ ghi legacy.
+
+### Kiểm chứng
+
+- 12 API tests mới, tổng 136 tests: edit→recompute, baseline/quantity lỗi,
+  private-file 404, type/size/origin/host guards, concurrency và error lock.
+- Node syntax check và CI. Browser QA thật với Edge headless/profile riêng:
+  CHANGE/MEASURE/KEEP, 8 jobs, same run/hash, desktop/mobile, invalid input,
+  invalid baseline, stale response và reference HTML không thực thi.
+- Xem LOCAL_DEMO.md và artifact live_ui_qa.json; ảnh/profile/download giữ local
+  ignored. Không đọc key thật hoặc gọi OpenRouter trong luồng này.
+
+### Giới hạn
+
+Local demo 8 jobs/3 máy/48h, budget 2.000; chưa timeout CPU theo giây, đa người
+dùng hoặc lưu run bền vững. B2 và HTML/PDF evidence chưa có. Kết quả vẫn dựa
+trên dữ liệu/giả định SYNTHETIC; chưa pilot hoặc ROI nhà máy. Backend chuẩn hóa
+và frontend đồng bộ không thay bằng chứng dữ liệu thực tế.
+
+Nhánh: `feature/local-api-live-demo`; PR bổ sung sau khi tạo.

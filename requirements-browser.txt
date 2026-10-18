@@ -1,0 +1,2 @@
+# Optional Windows Edge CDP smoke test only; not needed by the app or CI.
+websocket-client==1.8.0

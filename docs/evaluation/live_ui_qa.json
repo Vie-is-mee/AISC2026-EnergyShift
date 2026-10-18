@@ -1,0 +1,27 @@
+{
+  "browser": "headless Microsoft Edge via CDP",
+  "all_checks_pass": true,
+  "javascript_exceptions": 0,
+  "screenshots": [
+    "work/ui-qa/desktop.png",
+    "work/ui-qa/mobile.png"
+  ],
+  "flows": [
+    "default CHANGE",
+    "unknown MEASURE",
+    "extra-cost KEEP",
+    "quantity invalid",
+    "baseline invalid",
+    "stale response",
+    "untrusted reference as text",
+    "JSON export roundtrip",
+    "JSON file upload"
+  ],
+  "source_sha256": {
+    "index.html": "b452ffbf8376cff9b65f69b8c23fa8af55adfea6069b762380b0aa40dfd1d8ef",
+    "app.js": "36ce02012d93f4d8fcce22c3aa294e66cb6b550e28a507d43a93c77826127b34",
+    "live.css": "ec40ba2c184f012977e4071e7334b6de026f5863025898457803db321b17cb1c",
+    "backend/app.py": "c8ab13563254b06153ddcb9990516ac04481f37959f7a430b938178a2a744484"
+  },
+  "limitations": "One local browser run, synthetic data. Does not certify all browsers or industrial operation."
+}
