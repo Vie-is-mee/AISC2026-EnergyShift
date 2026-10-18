@@ -455,4 +455,6 @@ ERP/MES, AI mapping, cycle/yield hoặc overtime engine. Cột giữ kèm không
 nghĩa ràng buộc đã được kiểm định. B2 vẫn NOT_RUN, dữ liệu mẫu vẫn SYNTHETIC.
 Không đọc .env hoặc gọi model/OpenRouter trong lần nâng cấp này.
 
-Nhánh: `feature/guided-input-workspace`; PR bổ sung sau khi tạo.
+Nhánh: `feature/guided-input-workspace`; implementation commit:
+`56dadb596c5146e32709fd58206a1c616bcf41ce`.
+PR: [#9 — hồ sơ xưởng và nhập kế hoạch có kiểm soát](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/9).
