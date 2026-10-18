@@ -283,4 +283,7 @@ vẫn mockup; chưa B2, nguồn xác nhận thực hoặc chứng minh ROI nhà 
 này khóa quantity với duration đã xác nhận, chưa tự suy ra thời gian sản xuất.
 Chi tiết contract mới: DEMO2_DATA_CONTRACT.md.
 
-Nhánh: `fix/physical-molds-lot-consistency`; PR bổ sung sau khi tạo.
+Nhánh: `fix/physical-molds-lot-consistency`.
+Commit triển khai: `a1de7dcbd482caf6815c6f8ecd4a18700c91c0d7`.
+PR: [#6 — physical mold setup and confirmed lot durations](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/6).
+CI và bản ghi merge chính thức được lưu trên PR.
