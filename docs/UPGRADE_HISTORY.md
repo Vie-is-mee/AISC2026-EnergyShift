@@ -225,4 +225,7 @@ chỉ là mẫu nhỏ trên dữ liệu SYNTHETIC, không chứng minh ROI nhà 
 giải thích tự do hay an toàn mọi prompt injection. Các artifact được kiểm tra
 không chứa key; .env vẫn local và ignored.
 
-Nhánh: `feature/openrouter-evaluation`. PR được ghi sau khi tạo.
+Nhánh: `feature/openrouter-evaluation`.
+Commit triển khai: `9594685eb742fe9f0b8227a7f893cb65efe3d5b4`.
+PR: [#5 — benchmark engine and evaluate OpenRouter fidelity](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/5).
+CI và bản ghi merge chính thức được lưu trên PR.
