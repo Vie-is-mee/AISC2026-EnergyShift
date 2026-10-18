@@ -7,6 +7,10 @@ Thumbs.db
 # Local API secrets; commit only .env_example.
 .env
 .env.*
+!.env.vercel.example
+!.env.render.example
+dist/
+.vercel/
 
 # Scratch live-evaluation attempts; reviewed evidence is stored under docs/evaluation.
 work/evaluation/

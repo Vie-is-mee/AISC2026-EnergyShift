@@ -458,3 +458,55 @@ Không đọc .env hoặc gọi model/OpenRouter trong lần nâng cấp này.
 Nhánh: `feature/guided-input-workspace`; implementation commit:
 `56dadb596c5146e32709fd58206a1c616bcf41ce`.
 PR: [#9 — hồ sơ xưởng và nhập kế hoạch có kiểm soát](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/9).
+
+## Chuẩn bị deploy Vercel Hobby + Render Free
+
+Ngày: 18/10/2026 (Asia/Ho_Chi_Minh). Source trước sửa:
+`0a8c2be69e60ba94e496bd88b61339b6c7239d70` (PR #9 đã merge).
+
+### Điểm yếu
+
+Demo chỉ biết gọi API cùng origin localhost; TrustedHost/same-origin guard sẽ
+chặn Render/Vercel. Publish nguyên repo có nguy cơ đưa file nội bộ lên static
+hosting. Chưa có cấu hình build/start/env hoặc hướng dẫn xử lý free-tier cold start.
+
+### Kỹ thuật áp dụng
+
+- render.yaml: Python Web Service plan free, một Uvicorn worker bind 0.0.0.0:$PORT,
+  health check thật; .python-version chọn nhánh 3.11. Origin do dashboard quản lý
+  qua sync:false, không bị Blueprint ghi đè khi sync lại.
+- vercel.json: framework Other, build Node không dependency; output dist chỉ 7
+  asset công khai. Builder fail nếu URL thiếu/sai hoặc output có file lạ, chỉ
+  serialize URL API, không serialize env hoặc copy backend/.env/repo.
+- .env.vercel.example/.env.render.example có thể commit; .env.vercel/.env.render
+  local có placeholder và bị Git ignore. Không đọc/copy key từ .env hiện có.
+- API client dùng backend URL được tạo ở build; local/Render UI dùng cùng origin.
+  Backend CORS allowlist chính xác, không wildcard/credentials, giữ origin guard
+  và trusted hosts. Render hostname/commit lấy từ environment provider cung cấp.
+- CSP Vercel chỉ cho phép kết nối cùng origin và HTTPS onrender.com. Health không
+  phụ thuộc git binary khi Render đã có commit env; có fallback không crash.
+- Nút kết nối lại khi Render chưa sẵn sàng; không tự retry POST Analyze. Không
+  đổi engine/cost/risk policy hoặc đưa OpenRouter lên đường quyết định.
+
+### Kiểm chứng và hướng dẫn
+
+- **143 tests Python PASS, 23 tests Node PASS**: thêm 5+5 ca cloud config, actual
+  CORS/preflight/validation errors, foreign origin/host, build allowlist, URL,
+  không lộ biến secret và API client same/cross origin.
+- Regression Edge local và diễn tập artifact frontend + backend ở hai origin
+  khác nhau. CORS/preflight, nhập bảng, profile, backup, real engine quyết định,
+  cùng input hash và desktop/mobile. Artifacts: live_ui_qa.json và cloud_rehearsal.json.
+- [DEPLOY_FREE.md](DEPLOY_FREE.md) ghi thao tác Render → Vercel → origin allowlist,
+  biến môi trường, kiểm tra sau deploy, lỗi thường gặp và giới hạn gói miễn phí;
+  đối chiếu tài liệu chính thức của hai nhà cung cấp.
+
+### Giới hạn
+
+Đây là cấu hình và diễn tập local, chưa tạo service/đăng nhập tài khoản cloud hoặc
+chứng nhận deployment live. Render Free có sleep/quota, chưa đo hiệu năng thật
+trên máy cloud. Dùng URL Production ổn định; preview domain phải được thêm origin
+riêng. Hồ sơ vẫn localStorage theo browser/origin, không database dùng chung.
+Không có auth/queue công nghiệp, một analysis tại một thời điểm. Không cần và
+không gọi model API; B2 vẫn NOT_RUN. Chỉ dùng dữ liệu demo khi chia sẻ công khai.
+
+Nhánh: `feature/free-cloud-deployment`; PR bổ sung sau khi tạo.

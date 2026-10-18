@@ -391,7 +391,7 @@ window.InputDesk = (() => {
       "Đầu vào engine giữ nguyên; chỉnh bảng rồi áp dụng khi cần.";
   }
   async function validate(data) {
-    const r = await fetch("/api/demo/validate", {
+    const r = await apiFetch("/api/demo/validate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),

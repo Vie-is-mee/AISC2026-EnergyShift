@@ -1,6 +1,7 @@
 {
   "browser": "headless Microsoft Edge via CDP",
   "all_checks_pass": true,
+  "base_url": "http://127.0.0.1:8765",
   "scope": "full-regression",
   "javascript_exceptions": 0,
   "screenshots": [
@@ -33,12 +34,14 @@
     "CSV file BOM/CRLF preservation"
   ],
   "source_sha256": {
-    "index.html": "8754921cdfacd597061da137865c39e6b3bfa1d09e44c59172b7bedc26609aba",
-    "app.js": "3453edb38b18759daa093911b3c458618b6772e3275ecacbfd2ddc5c975def8a",
-    "live.css": "60f15c49c8057f8c98ec2ec815a46a96c552c034874c97f65c0f402e29afdcd0",
-    "backend/app.py": "9987e43dd8be20af3e255d488dccf14097786f327fb471e9f0a53eca7a775710",
-    "input-model.js": "2fb17888f18bc160d278af7628dcca3e2e1e8691ad34c0dbdaa559b22d9184cc",
-    "input-desk.js": "516e1bfdc323d70c7850ac8b7ee3240432b3e48841320ef94229fbdf69b0cdc6"
+    "index.html": "805f13ff3e2efdfb1b7e307191ea054e354052d2052462a1b8dc7a922e10fc7b",
+    "app.js": "769c591129cdeda12f9f930ef8bc4b719141042ffc2d23a8808b68853128755c",
+    "live.css": "06234a86a7d74b9fb12fc7d89e63a2ebbc09e7d02d3d4d227451935066a23850",
+    "backend/app.py": "2eee2f9417df6c5a6e23e0fcb50d6c0ff0c56a5e13f35168a7e1cc8f1a7131fc",
+    "input-model.js": "c0f4bf1a4d33021d19df85f3b690d609f970eb1dc288620c334a9d39cc2d6a16",
+    "input-desk.js": "464c403d9c48135eebc959534be108af66511761bc76564d7937f109f91ab4b1",
+    "api-client.js": "d0988496a5c7415f94831ced856ca425462e7c46a5099eb5b34531c3df074d4a",
+    "deployment-config.js": "bb2b880c0407b57e65528b556414a696c7e295c8fa4d4098ee4e71c80de4fdbc"
   },
   "limitations": "One local browser run, synthetic data. Does not certify all browsers or industrial operation."
 }
