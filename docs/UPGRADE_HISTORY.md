@@ -394,3 +394,67 @@ và frontend đồng bộ không thay bằng chứng dữ liệu thực tế.
 
 Nhánh: `feature/local-api-live-demo`; implementation commit: `71998d39cb6d4a86564db8580b719e332e155db6`.
 PR: [#8 — API local và UI dùng kết quả thật](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/8).
+
+## Cải tiến đầu vào — hồ sơ xưởng, bảng kế hoạch và nhập có kiểm soát
+
+Ngày: 18/10/2026 (Asia/Ho_Chi_Minh). Source trước nâng cấp:
+`4c8c842a2f24d1d28030ffbf1a8ff052966500e5` (PR #8 đã merge).
+Ưu tiên thêm trước B2 theo yêu cầu người dùng: giảm việc nhập lại của kỹ sư.
+
+### Điểm yếu nhận ra
+
+JSON demo-3 đúng cho engine nhưng đòi kỹ sư nhập lặp máy/khuôn/định mức/giá,
+hiểu schema và tự chuẩn bị quantity-duration confirmations. Chưa có bộ nhớ hồ
+sơ/nháp, nhập bảng hay khả năng truy lại những cột không đưa vào mô hình. Nối
+LLM để tự điền kW hoặc đoán thời lượng sẽ làm suy yếu cơ sở của kết luận.
+
+### Nghiên cứu và lựa chọn kỹ thuật
+
+Đối chiếu tài liệu chính thức Odoo Work centers (hồ sơ máy/lịch), ERPNext Routing
+(định mức tái sử dụng có batch size/thời gian/workstation), frePPLe Importing data
+(bảng/import lỗi/export mẫu). Links và phạm vi áp dụng: [INPUT_WORKSPACE.md](INPUT_WORKSPACE.md).
+Không tuyên bố đã tích hợp những sản phẩm này hoặc sáng chế mới độc quyền.
+
+- JavaScript thuần tách InputModel khỏi DOM: CSV/TSV parser có quotes, nhận diện
+  dấu phân cách ngoài dấu nháy, ghép cột gợi ý Việt/Anh, compile template→jobs.
+- localStorage có phiên bản: tối đa 5 hồ sơ, bản nháp theo lựa chọn khôi phục,
+  nhớ ghép theo dãy tiêu đề; báo lỗi quota và tải/khôi phục bản sao JSON.
+- Bảng lô chỉnh trực tiếp; định mức reusable; form máy/availability, khuôn ban
+  đầu, mold change, biểu giá và review chi phí. JSON giữ cho danh mục/rules nâng cao.
+- Xem trước nhập, không tự bỏ lô/cột: cột ngoài mô hình cần xác nhận và được giữ
+  với raw text/rows/mapping trong input_preparation và backup. Dữ liệu HTML hiển
+  thị như text. CSV file giữ BOM/CRLF gốc, paste giữ nội dung textarea.
+- Quantity khác định mức bị chặn; kỹ sư phải xác nhận lại mọi duration/machine
+  và nguồn. Không scale theo tỷ lệ hoặc tạo xác nhận đo thực.
+- Kế hoạch mới mặc định UNKNOWN mọi EXCLUDED; giữ bounds chỉ khi người dùng
+  xác nhận lại phạm vi. Dời ngày cần xác nhận lịch/giá/trạng thái khuôn; không tự
+  kéo review chi phí sang ngày khác. Khoản UNKNOWN vẫn UNKNOWN sau xác nhận.
+- API validate dùng cùng strict parser/contract/limits, không chạy search.
+  Chỉ áp dụng snapshot đã READY; engine analyze vẫn kiểm định lịch độc lập.
+- Bảng chưa áp dụng chặn chạy dữ liệu cũ; edit ẩn report; chống áp dụng response
+  validate sau khi dữ liệu đổi. Export gắn preparation trace với input_hash thật.
+
+### Kiểm chứng
+
+- **138 tests Python PASS** (thêm 2 API tests); **18 Node tests PASS** cho parser,
+  bảo toàn facts/provenance/uncertainty, quantity lock, mapping và date shift.
+- QA Edge headless trên server thật: regression CHANGE/KEEP/MEASURE, lỗi lô/lịch,
+  stale response; profile/nháp qua reload, table mapping, cột dư, xác nhận lô,
+  UNKNOWN→MEASURE_FIRST, matching hash, backup/restore, CSV thật giữ BOM/CRLF,
+  form máy/giá, storage denied và desktop/mobile. Artifact: live_ui_qa.json.
+- Chưa đo giảm thời gian nhập với kỹ sư thật; không tạo phần trăm hiệu quả giả.
+
+### Giới hạn và bước tiếp
+
+Bộ nhớ chỉ cùng browser/origin, không DB dùng chung; cần backup. Bản nháp nhớ
+bảng/hồ sơ đã cập nhật, các ô thiết lập đang sửa cần xác nhận cập nhật trước.
+Excel hỗ trợ copy/paste, CSV UTF-8/TSV; chưa đọc XLSX trực tiếp. Bảng max128KiB,
+32 cột, 4096 ký tự/ô; core vẫn 8 jobs/3 machines/48h. Lần đầu lập danh mục mới,
+thêm tariff intervals/transitions vẫn dùng JSON. Chưa product master độc lập,
+ERP/MES, AI mapping, cycle/yield hoặc overtime engine. Cột giữ kèm không đồng
+nghĩa ràng buộc đã được kiểm định. B2 vẫn NOT_RUN, dữ liệu mẫu vẫn SYNTHETIC.
+Không đọc .env hoặc gọi model/OpenRouter trong lần nâng cấp này.
+
+Nhánh: `feature/guided-input-workspace`; implementation commit:
+`56dadb596c5146e32709fd58206a1c616bcf41ce`.
+PR: [#9 — hồ sơ xưởng và nhập kế hoạch có kiểm soát](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/9).

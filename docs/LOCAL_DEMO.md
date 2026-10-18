@@ -13,7 +13,7 @@ Mở http://127.0.0.1:8765, không mở index.html bằng file://. Giữ process
 đang chạy. Server dành cho demo localhost; chưa có mô hình triển khai đa người
 dùng. Sau khi cài dependency có thể tắt Wi-Fi; UI không tải font/CDN hoặc API AI.
 
-Giao diện mới: index.html, app.js, live.css. Bản cũ giữ trong legacy để so
+Giao diện: index.html, app.js, live.css, input-model.js và input-desk.js. Bản cũ giữ trong legacy để so
 source, không được API phục vụ. build_app.py chỉ rebuild legacy/app.js, không
 ghi đè app.js của luồng live. PRODUCT.md là định hướng sản phẩm, không phải
 danh sách chứng nhận tất cả khả năng đã hoàn tất.
@@ -21,8 +21,9 @@ danh sách chứng nhận tất cả khả năng đã hoàn tất.
 ## Luồng người dùng
 
 1. Bộ mẫu SYNTHETIC tự nạp, chưa có kết luận trước khi chạy.
-2. Sửa JSON, upload JSON hoặc chỉnh nhanh ngưỡng/power. Quantity/duration cần
-   lot confirmation tương ứng theo demo-3. Không hỗ trợ CSV mapping ở bước này.
+2. Dùng hồ sơ xưởng, sửa bảng hoặc dán Excel/nhập CSV/TSV, ghép cột rồi kiểm tra &
+   áp dụng. Có JSON nâng cao/upload JSON/chỉnh nhanh. Quantity/duration cần lot
+   confirmation theo demo-3. Xem INPUT_WORKSPACE.md cho bộ nhớ và giới hạn.
 3. Chạy phân tích → API data gate → B0/B1 + verifier/cost + risk policy.
 4. Xem verdict, raw modeled savings, net bounds, chi phí và Gantt B0/B1, tất
    cả job, kiểm định, miền tìm kiếm và review chi phí ngoài mô hình.
@@ -43,6 +44,7 @@ Baseline invalid hoặc input lỗi không hiển thị cost/savings từ lần 
 | Endpoint | Kết quả |
 |---|---|
 | GET /api/demo/health | mode, schema, workspace build SHA, busy status |
+| POST /api/demo/validate | Kiểm tra contract và trả snapshot/hash; chưa kiểm định lịch/search |
 | GET /api/demo/fixtures | Danh sách fixture được cho phép |
 | GET /api/demo/fixtures/editable-cell | Input demo-3 hoàn chỉnh |
 | POST /api/demo/analyze | Raw dataset JSON, không bọc trong field khác |
@@ -61,7 +63,7 @@ Thời gian phụ thuộc máy/tải nền; chưa cam kết SLA hoặc quy mô l
 
 ## Phục vụ file và dữ liệu
 
-Chỉ root index.html, /app.js và /live.css được phục vụ. Không mount repository
+Chỉ root index.html, /app.js, /live.css, /input-model.js và /input-desk.js được phục vụ. Không mount repository
 thành static directory: /.env, /.git, backend, docs, legacy và JS fragments đều
 404. Có same-origin POST check, trusted localhost hostnames, CSP và no-store.
 Đây không phải chứng nhận security cho triển khai public; giới hạn dùng local.
@@ -73,7 +75,8 @@ Nguồn MEASURED/PARTNER vẫn là khai báo của người cung cấp, chưa đ
 
 ## Bằng chứng kiểm tra
 
-- 12 tests API mới; tổng 136 tests Python khi ghép với 124 tests engine trước.
+- 14 tests API/builder; tổng 138 tests Python khi ghép với 124 tests engine trước.
+- 18 Node tests cho nhập bảng, bảo toàn facts, quantity/mapping/date guards.
 - Test API thực bằng TestClient: input đổi verdict/hash/run; invalid baseline;
   quantity sai; JSON lỗi; size/type/origin/host; private files; concurrency;
   lỗi nội bộ không giữ lock hoặc lộ diagnostics.

@@ -14,6 +14,8 @@
     />
     <link rel="stylesheet" href="/live.css" />
     <script src="/app.js" defer></script>
+    <script src="/input-model.js" defer></script>
+    <script src="/input-desk.js" defer></script>
   </head>
   <body>
     <header class="live-header">
@@ -56,6 +58,286 @@
           ><span class="live-muted"
             >Các nút chỉ đổi input; kết luận do engine tính.</span
           >
+        </div>
+        <div id="inputDesk" class="desk" aria-label="Trợ lý chuẩn bị kế hoạch">
+          <div class="desk-banner">
+            <strong>Hồ sơ xưởng → kế hoạch → kiểm tra</strong
+            ><span
+              >Định mức được nhớ lại. Mỗi kế hoạch vẫn được kiểm tra mới.</span
+            >
+          </div>
+          <details open>
+            <summary>1 · Hồ sơ xưởng & bộ nhớ trên máy này</summary>
+            <p class="live-muted">
+              Lưu máy, khuôn, biểu giá, định mức và kế hoạch tham chiếu. Không
+              gửi dữ liệu tới AI. Bộ nhớ thuộc trình duyệt này; hãy tải bản sao
+              để giữ lâu dài.
+            </p>
+            <div class="desk-controls">
+              <label
+                >Tên hồ sơ<input
+                  id="profileName"
+                  maxlength="80"
+                  placeholder="Ví dụ: Cụm ép nhựa A"
+              /></label>
+              <button id="saveProfile" type="button">
+                Lưu / cập nhật hồ sơ
+              </button>
+              <label
+                >Hồ sơ đã lưu<select id="profileList">
+                  <option value="">Chọn hồ sơ…</option>
+                </select></label
+              >
+              <button id="loadProfile" type="button">Dùng hồ sơ</button>
+              <button id="downloadProfile" type="button">
+                Tải bản sao JSON
+              </button>
+              <label class="live-upload"
+                >Khôi phục bản sao<input
+                  id="restoreProfileFile"
+                  type="file"
+                  accept=".json,application/json"
+              /></label>
+              <button id="deleteProfile" type="button">
+                Xóa hồ sơ đang chọn
+              </button>
+              <button id="restoreDraft" type="button">
+                Khôi phục bản nháp
+              </button>
+              <button id="deleteDraft" type="button">Xóa bản nháp</button>
+            </div>
+            <p id="memoryStatus" role="status" class="live-muted"></p>
+            <p id="profileSummary" class="live-muted"></p>
+          </details>
+          <details>
+            <summary>Thiết lập xưởng · lịch máy, khuôn và biểu giá</summary>
+            <p class="live-muted">
+              Các ngày giờ ghi rõ YYYY-MM-DD HH:mm, giờ Việt Nam. Lịch máy có
+              thể có nhiều khoảng, mỗi dòng là “bắt đầu | kết thúc”. Khuôn/nhóm
+              sản phẩm phải tồn tại trong hồ sơ. Danh mục mới và quy tắc vệ sinh
+              nâng cao vẫn có thể nhập qua JSON.
+            </p>
+            <div class="live-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Máy</th>
+                    <th>Các khoảng sẵn sàng</th>
+                    <th>Khuôn ban đầu (trống = không có)</th>
+                    <th>Nhóm ban đầu</th>
+                    <th>Thay khuôn (phút)</th>
+                    <th>Phí thay khuôn (đ)</th>
+                    <th>Nguồn / tham chiếu</th>
+                  </tr>
+                </thead>
+                <tbody id="machineConfigRows"></tbody>
+              </table>
+            </div>
+            <label>Nguồn biểu giá<input id="tariffReference" /></label>
+            <div class="live-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Từ</th>
+                    <th>Đến</th>
+                    <th>Loại giờ</th>
+                    <th>VND/kWh</th>
+                  </tr>
+                </thead>
+                <tbody id="tariffConfigRows"></tbody>
+              </table>
+            </div>
+            <p class="live-muted">
+              Chi phí ngoài mô hình: khoảng phát sinh so với B0 cho tất cả
+              single-job moves. Chưa đủ căn cứ thì chọn UNKNOWN; không nhập 0 để
+              vượt kiểm tra.
+            </p>
+            <div class="live-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Khoản</th>
+                    <th>Trạng thái</th>
+                    <th>Min (đ)</th>
+                    <th>Max (đ)</th>
+                    <th>Nguồn</th>
+                    <th>Tham chiếu</th>
+                  </tr>
+                </thead>
+                <tbody id="costConfigRows"></tbody>
+              </table>
+            </div>
+            <button id="updateWorkshop" type="button">
+              Kiểm tra & cập nhật thiết lập xưởng
+            </button>
+          </details>
+          <details>
+            <summary>
+              Định mức tái sử dụng · công suất & thời gian cả lô
+            </summary>
+            <p class="live-muted">
+              Mã định mức hiện lấy từ mã job trong bộ hồ sơ. Khi đổi sản lượng,
+              nhập lại thời lượng cả lô cho mọi máy tương thích và nguồn xác
+              nhận. Hệ thống không tự suy từ chu kỳ/số lòng khuôn.
+            </p>
+            <label>Chọn định mức<select id="templatePick"></select></label>
+            <div class="desk-controls">
+              <label
+                >Số lượng lô đã xác nhận<input
+                  id="templateQuantity"
+                  type="number"
+                  min="1"
+                  step="1"
+              /></label>
+              <label
+                >Nguồn xác nhận<select id="templateSource">
+                  <option value="ESTIMATED">Ước tính kỹ sư</option>
+                  <option value="MEASURED">Đã đo</option>
+                  <option value="PARTNER_CONFIRMED">Đối tác xác nhận</option>
+                  <option value="SYNTHETIC">Giả lập</option>
+                </select></label
+              >
+              <label
+                >Tham chiếu / lý do cập nhật<input
+                  id="templateReference"
+                  placeholder="Phiếu đo hoặc ghi chú xác nhận"
+              /></label>
+            </div>
+            <div class="live-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Máy</th>
+                    <th>Thời lượng cả lô (phút)</th>
+                    <th>Công suất (kW)</th>
+                    <th>Nguồn công suất</th>
+                    <th>Sai số riêng (0–1; trống = policy)</th>
+                  </tr>
+                </thead>
+                <tbody id="templateRows"></tbody>
+              </table>
+            </div>
+            <button id="updateTemplate" type="button">
+              Xác nhận cập nhật định mức
+            </button>
+          </details>
+          <details open>
+            <summary>2 · Kế hoạch sản xuất hôm nay</summary>
+            <div class="desk-controls">
+              <button id="fromJson" type="button">
+                Đọc lại từ đầu vào hiện tại</button
+              ><button id="addPlanRow" type="button">Thêm lô</button
+              ><button id="downloadPlan" type="button">Tải bảng mẫu CSV</button>
+            </div>
+            <p class="live-muted">
+              Giờ Việt Nam (+07:00). Chọn định mức để lấy sản lượng, khuôn, máy
+              và thời lượng đã có. Đổi mã lô không đổi định mức.
+            </p>
+            <div class="live-table-wrap">
+              <table class="desk-plan">
+                <thead>
+                  <tr>
+                    <th>Mã lô</th>
+                    <th>Định mức</th>
+                    <th>Số lượng</th>
+                    <th>Máy B0</th>
+                    <th>Bắt đầu</th>
+                    <th>Sẵn sàng từ</th>
+                    <th>Hạn xong</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="planInputRows"></tbody>
+              </table>
+            </div>
+            <details>
+              <summary>Chuyển sang ngày khác</summary>
+              <div class="desk-controls">
+                <label>Ngày mới<input id="planDate" type="date" /></label
+                ><label class="desk-check"
+                  ><input id="confirmCalendar" type="checkbox" />Tôi đã kiểm
+                  tra: lịch máy, giá điện và trạng thái khuôn ban đầu vẫn phù
+                  hợp cho ngày mới</label
+                ><button id="shiftPlan" type="button">
+                  Dời toàn bộ mốc thời gian
+                </button>
+              </div>
+              <p class="live-muted">
+                Giữ nguyên khoảng cách thời gian, đơn giá và trạng thái khuôn;
+                không tự lấy lịch ngày lễ/biểu giá mới. Sau khi dời, kiểm tra
+                lại trước khi áp dụng.
+              </p>
+            </details>
+          </details>
+          <details>
+            <summary>Nhập nhanh · dán từ Excel hoặc mở CSV / TSV</summary>
+            <p class="live-muted">
+              Sao chép vùng bảng có dòng tiêu đề từ Excel rồi dán vào đây. Hoặc
+              mở CSV UTF-8/TSV; chưa đọc trực tiếp .xlsx. Ngày giờ: YYYY-MM-DD
+              HH:mm. Có xem trước và ghép cột; không tự bỏ dòng/cột.
+            </p>
+            <label class="live-upload"
+              >Mở bảng<input
+                id="tableFile"
+                type="file"
+                accept=".csv,.tsv,text/csv,text/tab-separated-values"
+            /></label>
+            <label for="tablePaste">Bảng kế hoạch</label
+            ><textarea
+              id="tablePaste"
+              rows="5"
+              spellcheck="false"
+              placeholder="Mã lô&#9;Định mức&#9;Số lượng&#9;Máy&#9;Bắt đầu&#9;Sẵn sàng từ&#9;Hạn xong"
+            ></textarea>
+            <button id="previewImport" type="button">
+              Xem trước & ghép cột
+            </button>
+            <div id="importPreview" hidden>
+              <div id="mappingFields" class="desk-controls"></div>
+              <div class="live-table-wrap">
+                <table>
+                  <thead id="importHead"></thead>
+                  <tbody id="importBody"></tbody>
+                </table>
+              </div>
+              <label class="desk-check"
+                ><input id="keepExtras" type="checkbox" />Tôi đã xem các cột
+                không ghép: lưu kèm bản nhập, không dùng chúng trong tính toán.
+                Ràng buộc sản xuất bổ sung cần đưa vào mô hình trước khi áp
+                dụng.</label
+              >
+              <button id="acceptImport" type="button">
+                Đưa bảng này vào kế hoạch
+              </button>
+            </div>
+          </details>
+          <details>
+            <summary>3 · Những gì cần rà soát trước khi chạy</summary>
+            <div id="readinessSummary" class="live-muted"></div>
+            <label class="desk-check"
+              ><input id="confirmCosts" type="checkbox" />Tôi xác nhận các
+              khoảng chi phí ngoài mô hình trong hồ sơ còn áp dụng cho TẤT CẢ
+              single-job moves của kế hoạch này</label
+            >
+            <p class="live-muted">
+              Mặc định chi phí ngoài mô hình chuyển sang UNKNOWN khi chuẩn bị kế
+              hoạch; engine có thể yêu cầu đo/xác nhận trước. Không mặc định chi
+              phí bằng 0.
+            </p>
+            <div id="costReviewSummary" class="live-table-wrap"></div>
+          </details>
+          <div class="live-actions">
+            <button id="applyPlan" class="live-primary" type="button">
+              Kiểm tra & áp dụng kế hoạch</button
+            ><span id="deskStatus" role="status" aria-live="polite"
+              >Đang chờ dữ liệu…</span
+            >
+          </div>
+          <ul id="deskIssues" class="live-errors" hidden></ul>
+          <p id="deskApplied" class="live-muted">
+            Bảng là bản chuẩn bị. Chỉ đầu vào đã áp dụng mới được gửi cho
+            engine.
+          </p>
         </div>
         <details id="editorDetails">
           <summary>Xem / sửa toàn bộ JSON đầu vào</summary>

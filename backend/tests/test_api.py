@@ -17,6 +17,25 @@ from backend.tests.test_b1_policy import small_fixture
 
 
 class ApiTests(unittest.TestCase):
+    def test_prepare_gate_uses_real_contract_without_running_search(self):
+        client = TestClient(app)
+        data = small_fixture()
+        with patch("backend.app.analyze", side_effect=AssertionError("Validation must not search")):
+            response = client.post("/api/demo/validate", json=data)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()["status"], "READY")
+            self.assertEqual(len(response.json()["snapshot"]["jobs"]), len(data["jobs"]))
+            self.assertTrue(response.json()["input_hash"].startswith("sha256:"))
+            data["jobs"][0]["quantity"] += 1
+            self.assertEqual(client.post("/api/demo/validate", json=data).status_code, 422)
+
+    def test_prepare_assets_and_gate_enforce_existing_security(self):
+        client = TestClient(app)
+        for path in ["/input-model.js", "/input-desk.js"]:
+            self.assertEqual(client.get(path).status_code, 200)
+        self.assertEqual(client.post("/api/demo/validate", content='{"a":1,"a":2}', headers={"Content-Type":"application/json"}).status_code, 422)
+        self.assertEqual(client.post("/api/demo/validate", json=small_fixture(), headers={"Origin":"https://foreign.invalid"}).status_code, 403)
+
     def setUp(self):
         self.client = TestClient(app)
         self.data = small_fixture()
