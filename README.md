@@ -30,3 +30,16 @@ không yêu cầu mạng.
 - [B1, policy và bằng chứng bước 3](docs/B1_DECISION.md)
 - [Lịch sử nhận diện điểm yếu và nâng cấp](docs/UPGRADE_HISTORY.md)
 - [Định hướng sản phẩm](PRODUCT.md)
+
+## Cấu hình OpenRouter (chuẩn bị)
+
+Điền key trong `.env` local theo mẫu `.env_example`:
+
+```dotenv
+OPENROUTER_API_KEY=
+OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
+```
+
+`.env` được Git bỏ qua. Cấu hình này dành cho backend; không đưa key vào JS
+chạy trong trình duyệt. Hiện chưa có loader `.env` hoặc lời gọi OpenRouter;
+engine B0/B1 và policy vẫn chạy độc lập. Model trên là cấu hình do nhóm chọn.
