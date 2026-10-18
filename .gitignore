@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+
+# Local API secrets; commit only .env_example.
+.env
+.env.*

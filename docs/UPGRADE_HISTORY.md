@@ -172,3 +172,16 @@ Commit triển khai: `6b03e137bf3616ab52a9ecbf0434a4808a885339`.
 PR: [#3 — search B1 and generate evidence-based decisions](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/3).
 Kết quả CI và bản ghi merge chính thức được lưu trên PR này; không suy ra trạng
 thái merge từ commit đang nằm trên feature branch.
+
+## Chuẩn bị cấu hình OpenRouter — 18/10/2026
+
+Theo yêu cầu chủ dự án, tạo `.env_example` được version control và `.env`
+local với OPENROUTER_API_KEY để trống, OPENROUTER_MODEL dùng giá trị nhóm đưa:
+`google/gemma-4-26b-a4b-it:free`. Không nhận hoặc ghi key thực vào source.
+Thêm `.env`/`.env.*` vào .gitignore và hướng dẫn trong README.
+Kiểm chứng bằng git check-ignore và git diff --cached; không cần test engine
+cho thay đổi file cấu hình. Chưa cài SDK, đọc .env hoặc gọi API. Tích hợp sau
+chỉ dùng backend và không thay đường quyết định B0/B1/policy.
+Nhánh: `chore/openrouter-env-template`.
+PR: [#4 — prepare local OpenRouter configuration](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/4).
+CI và bản ghi merge chính thức được lưu trên PR. `.env` chỉ tồn tại local.
