@@ -117,5 +117,8 @@ kiện nhà máy. Chi phí overtime/idle/setup energy/other vẫn EXCLUDED.
 Bước 03 dự kiến: B1 single-move search, so sánh B0/B1 và policy có bằng chứng,
 sau đó API và nối UI theo cùng snapshot.
 
-Nhánh: `feature/step-02-cost-verifier`. Liên kết PR bổ sung sau khi tạo;
-CI và merge được kiểm chứng trên GitHub trước khi kết thúc bước.
+Nhánh: `feature/step-02-cost-verifier`.
+Commit triển khai: `08d212f8745892efaa5ae04f7a6174e87d8f7001`.
+PR: [#2 — verify schedules and recost baseline](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/2).
+Kết quả CI và bản ghi merge chính thức được lưu trên PR này; không suy ra trạng
+thái merge từ commit đang nằm trên feature branch.
