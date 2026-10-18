@@ -7,3 +7,6 @@ Thumbs.db
 # Local API secrets; commit only .env_example.
 .env
 .env.*
+
+# Scratch live-evaluation attempts; reviewed evidence is stored under docs/evaluation.
+work/evaluation/

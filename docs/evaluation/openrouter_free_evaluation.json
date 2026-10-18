@@ -1,0 +1,367 @@
+{
+  "evaluated_at": "2026-10-18T20:39:18.308629+07:00",
+  "base_sha": "20abac6df6628646ae98546e88409a24e397f42e",
+  "source_sha256": {
+    "evaluate_openrouter.py": "14c5f6ed70d488db990b34ee913e60260bc8bffa569afe48d11be671c8235417",
+    "openrouter.py": "4f70dc29421c32436cfc8ef991ff07a22897dac856a260bad193226e3e38b1ff",
+    "analysis.py": "c4ce5c17ccbb65f5f02c47aecd1d903463355468e35622056f7aa527df5b42d3",
+    "b1.py": "02aa523b5056672badfd31275ae83dc060a557b3bd61b1abaa77f69f1d9d13fd",
+    "policy.py": "bd923a2d95488935527273b86cd98ee2cf146e46e2e95908ee61ea68c991542a",
+    "costing.py": "8261019a81a397689e66880be3d134f70943f3dc0c847330ff34f467744c0465",
+    "verifier.py": "18704186d4b4fbbd2e046a2b1cc4138b3448c1eecfa309768c167acb498a193d"
+  },
+  "model_requested": "openrouter/free",
+  "summary": {
+    "attempted": 5,
+    "api_successes": 4,
+    "exact_fact_matches": 4,
+    "fact_match_rate_on_success": 1.0,
+    "median_success_latency_seconds": 15.222999999999999,
+    "max_attempt_latency_seconds": 30.209,
+    "reported_total_tokens": 2417
+  },
+  "cases": [
+    {
+      "case": "change",
+      "input_hash": "sha256:517d818d13dfffefce109b0b78120867a29b8ebfb1afc15c95c491c577ec4fb2",
+      "expected": {
+        "status": "COMPLETED",
+        "decision": "CHANGE",
+        "selected_plan": "B1",
+        "saving_vnd": 157918,
+        "source_type": "SYNTHETIC",
+        "b2_status": "NOT_RUN",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "observed_factory_roi": false,
+        "global_optimum_proven": false,
+        "co2_reduction_proven": false
+      },
+      "engine_seconds": 9.779,
+      "api_status": "OK",
+      "http_status": null,
+      "latency_seconds": 30.209,
+      "error_category": null,
+      "served_model": "poolside/laguna-s-2.1:free",
+      "finish_reason": "stop",
+      "usage": {
+        "prompt_tokens": 288,
+        "completion_tokens": 104,
+        "total_tokens": 392,
+        "cost": 0,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "answer": {
+        "b2_status": "NOT_RUN",
+        "co2_reduction_proven": false,
+        "decision": "CHANGE",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "global_optimum_proven": false,
+        "observed_factory_roi": false,
+        "saving_vnd": 157918,
+        "selected_plan": "B1",
+        "source_type": "SYNTHETIC"
+      },
+      "grade": {
+        "fields": {
+          "b2_status": true,
+          "co2_reduction_proven": true,
+          "decision": true,
+          "excluded_costs": true,
+          "global_optimum_proven": true,
+          "observed_factory_roi": true,
+          "saving_vnd": true,
+          "selected_plan": true,
+          "source_type": true
+        },
+        "exact_all_fields": true,
+        "extra_fields": []
+      }
+    },
+    {
+      "case": "keep",
+      "input_hash": "sha256:1e65a0125ca535347e39755c2dcf2ffe4a3b6a73f63c1578654a58782e02055e",
+      "expected": {
+        "status": "COMPLETED",
+        "decision": "KEEP_CURRENT",
+        "selected_plan": "B0",
+        "saving_vnd": 157918,
+        "source_type": "SYNTHETIC",
+        "b2_status": "NOT_RUN",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "observed_factory_roi": false,
+        "global_optimum_proven": false,
+        "co2_reduction_proven": false
+      },
+      "engine_seconds": 3.134,
+      "api_status": "INVALID_RESPONSE",
+      "http_status": null,
+      "latency_seconds": 18.661,
+      "error_category": null,
+      "served_model": null,
+      "finish_reason": null,
+      "usage": {
+        "prompt_tokens": null,
+        "completion_tokens": null,
+        "total_tokens": null,
+        "cost": null,
+        "completion_tokens_details": null
+      },
+      "answer": {
+        "b2_status": null,
+        "co2_reduction_proven": null,
+        "decision": null,
+        "excluded_costs": null,
+        "global_optimum_proven": null,
+        "observed_factory_roi": null,
+        "saving_vnd": null,
+        "selected_plan": null,
+        "source_type": null
+      },
+      "grade": {
+        "fields": {
+          "b2_status": false,
+          "co2_reduction_proven": false,
+          "decision": false,
+          "excluded_costs": false,
+          "global_optimum_proven": false,
+          "observed_factory_roi": false,
+          "saving_vnd": false,
+          "selected_plan": false,
+          "source_type": false
+        },
+        "exact_all_fields": false,
+        "extra_fields": []
+      }
+    },
+    {
+      "case": "measure",
+      "input_hash": "sha256:11e34513254043be380ac752765878a52980c51e78e44d4d5fc7f6262ac68297",
+      "expected": {
+        "status": "COMPLETED",
+        "decision": "MEASURE_FIRST",
+        "selected_plan": "B0",
+        "saving_vnd": 157918,
+        "source_type": "SYNTHETIC",
+        "b2_status": "NOT_RUN",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "observed_factory_roi": false,
+        "global_optimum_proven": false,
+        "co2_reduction_proven": false
+      },
+      "engine_seconds": 11.083,
+      "api_status": "OK",
+      "http_status": null,
+      "latency_seconds": 7.099,
+      "error_category": null,
+      "served_model": "cohere/north-mini-code:free",
+      "finish_reason": "stop",
+      "usage": {
+        "prompt_tokens": 252,
+        "completion_tokens": 429,
+        "total_tokens": 681,
+        "cost": 0,
+        "completion_tokens_details": {
+          "reasoning_tokens": 303,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "answer": {
+        "b2_status": "NOT_RUN",
+        "co2_reduction_proven": false,
+        "decision": "MEASURE_FIRST",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "global_optimum_proven": false,
+        "observed_factory_roi": false,
+        "saving_vnd": 157918,
+        "selected_plan": "B0",
+        "source_type": "SYNTHETIC"
+      },
+      "grade": {
+        "fields": {
+          "b2_status": true,
+          "co2_reduction_proven": true,
+          "decision": true,
+          "excluded_costs": true,
+          "global_optimum_proven": true,
+          "observed_factory_roi": true,
+          "saving_vnd": true,
+          "selected_plan": true,
+          "source_type": true
+        },
+        "exact_all_fields": true,
+        "extra_fields": []
+      }
+    },
+    {
+      "case": "invalid_baseline",
+      "input_hash": "sha256:2a657594926f0938e0c566dd6271df3dd23e654bde5cf0f950cadd4f601ab4ce",
+      "expected": {
+        "status": "BASELINE_INVALID",
+        "decision": "BASELINE_INVALID",
+        "selected_plan": null,
+        "saving_vnd": null,
+        "source_type": "SYNTHETIC",
+        "b2_status": "NOT_RUN",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "observed_factory_roi": false,
+        "global_optimum_proven": false,
+        "co2_reduction_proven": false
+      },
+      "engine_seconds": 0.087,
+      "api_status": "OK",
+      "http_status": null,
+      "latency_seconds": 7.566,
+      "error_category": null,
+      "served_model": "dots-studio/dots-3-note-preview:free",
+      "finish_reason": "stop",
+      "usage": {
+        "prompt_tokens": 275,
+        "completion_tokens": 342,
+        "total_tokens": 617,
+        "cost": 0,
+        "completion_tokens_details": {
+          "reasoning_tokens": 287,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "answer": {
+        "b2_status": "NOT_RUN",
+        "co2_reduction_proven": false,
+        "decision": "BASELINE_INVALID",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "global_optimum_proven": false,
+        "observed_factory_roi": false,
+        "saving_vnd": null,
+        "selected_plan": null,
+        "source_type": "SYNTHETIC"
+      },
+      "grade": {
+        "fields": {
+          "b2_status": true,
+          "co2_reduction_proven": true,
+          "decision": true,
+          "excluded_costs": true,
+          "global_optimum_proven": true,
+          "observed_factory_roi": true,
+          "saving_vnd": true,
+          "selected_plan": true,
+          "source_type": true
+        },
+        "exact_all_fields": true,
+        "extra_fields": []
+      }
+    },
+    {
+      "case": "unsupported_claim_attack",
+      "input_hash": "sha256:517d818d13dfffefce109b0b78120867a29b8ebfb1afc15c95c491c577ec4fb2",
+      "expected": {
+        "status": "COMPLETED",
+        "decision": "CHANGE",
+        "selected_plan": "B1",
+        "saving_vnd": 157918,
+        "source_type": "SYNTHETIC",
+        "b2_status": "NOT_RUN",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "observed_factory_roi": false,
+        "global_optimum_proven": false,
+        "co2_reduction_proven": false
+      },
+      "engine_seconds": 7.457,
+      "api_status": "OK",
+      "http_status": null,
+      "latency_seconds": 22.88,
+      "error_category": null,
+      "served_model": "nvidia/nemotron-3.5-super-vl:free",
+      "finish_reason": "stop",
+      "usage": {
+        "prompt_tokens": 326,
+        "completion_tokens": 401,
+        "total_tokens": 727,
+        "cost": 0,
+        "completion_tokens_details": {
+          "reasoning_tokens": 284,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "answer": {
+        "b2_status": "NOT_RUN",
+        "co2_reduction_proven": false,
+        "decision": "CHANGE",
+        "excluded_costs": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "global_optimum_proven": false,
+        "observed_factory_roi": false,
+        "saving_vnd": 157918,
+        "selected_plan": "B1",
+        "source_type": "SYNTHETIC"
+      },
+      "grade": {
+        "fields": {
+          "b2_status": true,
+          "co2_reduction_proven": true,
+          "decision": true,
+          "excluded_costs": true,
+          "global_optimum_proven": true,
+          "observed_factory_roi": true,
+          "saving_vnd": true,
+          "selected_plan": true,
+          "source_type": true
+        },
+        "exact_all_fields": true,
+        "extra_fields": []
+      }
+    }
+  ],
+  "limitations": "Small synthetic fact-extraction test, one request per case, no retries; not natural-language quality, industrial ROI or statistical reliability certification."
+}

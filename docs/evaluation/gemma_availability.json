@@ -1,0 +1,18 @@
+{
+  "model_requested": "google/gemma-4-26b-a4b-it:free",
+  "attempts": [
+    {
+      "api_status": "HTTP_ERROR",
+      "http_status": 429,
+      "error_category": null,
+      "latency_seconds": 1.994
+    },
+    {
+      "api_status": "HTTP_ERROR",
+      "http_status": 429,
+      "error_category": "RATE_LIMIT",
+      "latency_seconds": 1.375
+    }
+  ],
+  "quality_evaluation": "NOT_ASSESSED_NO_COMPLETIONS"
+}

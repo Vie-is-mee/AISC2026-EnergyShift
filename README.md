@@ -31,7 +31,7 @@ không yêu cầu mạng.
 - [Lịch sử nhận diện điểm yếu và nâng cấp](docs/UPGRADE_HISTORY.md)
 - [Định hướng sản phẩm](PRODUCT.md)
 
-## Cấu hình OpenRouter (chuẩn bị)
+## OpenRouter và đánh giá có thể chạy lại
 
 Điền key trong `.env` local theo mẫu `.env_example`:
 
@@ -40,6 +40,19 @@ OPENROUTER_API_KEY=
 OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
 ```
 
-`.env` được Git bỏ qua. Cấu hình này dành cho backend; không đưa key vào JS
-chạy trong trình duyệt. Hiện chưa có loader `.env` hoặc lời gọi OpenRouter;
-engine B0/B1 và policy vẫn chạy độc lập. Model trên là cấu hình do nhóm chọn.
+`.env` được Git bỏ qua. Client đánh giá phía backend đọc key từ file này hoặc
+biến môi trường; không đưa key vào JS trình duyệt. Engine B0/B1/policy vẫn chạy
+độc lập, không phụ thuộc API. Model trên là cấu hình do nhóm chọn.
+
+```console
+python -m backend.benchmark --output work/evaluation/engine.json
+python -m backend.evaluate_openrouter --output work/evaluation/model.json
+```
+
+Lệnh thứ hai gọi API thật với 5 ca dữ liệu SYNTHETIC và lưu báo cáo đã loại
+secret. Thêm `--limit 1` để smoke test hoặc `--free-router` để dùng openrouter/free
+cho lượt đó, không sửa `.env`. Router chọn model khác nhau, nên đây là đánh giá
+pipeline/router, không phải benchmark cố định một model. Không tự fallback trả phí.
+
+Xem [kết quả đánh giá và giới hạn](docs/API_EVALUATION.md). Đây chưa phải tính
+năng giải thích trên giao diện và không chứng minh độ chính xác tại nhà máy.
