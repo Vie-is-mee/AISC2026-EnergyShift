@@ -392,4 +392,5 @@ dùng hoặc lưu run bền vững. B2 và HTML/PDF evidence chưa có. Kết qu
 trên dữ liệu/giả định SYNTHETIC; chưa pilot hoặc ROI nhà máy. Backend chuẩn hóa
 và frontend đồng bộ không thay bằng chứng dữ liệu thực tế.
 
-Nhánh: `feature/local-api-live-demo`; PR bổ sung sau khi tạo.
+Nhánh: `feature/local-api-live-demo`; implementation commit: `71998d39cb6d4a86564db8580b719e332e155db6`.
+PR: [#8 — API local và UI dùng kết quả thật](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/8).
