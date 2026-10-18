@@ -567,4 +567,6 @@ kiểm thử usability với kỹ sư thực; đây là cải tiến theo phản
 không tuyên bố đã đo mức giảm thời gian nhập. Chưa truy cập URL cloud người dùng.
 Chi tiết: [UI_RESTORATION.md](UI_RESTORATION.md).
 
-Nhánh: `fix/restore-workspace-navigation`; PR bổ sung sau khi tạo.
+Nhánh: `fix/restore-workspace-navigation`; implementation commit:
+`fa48ece8088a356228c76837daf2a8a3ed2946b9`.
+PR: [#11 — khôi phục UI cockpit và rút gọn nhập kế hoạch](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/11).
