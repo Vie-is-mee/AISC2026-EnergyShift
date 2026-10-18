@@ -3,7 +3,8 @@ const $ = (id) => document.getElementById(id);
 let revision = 0,
   currentReport = null,
   sample = null,
-  pending = false;
+  pending = false,
+  preparing = false;
 const labels = {
   CHANGE: "Có cơ sở đổi sang B1 trong giả định đã khai báo",
   KEEP_CURRENT: "Giữ lịch hiện tại",
@@ -55,11 +56,12 @@ function clearResult() {
   currentReport = null;
   $("results").hidden = true;
   $("results").removeAttribute("data-run-id");
+  window.Workspace?.changed();
   $("errors").hidden = true;
   $("errors").replaceChildren();
   $("status").textContent = pending
     ? "Input đã đổi. Kết quả lượt đang chạy sẽ được bỏ qua."
-    : "Input đã đổi — cần chạy phân tích.";
+    : "Kế hoạch đã đổi. Bấm Phân tích kế hoạch để xem kết quả mới.";
 }
 function syncQuick() {
   try {
@@ -99,6 +101,10 @@ function errors(items) {
     );
   }
   $("errors").hidden = false;
+  if (items.length) {
+    window.Workspace?.show("tab-dispatch");
+    $("errors").scrollIntoView({ block: "center" });
+  }
 }
 function table(id, rows, classes = []) {
   const body = $(id);
@@ -394,10 +400,19 @@ function render(report) {
   $("hashMeta").textContent = "Input: " + report.input_hash;
   $("status").textContent =
     "Hoàn tất. Các kết quả bên dưới thuộc cùng một lần chạy.";
+  window.Workspace?.completed(report);
 }
 $("analyze").addEventListener("click", async () => {
-  if (pending) return;
-  if (window.InputDesk && !window.InputDesk.beforeAnalyze()) return;
+  if (pending || preparing) return;
+  preparing = true;
+  $("analyze").disabled = true;
+  try {
+    if (window.InputDesk && !(await window.InputDesk.prepareForAnalysis()))
+      return;
+  } finally {
+    preparing = false;
+    $("analyze").disabled = pending;
+  }
   clearResult();
   const stamp = revision,
     payload = $("dataset").value;
@@ -454,7 +469,7 @@ $("analyze").addEventListener("click", async () => {
   } finally {
     pending = false;
     $("analyze").disabled = false;
-    $("analyze").textContent = "Chạy phân tích B0 / B1";
+    $("analyze").textContent = "Phân tích kế hoạch";
   }
 });
 $("export").addEventListener("click", () => {
@@ -490,6 +505,7 @@ async function initialize() {
     sample = data;
     if (stamp === revision) setDataset(data);
     else $("analyze").disabled = pending;
+    if (stamp === 0 && revision === 1) window.Workspace?.show("tab-overview");
     $("health").textContent = "Engine · build " + health.build_sha;
     $("status").textContent = "Đã nạp dữ liệu giả lập. Chưa chạy phân tích.";
   } catch {

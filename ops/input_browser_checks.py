@@ -14,7 +14,9 @@ def run_checks(js, click, wait, check, run, command, output):
     wait('document.getElementById("profileList").value === "QA_INPUT_DESK"')
     js('let qi=document.querySelector("#planInputRows input[data-field=quantity]");qi.value="999";qi.dispatchEvent(new Event("input"))')
     click('analyze')
-    check('document.getElementById("deskIssues").textContent.includes("chưa áp dụng") && document.getElementById("results").hidden', 'unapplied_grid_cannot_analyze_old_input')
+    wait('document.getElementById("deskIssues").textContent.includes("Số lượng khác")')
+    check('document.getElementById("deskIssues").getClientRects().length>0 && document.getElementById("deskIssues").closest("details")===null', 'input_errors_are_visible_without_opening_advanced_settings')
+    check('document.getElementById("results").hidden', 'one_click_analysis_blocks_unconfirmed_quantity')
     click('applyPlan')
     wait('document.getElementById("deskIssues").textContent.includes("Số lượng khác")')
     check('JSON.parse(document.getElementById("dataset").value).jobs[0].quantity === 1000', 'quantity_change_cannot_silently_scale_duration')
@@ -101,9 +103,14 @@ def run_checks(js, click, wait, check, run, command, output):
     wait('InputDesk.evidence()?.import_source?.headers?.[0]==="job_id"')
     assert js('InputDesk.evidence().import_source.raw_text') == raw
     print(json.dumps({'check': 'actual_csv_upload_preserves_original_utf8_bom_and_crlf', 'pass': True}), flush=True)
+    js('Workspace.show("tab-dispatch");let one=document.querySelector("#planInputRows input[data-field=job_id]");one.value="J1_UI";one.dispatchEvent(new Event("input"))')
+    run()
+    check('currentReport?.input_snapshot.jobs[0].id==="J1_UI" && currentReport.decision.kind==="MEASURE_FIRST" && document.querySelector(".rail-item.active").dataset.tab==="tab-overview"', 'one_click_validates_grid_analyzes_and_opens_actual_result')
+    js('Workspace.show("tab-dispatch")')
     for width, height, name in [(1440, 1100, 'input-desktop.png'), (390, 844, 'input-mobile.png')]:
         command('Emulation.setDeviceMetricsOverride', {'width': width, 'height': height, 'deviceScaleFactor': 1, 'mobile': width == 390})
         check('document.documentElement.scrollWidth <= ' + str(width), 'input_workspace_no_page_overflow_' + str(width))
+        check('document.getElementById("analyze").getBoundingClientRect().bottom<=window.innerHeight && document.getElementById("analyze").getBoundingClientRect().top>=0', 'primary_analysis_action_visible_' + str(width))
         import base64
         screenshot = command('Page.captureScreenshot', {'format': 'png', 'captureBeyondViewport': True})
         (output / name).write_bytes(base64.b64decode(screenshot['data']))

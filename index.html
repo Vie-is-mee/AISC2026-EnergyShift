@@ -1,536 +1,864 @@
 <!doctype html>
-<html lang="vi">
+
+<html data-theme="light" lang="vi">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta content="width=device-width,initial-scale=1" name="viewport" />
     <title>EnergyShift VN · Kiểm tra cơ hội đổi lịch</title>
     <link
-      rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2308766d'/%3E%3Cpath d='M18 4L8 18h7l-1 10 10-15h-8z' fill='white'/%3E%3C/svg%3E"
+      rel="icon"
     />
     <meta
-      name="description"
       content="Demo local: kiểm chứng lịch, tính chi phí B0/B1 và đánh giá rủi ro từ dữ liệu đầu vào."
+      name="description"
     />
-    <link rel="stylesheet" href="/live.css" />
-    <script src="/deployment-config.js" defer></script>
-    <script src="/api-client.js" defer></script>
-    <script src="/app.js" defer></script>
-    <script src="/input-model.js" defer></script>
-    <script src="/input-desk.js" defer></script>
+    <link href="/workspace.css" rel="stylesheet" />
+    <link href="/live.css" rel="stylesheet" />
+    <script defer="" src="/deployment-config.js"></script>
+    <script defer="" src="/api-client.js"></script>
+    <script defer="" src="/app.js"></script>
+    <script defer="" src="/input-model.js"></script>
+    <script defer="" src="/input-desk.js"></script>
+    <script defer="" src="/workspace.js"></script>
   </head>
   <body>
-    <header class="live-header">
-      <a class="live-brand" href="/">ϟ EnergyShift <small>VN</small></a
-      ><span class="live-pill">DEMO · demo-3</span
-      ><span id="health" class="live-muted">Đang kết nối engine…</span>
-      <button id="retryConnection" type="button" hidden>
-        Kết nối lại engine
-      </button>
-    </header>
-    <main>
-      <div class="live-intro">
-        <p class="live-eyebrow">QUYẾT ĐỊNH DỰA TRÊN BẰNG CHỨNG</p>
-        <h1>Lịch này có đáng đổi?</h1>
-        <p>
-          Giữ nguyên đơn hàng. Kiểm chứng lịch. So sánh chi phí và rủi ro trước
-          khi đề xuất.
-        </p>
-      </div>
-      <aside class="live-notice">
-        Bộ mẫu là dữ liệu <strong>giả lập SYNTHETIC</strong>. Kết quả chỉ có giá
-        trị trong phạm vi ràng buộc và giả định được khai báo; chưa phải hiệu
-        quả đo tại nhà máy.
-      </aside>
-      <section class="live-panel" aria-labelledby="inputTitle">
-        <div class="live-panel-head">
-          <div>
-            <p class="live-eyebrow">01 · DỮ LIỆU</p>
-            <h2 id="inputTitle">Đầu vào có thể chỉnh sửa</h2>
-          </div>
-          <label class="live-upload"
-            >Mở JSON<input
-              id="upload"
-              type="file"
-              accept=".json,application/json"
-          /></label>
-        </div>
-        <div class="live-presets">
-          <button id="loadFixture" type="button">Nạp bộ mẫu</button
-          ><button id="unknownCost" type="button">
-            Thử: chưa biết overtime</button
-          ><button id="extraCost" type="button">Thử: overtime +200.000 đ</button
-          ><span class="live-muted"
-            >Các nút chỉ đổi input; kết luận do engine tính.</span
+    <div class="app-layout">
+      <header class="app-header">
+        <div class="header-left-group">
+          <button
+            aria-controls="mainRail"
+            aria-expanded="false"
+            aria-label="Mở menu"
+            class="icon-tool-btn menu-trigger"
+            id="menuToggle"
+            type="button"
           >
-        </div>
-        <div id="inputDesk" class="desk" aria-label="Trợ lý chuẩn bị kế hoạch">
-          <div class="desk-banner">
-            <strong>Hồ sơ xưởng → kế hoạch → kiểm tra</strong
-            ><span
-              >Định mức được nhớ lại. Mỗi kế hoạch vẫn được kiểm tra mới.</span
-            >
+            ☰
+          </button>
+          <div class="brand-block">
+            <div class="brand-logo-mark">
+              <svg
+                class="brand-icon"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.2"
+                viewbox="0 0 24 24"
+              >
+                <polygon
+                  points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+                ></polygon>
+              </svg>
+            </div>
+            <div class="brand-title-wrap">
+              <span class="brand-name">EnergyShift</span>
+              <span class="brand-edition-tag">VN</span>
+            </div>
           </div>
-          <details open>
-            <summary>1 · Hồ sơ xưởng & bộ nhớ trên máy này</summary>
-            <p class="live-muted">
-              Lưu máy, khuôn, biểu giá, định mức và kế hoạch tham chiếu. Không
-              gửi dữ liệu tới AI. Bộ nhớ thuộc trình duyệt này; hãy tải bản sao
-              để giữ lâu dài.
-            </p>
-            <div class="desk-controls">
-              <label
-                >Tên hồ sơ<input
-                  id="profileName"
-                  maxlength="80"
-                  placeholder="Ví dụ: Cụm ép nhựa A"
-              /></label>
-              <button id="saveProfile" type="button">
-                Lưu / cập nhật hồ sơ
-              </button>
-              <label
-                >Hồ sơ đã lưu<select id="profileList">
-                  <option value="">Chọn hồ sơ…</option>
-                </select></label
-              >
-              <button id="loadProfile" type="button">Dùng hồ sơ</button>
-              <button id="downloadProfile" type="button">
-                Tải bản sao JSON
-              </button>
-              <label class="live-upload"
-                >Khôi phục bản sao<input
-                  id="restoreProfileFile"
-                  type="file"
-                  accept=".json,application/json"
-              /></label>
-              <button id="deleteProfile" type="button">
-                Xóa hồ sơ đang chọn
-              </button>
-              <button id="restoreDraft" type="button">
-                Khôi phục bản nháp
-              </button>
-              <button id="deleteDraft" type="button">Xóa bản nháp</button>
-            </div>
-            <p id="memoryStatus" role="status" class="live-muted"></p>
-            <p id="profileSummary" class="live-muted"></p>
-          </details>
-          <details>
-            <summary>Thiết lập xưởng · lịch máy, khuôn và biểu giá</summary>
-            <p class="live-muted">
-              Các ngày giờ ghi rõ YYYY-MM-DD HH:mm, giờ Việt Nam. Lịch máy có
-              thể có nhiều khoảng, mỗi dòng là “bắt đầu | kết thúc”. Khuôn/nhóm
-              sản phẩm phải tồn tại trong hồ sơ. Danh mục mới và quy tắc vệ sinh
-              nâng cao vẫn có thể nhập qua JSON.
-            </p>
-            <div class="live-table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Máy</th>
-                    <th>Các khoảng sẵn sàng</th>
-                    <th>Khuôn ban đầu (trống = không có)</th>
-                    <th>Nhóm ban đầu</th>
-                    <th>Thay khuôn (phút)</th>
-                    <th>Phí thay khuôn (đ)</th>
-                    <th>Nguồn / tham chiếu</th>
-                  </tr>
-                </thead>
-                <tbody id="machineConfigRows"></tbody>
-              </table>
-            </div>
-            <label>Nguồn biểu giá<input id="tariffReference" /></label>
-            <div class="live-table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Từ</th>
-                    <th>Đến</th>
-                    <th>Loại giờ</th>
-                    <th>VND/kWh</th>
-                  </tr>
-                </thead>
-                <tbody id="tariffConfigRows"></tbody>
-              </table>
-            </div>
-            <p class="live-muted">
-              Chi phí ngoài mô hình: khoảng phát sinh so với B0 cho tất cả
-              single-job moves. Chưa đủ căn cứ thì chọn UNKNOWN; không nhập 0 để
-              vượt kiểm tra.
-            </p>
-            <div class="live-table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Khoản</th>
-                    <th>Trạng thái</th>
-                    <th>Min (đ)</th>
-                    <th>Max (đ)</th>
-                    <th>Nguồn</th>
-                    <th>Tham chiếu</th>
-                  </tr>
-                </thead>
-                <tbody id="costConfigRows"></tbody>
-              </table>
-            </div>
-            <button id="updateWorkshop" type="button">
-              Kiểm tra & cập nhật thiết lập xưởng
+        </div>
+        <div class="header-center-group">
+          <span class="live-pill">DỮ LIỆU MẪU · SYNTHETIC</span>
+        </div>
+        <div class="header-right-group">
+          <span class="live-muted" id="health">Đang kết nối engine…</span
+          ><button hidden="" id="retryConnection" type="button">
+            Kết nối lại engine</button
+          ><button
+            aria-label="Chuyển giao diện sáng tối"
+            aria-pressed="false"
+            class="icon-tool-btn"
+            id="themeToggle"
+            type="button"
+          >
+            ◐</button
+          ><button class="btn-action-primary" id="headerAnalyze" type="button">
+            Phân tích kế hoạch
+          </button>
+        </div>
+      </header>
+      <div class="app-body">
+        <button
+          aria-label="Đóng menu"
+          class="rail-scrim"
+          id="railScrim"
+          type="button"
+        ></button>
+        <aside aria-label="Menu điều hướng" class="app-rail" id="mainRail">
+          <div class="rail-mobile-heading">
+            <strong>Điều hướng</strong
+            ><button
+              aria-label="Đóng menu"
+              class="icon-tool-btn rail-close"
+              id="closeMenu"
+              type="button"
+            >
+              ✕
             </button>
-          </details>
-          <details>
-            <summary>
-              Định mức tái sử dụng · công suất & thời gian cả lô
-            </summary>
-            <p class="live-muted">
-              Mã định mức hiện lấy từ mã job trong bộ hồ sơ. Khi đổi sản lượng,
-              nhập lại thời lượng cả lô cho mọi máy tương thích và nguồn xác
-              nhận. Hệ thống không tự suy từ chu kỳ/số lòng khuôn.
-            </p>
-            <label>Chọn định mức<select id="templatePick"></select></label>
-            <div class="desk-controls">
-              <label
-                >Số lượng lô đã xác nhận<input
-                  id="templateQuantity"
-                  type="number"
-                  min="1"
-                  step="1"
-              /></label>
-              <label
-                >Nguồn xác nhận<select id="templateSource">
-                  <option value="ESTIMATED">Ước tính kỹ sư</option>
-                  <option value="MEASURED">Đã đo</option>
-                  <option value="PARTNER_CONFIRMED">Đối tác xác nhận</option>
-                  <option value="SYNTHETIC">Giả lập</option>
-                </select></label
+          </div>
+          <nav aria-label="Điều hướng các phân hệ" class="rail-nav">
+            <button
+              aria-controls="tab-overview"
+              class="rail-item active"
+              data-tab="tab-overview"
+              type="button"
+            >
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewbox="0 0 24 24"
               >
-              <label
-                >Tham chiếu / lý do cập nhật<input
-                  id="templateReference"
-                  placeholder="Phiếu đo hoặc ghi chú xác nhận"
-              /></label>
-            </div>
-            <div class="live-table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Máy</th>
-                    <th>Thời lượng cả lô (phút)</th>
-                    <th>Công suất (kW)</th>
-                    <th>Nguồn công suất</th>
-                    <th>Sai số riêng (0–1; trống = policy)</th>
-                  </tr>
-                </thead>
-                <tbody id="templateRows"></tbody>
-              </table>
-            </div>
-            <button id="updateTemplate" type="button">
-              Xác nhận cập nhật định mức
+                <rect height="9" rx="1" width="7" x="3" y="3"></rect>
+                <rect height="5" rx="1" width="7" x="14" y="3"></rect>
+                <rect height="9" rx="1" width="7" x="14" y="12"></rect>
+                <rect height="5" rx="1" width="7" x="3" y="16"></rect>
+              </svg>
+              <span>Quyết định &amp; So sánh</span>
             </button>
-          </details>
-          <details open>
-            <summary>2 · Kế hoạch sản xuất hôm nay</summary>
-            <div class="desk-controls">
-              <button id="fromJson" type="button">
-                Đọc lại từ đầu vào hiện tại</button
-              ><button id="addPlanRow" type="button">Thêm lô</button
-              ><button id="downloadPlan" type="button">Tải bảng mẫu CSV</button>
+            <button
+              aria-controls="tab-gantt"
+              class="rail-item"
+              data-tab="tab-gantt"
+              type="button"
+            >
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewbox="0 0 24 24"
+              >
+                <line x1="10" x2="21" y1="6" y2="6"></line>
+                <line x1="10" x2="21" y1="12" y2="12"></line>
+                <line x1="10" x2="21" y1="18" y2="18"></line>
+                <path d="M4 6h1v12H4"></path>
+              </svg>
+              <span>Tiến độ Gantt</span>
+            </button>
+            <button
+              aria-controls="tab-loadcurve"
+              class="rail-item"
+              data-tab="tab-loadcurve"
+              type="button"
+            >
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewbox="0 0 24 24"
+              >
+                <path d="M3 3v18h18"></path>
+                <path d="m19 9-5 5-4-4-3 3"></path>
+              </svg>
+              <span>Phụ tải &amp; Biểu giá</span>
+            </button>
+            <button
+              aria-controls="tab-validation"
+              class="rail-item"
+              data-tab="tab-validation"
+              type="button"
+            >
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewbox="0 0 24 24"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+              <span>Ràng buộc vật lý</span>
+            </button>
+            <button
+              aria-controls="tab-sensitivity"
+              class="rail-item"
+              data-tab="tab-sensitivity"
+              type="button"
+            >
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewbox="0 0 24 24"
+              >
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              <span>Độ nhạy &amp; Rủi ro</span>
+            </button>
+            <button
+              aria-controls="tab-dispatch"
+              class="rail-item"
+              data-tab="tab-dispatch"
+              type="button"
+            >
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewbox="0 0 24 24"
+              >
+                <path
+                  d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+                ></path>
+                <rect height="4" rx="1" ry="1" width="8" x="8" y="2"></rect>
+              </svg>
+              <span>Lịch chạy &amp; Nhập liệu</span>
+            </button>
+          </nav>
+          <div class="rail-footer">
+            <div class="system-meta-card">
+              <strong>Engine B0 / B1</strong
+              ><span class="live-muted">Kiểm chứng độc lập · B2 chưa chạy</span
+              ><button class="rail-item" id="goInput" type="button">
+                ＋ Chuẩn bị kế hoạch
+              </button>
             </div>
-            <p class="live-muted">
-              Giờ Việt Nam (+07:00). Chọn định mức để lấy sản lượng, khuôn, máy
-              và thời lượng đã có. Đổi mã lô không đổi định mức.
+          </div>
+        </aside>
+        <main class="workspace-main" id="workspaceMain" tabindex="-1">
+          <div class="live-intro">
+            <p class="live-eyebrow">QUYẾT ĐỊNH DỰA TRÊN BẰNG CHỨNG</p>
+            <h1 id="workspaceTitle">Lịch này có đáng đổi?</h1>
+            <p id="workspaceSubtitle">
+              Giữ nguyên đơn hàng. Kiểm chứng lịch. So sánh chi phí và rủi ro
+              trước khi đề xuất.
             </p>
-            <div class="live-table-wrap">
-              <table class="desk-plan">
-                <thead>
-                  <tr>
-                    <th>Mã lô</th>
-                    <th>Định mức</th>
-                    <th>Số lượng</th>
-                    <th>Máy B0</th>
-                    <th>Bắt đầu</th>
-                    <th>Sẵn sàng từ</th>
-                    <th>Hạn xong</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="planInputRows"></tbody>
-              </table>
+          </div>
+          <aside class="live-notice">
+            Dữ liệu mẫu <strong>SYNTHETIC</strong> · Kết quả được tính từ đầu
+            vào, chưa phải hiệu quả đo tại nhà máy.
+          </aside>
+          <section class="live-panel welcome-panel" id="viewEmpty">
+            <span class="welcome-icon">ϟ</span>
+            <p class="live-eyebrow">ENERGYSHIFT · KIỂM TRA CƠ HỘI ĐỔI LỊCH</p>
+            <h2>Kế hoạch hôm nay có đáng điều chỉnh?</h2>
+            <p>
+              Đưa kế hoạch vào, kiểm tra điều kiện vận hành và so sánh chi phí
+              trước khi quyết định.
+            </p>
+            <div class="welcome-steps">
+              <span><b>01</b> Chuẩn bị kế hoạch</span
+              ><span><b>02</b> Tính &amp; kiểm chứng</span
+              ><span><b>03</b> Xem phương án</span>
             </div>
-            <details>
-              <summary>Chuyển sang ngày khác</summary>
-              <div class="desk-controls">
-                <label>Ngày mới<input id="planDate" type="date" /></label
-                ><label class="desk-check"
-                  ><input id="confirmCalendar" type="checkbox" />Tôi đã kiểm
-                  tra: lịch máy, giá điện và trạng thái khuôn ban đầu vẫn phù
-                  hợp cho ngày mới</label
-                ><button id="shiftPlan" type="button">
-                  Dời toàn bộ mốc thời gian
+            <div class="live-actions">
+              <button class="live-primary" id="startPlanning" type="button">
+                Nhập kế hoạch của bạn →</button
+              ><button id="runSample" type="button">
+                Chạy thử dữ liệu mẫu
+              </button>
+            </div>
+            <small class="live-muted"
+              >Chưa có kết quả trước khi chạy · B2 chưa triển khai</small
+            >
+          </section>
+          <section
+            aria-labelledby="inputTitle"
+            class="tab-pane live-panel"
+            hidden=""
+            id="tab-dispatch"
+          >
+            <div class="live-panel-head">
+              <div>
+                <p class="live-eyebrow">LỊCH CHẠY &amp; NHẬP LIỆU</p>
+                <h2 id="inputTitle">Chuẩn bị kế hoạch sản xuất</h2>
+              </div>
+            </div>
+            <div
+              aria-label="Trợ lý chuẩn bị kế hoạch"
+              class="desk desk-simple"
+              id="inputDesk"
+            >
+              <div class="input-guide">
+                <span><b>1</b> Chọn hồ sơ hoặc dữ liệu mẫu</span
+                ><span><b>2</b> Kiểm tra bảng kế hoạch</span
+                ><span><b>3</b> Bấm Phân tích kế hoạch</span>
+              </div>
+              <div class="input-source-bar">
+                <div class="profile-picker">
+                  <label
+                    >Hồ sơ xưởng<select id="profileList">
+                      <option value="">Chọn hồ sơ…</option>
+                    </select></label
+                  ><button id="loadProfile" type="button">Mở hồ sơ</button
+                  ><button id="loadFixture" type="button">
+                    Dùng dữ liệu mẫu
+                  </button>
+                </div>
+                <button id="openImport" type="button">
+                  Nhập từ Excel / CSV</button
+                ><button class="quiet-button" id="openSettings" type="button">
+                  Thiết lập xưởng
                 </button>
               </div>
-              <p class="live-muted">
-                Giữ nguyên khoảng cách thời gian, đơn giá và trạng thái khuôn;
-                không tự lấy lịch ngày lễ/biểu giá mới. Sau khi dời, kiểm tra
-                lại trước khi áp dụng.
-              </p>
-            </details>
-          </details>
-          <details>
-            <summary>Nhập nhanh · dán từ Excel hoặc mở CSV / TSV</summary>
-            <p class="live-muted">
-              Sao chép vùng bảng có dòng tiêu đề từ Excel rồi dán vào đây. Hoặc
-              mở CSV UTF-8/TSV; chưa đọc trực tiếp .xlsx. Ngày giờ: YYYY-MM-DD
-              HH:mm. Có xem trước và ghép cột; không tự bỏ dòng/cột.
-            </p>
-            <label class="live-upload"
-              >Mở bảng<input
-                id="tableFile"
-                type="file"
-                accept=".csv,.tsv,text/csv,text/tab-separated-values"
-            /></label>
-            <label for="tablePaste">Bảng kế hoạch</label
-            ><textarea
-              id="tablePaste"
-              rows="5"
-              spellcheck="false"
-              placeholder="Mã lô&#9;Định mức&#9;Số lượng&#9;Máy&#9;Bắt đầu&#9;Sẵn sàng từ&#9;Hạn xong"
-            ></textarea>
-            <button id="previewImport" type="button">
-              Xem trước & ghép cột
-            </button>
-            <div id="importPreview" hidden>
-              <div id="mappingFields" class="desk-controls"></div>
-              <div class="live-table-wrap">
-                <table>
-                  <thead id="importHead"></thead>
-                  <tbody id="importBody"></tbody>
-                </table>
+              <p class="live-muted" id="memoryStatus" role="status"></p>
+              <div class="plan-editor">
+                <div class="plan-heading">
+                  <div>
+                    <h3>Bảng kế hoạch</h3>
+                    <p class="live-muted">
+                      Giờ Việt Nam (+07:00). Số lượng theo định mức đã lưu.
+                    </p>
+                  </div>
+                  <label class="desk-check"
+                    ><input id="showPlanDetails" type="checkbox" />Hiện định mức
+                    &amp; hạn hoàn thành</label
+                  >
+                </div>
+                <div class="desk-controls">
+                  <button id="addPlanRow" type="button">＋ Thêm lô</button
+                  ><button id="downloadPlan" type="button">Tải bảng mẫu</button>
+                </div>
+                <div class="live-table-wrap">
+                  <table class="desk-plan">
+                    <thead>
+                      <tr>
+                        <th data-field="job_id">Lô sản xuất</th>
+                        <th data-field="template_id">Định mức</th>
+                        <th data-field="quantity">Sản lượng</th>
+                        <th data-field="machine_id">Máy hiện tại</th>
+                        <th data-field="start">Bắt đầu chạy</th>
+                        <th data-field="release">Sẵn sàng từ</th>
+                        <th data-field="due">Hạn xong</th>
+                        <th data-field="actions"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="planInputRows"></tbody>
+                  </table>
+                </div>
               </div>
-              <label class="desk-check"
-                ><input id="keepExtras" type="checkbox" />Tôi đã xem các cột
-                không ghép: lưu kèm bản nhập, không dùng chúng trong tính toán.
-                Ràng buộc sản xuất bổ sung cần đưa vào mô hình trước khi áp
-                dụng.</label
+              <details id="importSettings">
+                <summary>Nhập bảng từ Excel / CSV</summary>
+                <p class="live-muted">
+                  Sao chép vùng bảng có dòng tiêu đề từ Excel rồi dán vào đây.
+                  Hoặc mở CSV UTF-8/TSV; chưa đọc trực tiếp .xlsx. Ngày giờ:
+                  YYYY-MM-DD HH:mm. Có xem trước và ghép cột; không tự bỏ
+                  dòng/cột.
+                </p>
+                <label class="live-upload"
+                  >Mở bảng<input
+                    accept=".csv,.tsv,text/csv,text/tab-separated-values"
+                    id="tableFile"
+                    type="file"
+                /></label>
+                <label for="tablePaste">Bảng kế hoạch</label
+                ><textarea
+                  id="tablePaste"
+                  placeholder="Mã lô	Định mức	Số lượng	Máy	Bắt đầu	Sẵn sàng từ	Hạn xong"
+                  rows="5"
+                  spellcheck="false"
+                ></textarea>
+                <button id="previewImport" type="button">
+                  Xem trước &amp; ghép cột
+                </button>
+                <div hidden="" id="importPreview">
+                  <div class="desk-controls" id="mappingFields"></div>
+                  <div class="live-table-wrap">
+                    <table>
+                      <thead id="importHead"></thead>
+                      <tbody id="importBody"></tbody>
+                    </table>
+                  </div>
+                  <label class="desk-check"
+                    ><input id="keepExtras" type="checkbox" />Tôi đã xem các cột
+                    không ghép: lưu kèm bản nhập, không dùng chúng trong tính
+                    toán. Ràng buộc sản xuất bổ sung cần đưa vào mô hình trước
+                    khi áp dụng.</label
+                  >
+                  <button id="acceptImport" type="button">
+                    Đưa bảng này vào kế hoạch
+                  </button>
+                </div>
+              </details>
+              <details class="advanced-input" id="advancedInput">
+                <summary>
+                  Thiết lập nâng cao
+                  <small>Hồ sơ xưởng, định mức, chi phí và JSON</small>
+                </summary>
+                <div class="advanced-body">
+                  <details id="profileSettings">
+                    <summary>Lưu, khôi phục &amp; quản lý hồ sơ</summary>
+                    <p class="live-muted">
+                      Lưu máy, khuôn, biểu giá, định mức và kế hoạch tham chiếu.
+                      Không gửi dữ liệu tới AI. Bộ nhớ thuộc trình duyệt này;
+                      hãy tải bản sao để giữ lâu dài.
+                    </p>
+                    <div class="desk-controls">
+                      <label
+                        >Tên hồ sơ<input
+                          id="profileName"
+                          maxlength="80"
+                          placeholder="Ví dụ: Cụm ép nhựa A"
+                      /></label>
+                      <button id="saveProfile" type="button">
+                        Lưu / cập nhật hồ sơ
+                      </button>
+                      <button id="downloadProfile" type="button">
+                        Tải bản sao JSON
+                      </button>
+                      <label class="live-upload"
+                        >Khôi phục bản sao<input
+                          accept=".json,application/json"
+                          id="restoreProfileFile"
+                          type="file"
+                      /></label>
+                      <button id="deleteProfile" type="button">
+                        Xóa hồ sơ đang chọn
+                      </button>
+                      <button id="restoreDraft" type="button">
+                        Khôi phục bản nháp
+                      </button>
+                      <button id="deleteDraft" type="button">
+                        Xóa bản nháp
+                      </button>
+                    </div>
+                    <p class="live-muted" id="profileSummary"></p>
+                  </details>
+                  <details id="workshopSettings">
+                    <summary>
+                      Thiết lập xưởng · lịch máy, khuôn và biểu giá
+                    </summary>
+                    <p class="live-muted">
+                      Các ngày giờ ghi rõ YYYY-MM-DD HH:mm, giờ Việt Nam. Lịch
+                      máy có thể có nhiều khoảng, mỗi dòng là “bắt đầu | kết
+                      thúc”. Khuôn/nhóm sản phẩm phải tồn tại trong hồ sơ. Danh
+                      mục mới và quy tắc vệ sinh nâng cao vẫn có thể nhập qua
+                      JSON.
+                    </p>
+                    <div class="live-table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Máy</th>
+                            <th>Các khoảng sẵn sàng</th>
+                            <th>Khuôn ban đầu (trống = không có)</th>
+                            <th>Nhóm ban đầu</th>
+                            <th>Thay khuôn (phút)</th>
+                            <th>Phí thay khuôn (đ)</th>
+                            <th>Nguồn / tham chiếu</th>
+                          </tr>
+                        </thead>
+                        <tbody id="machineConfigRows"></tbody>
+                      </table>
+                    </div>
+                    <label>Nguồn biểu giá<input id="tariffReference" /></label>
+                    <div class="live-table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Từ</th>
+                            <th>Đến</th>
+                            <th>Loại giờ</th>
+                            <th>VND/kWh</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tariffConfigRows"></tbody>
+                      </table>
+                    </div>
+                    <p class="live-muted">
+                      Chi phí ngoài mô hình: khoảng phát sinh so với B0 cho tất
+                      cả single-job moves. Chưa đủ căn cứ thì chọn UNKNOWN;
+                      không nhập 0 để vượt kiểm tra.
+                    </p>
+                    <div class="live-table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Khoản</th>
+                            <th>Trạng thái</th>
+                            <th>Min (đ)</th>
+                            <th>Max (đ)</th>
+                            <th>Nguồn</th>
+                            <th>Tham chiếu</th>
+                          </tr>
+                        </thead>
+                        <tbody id="costConfigRows"></tbody>
+                      </table>
+                    </div>
+                    <button id="updateWorkshop" type="button">
+                      Kiểm tra &amp; cập nhật thiết lập xưởng
+                    </button>
+                  </details>
+                  <details id="templateSettings">
+                    <summary>
+                      Định mức tái sử dụng · công suất &amp; thời gian cả lô
+                    </summary>
+                    <p class="live-muted">
+                      Mã định mức hiện lấy từ mã job trong bộ hồ sơ. Khi đổi sản
+                      lượng, nhập lại thời lượng cả lô cho mọi máy tương thích
+                      và nguồn xác nhận. Hệ thống không tự suy từ chu kỳ/số lòng
+                      khuôn.
+                    </p>
+                    <label
+                      >Chọn định mức<select id="templatePick"></select
+                    ></label>
+                    <div class="desk-controls">
+                      <label
+                        >Số lượng lô đã xác nhận<input
+                          id="templateQuantity"
+                          min="1"
+                          step="1"
+                          type="number"
+                      /></label>
+                      <label
+                        >Nguồn xác nhận<select id="templateSource">
+                          <option value="ESTIMATED">Ước tính kỹ sư</option>
+                          <option value="MEASURED">Đã đo</option>
+                          <option value="PARTNER_CONFIRMED">
+                            Đối tác xác nhận
+                          </option>
+                          <option value="SYNTHETIC">Giả lập</option>
+                        </select></label
+                      >
+                      <label
+                        >Tham chiếu / lý do cập nhật<input
+                          id="templateReference"
+                          placeholder="Phiếu đo hoặc ghi chú xác nhận"
+                      /></label>
+                    </div>
+                    <div class="live-table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Máy</th>
+                            <th>Thời lượng cả lô (phút)</th>
+                            <th>Công suất (kW)</th>
+                            <th>Nguồn công suất</th>
+                            <th>Sai số riêng (0–1; trống = policy)</th>
+                          </tr>
+                        </thead>
+                        <tbody id="templateRows"></tbody>
+                      </table>
+                    </div>
+                    <button id="updateTemplate" type="button">
+                      Xác nhận cập nhật định mức
+                    </button>
+                  </details>
+                  <button id="fromJson" type="button">
+                    Đọc lại từ đầu vào hiện tại
+                  </button>
+                  <details>
+                    <summary>Chuyển sang ngày khác</summary>
+                    <div class="desk-controls">
+                      <label>Ngày mới<input id="planDate" type="date" /></label
+                      ><label class="desk-check"
+                        ><input id="confirmCalendar" type="checkbox" />Tôi đã
+                        kiểm tra: lịch máy, giá điện và trạng thái khuôn ban đầu
+                        vẫn phù hợp cho ngày mới</label
+                      ><button id="shiftPlan" type="button">
+                        Dời toàn bộ mốc thời gian
+                      </button>
+                    </div>
+                    <p class="live-muted">
+                      Giữ nguyên khoảng cách thời gian, đơn giá và trạng thái
+                      khuôn; không tự lấy lịch ngày lễ/biểu giá mới. Sau khi
+                      dời, kiểm tra lại trước khi áp dụng.
+                    </p>
+                  </details>
+                  <details id="costSettings">
+                    <summary>Rà soát chi phí phát sinh</summary>
+                    <div class="live-muted" id="readinessSummary"></div>
+                    <label class="desk-check"
+                      ><input id="confirmCosts" type="checkbox" />Tôi xác nhận
+                      các khoảng chi phí ngoài mô hình trong hồ sơ còn áp dụng
+                      cho TẤT CẢ single-job moves của kế hoạch này</label
+                    >
+                    <p class="live-muted">
+                      Mặc định chi phí ngoài mô hình chuyển sang UNKNOWN khi
+                      chuẩn bị kế hoạch; engine có thể yêu cầu đo/xác nhận
+                      trước. Không mặc định chi phí bằng 0.
+                    </p>
+                    <div class="live-table-wrap" id="costReviewSummary"></div>
+                  </details>
+                  <div class="live-presets">
+                    <button id="unknownCost" type="button">
+                      Thử: chưa biết overtime</button
+                    ><button id="extraCost" type="button">
+                      Thử: overtime +200.000 đ
+                    </button>
+                  </div>
+                  <label class="live-upload"
+                    >Mở JSON<input
+                      accept=".json,application/json"
+                      id="upload"
+                      type="file"
+                  /></label>
+                  <details id="editorDetails">
+                    <summary>Xem / sửa toàn bộ JSON đầu vào</summary>
+                    <label class="live-sr" for="dataset"
+                      >Dataset JSON demo-3</label
+                    ><textarea
+                      id="dataset"
+                      placeholder="Đang nạp dữ liệu…"
+                      rows="18"
+                      spellcheck="false"
+                    ></textarea>
+                  </details>
+                  <div class="live-quick">
+                    <label
+                      >Ngưỡng lợi ích tối thiểu (đ)<input
+                        id="minSaving"
+                        min="0"
+                        step="1000"
+                        type="number" /></label
+                    ><label
+                      >Công suất J1 trên M1 (kW)<input
+                        id="power"
+                        min="0"
+                        step="0.1"
+                        type="number"
+                    /></label>
+                    <p class="live-muted">
+                      Sửa quantity/duration trong JSON cần xác nhận lại lô. Mẫu:
+                      tối đa 8 job, 3 máy, 48 giờ.
+                    </p>
+                  </div>
+
+                  <div class="live-actions">
+                    <button class="live-primary" id="applyPlan" type="button">
+                      Chỉ kiểm tra &amp; áp dụng bảng
+                    </button>
+                  </div>
+                  <p class="live-muted" id="deskApplied"></p>
+                </div>
+              </details>
+            </div>
+            <ul class="live-errors" hidden="" id="deskIssues" role="alert"></ul>
+            <p class="live-muted" id="deskStatus" role="status"></p>
+            <div class="live-errors" hidden="" id="errors" role="alert"></div>
+            <div class="live-actions analyze-bar">
+              <button
+                class="live-primary"
+                disabled=""
+                id="analyze"
+                type="button"
               >
-              <button id="acceptImport" type="button">
-                Đưa bảng này vào kế hoạch
-              </button>
+                Phân tích kế hoạch</button
+              ><span aria-live="polite" id="status" role="status"
+                >Chưa có kết quả tính toán.</span
+              >
             </div>
-          </details>
-          <details>
-            <summary>3 · Những gì cần rà soát trước khi chạy</summary>
-            <div id="readinessSummary" class="live-muted"></div>
-            <label class="desk-check"
-              ><input id="confirmCosts" type="checkbox" />Tôi xác nhận các
-              khoảng chi phí ngoài mô hình trong hồ sơ còn áp dụng cho TẤT CẢ
-              single-job moves của kế hoạch này</label
-            >
-            <p class="live-muted">
-              Mặc định chi phí ngoài mô hình chuyển sang UNKNOWN khi chuẩn bị kế
-              hoạch; engine có thể yêu cầu đo/xác nhận trước. Không mặc định chi
-              phí bằng 0.
-            </p>
-            <div id="costReviewSummary" class="live-table-wrap"></div>
-          </details>
-          <div class="live-actions">
-            <button id="applyPlan" class="live-primary" type="button">
-              Kiểm tra & áp dụng kế hoạch</button
-            ><span id="deskStatus" role="status" aria-live="polite"
-              >Đang chờ dữ liệu…</span
-            >
-          </div>
-          <ul id="deskIssues" class="live-errors" hidden></ul>
-          <p id="deskApplied" class="live-muted">
-            Bảng là bản chuẩn bị. Chỉ đầu vào đã áp dụng mới được gửi cho
-            engine.
-          </p>
-        </div>
-        <details id="editorDetails">
-          <summary>Xem / sửa toàn bộ JSON đầu vào</summary>
-          <label class="live-sr" for="dataset">Dataset JSON demo-3</label
-          ><textarea
-            id="dataset"
-            spellcheck="false"
-            rows="18"
-            placeholder="Đang nạp dữ liệu…"
-          ></textarea>
-        </details>
-        <div class="live-quick">
-          <label
-            >Ngưỡng lợi ích tối thiểu (đ)<input
-              id="minSaving"
-              type="number"
-              min="0"
-              step="1000" /></label
-          ><label
-            >Công suất J1 trên M1 (kW)<input
-              id="power"
-              type="number"
-              min="0"
-              step="0.1"
-          /></label>
-          <p class="live-muted">
-            Sửa quantity/duration trong JSON cần xác nhận lại lô. Mẫu: tối đa 8
-            job, 3 máy, 48 giờ.
-          </p>
-        </div>
-        <div class="live-actions">
-          <button id="analyze" class="live-primary" type="button" disabled>
-            Chạy phân tích B0 / B1</button
-          ><span id="status" role="status" aria-live="polite"
-            >Chưa có kết quả tính toán.</span
-          >
-        </div>
-        <div id="errors" class="live-errors" role="alert" hidden></div>
-      </section>
-      <div id="results" hidden>
-        <section class="live-panel live-verdict" aria-labelledby="verdict">
-          <div>
-            <p class="live-eyebrow">02 · KẾT LUẬN ENGINE</p>
-            <h2 id="verdict"></h2>
-            <p id="verdictDetail"></p>
-            <p id="reasons" class="live-muted"></p>
-          </div>
-          <button id="export" type="button">Tải báo cáo JSON</button>
-        </section>
-        <div class="live-kpis">
-          <article>
-            <span>Giảm chi phí mô hình B0 − B1</span
-            ><strong id="saving"></strong
-            ><small>Điện chạy + setup; chưa trừ review EXCLUDED</small>
-          </article>
-          <article>
-            <span>Khoảng lợi ích sau rủi ro</span><strong id="netRange"></strong
-            ><small>Theo khoảng công suất và chi phí đã khai báo</small>
-          </article>
-          <article>
-            <span>Chi phí phát sinh tối đa còn đạt ngưỡng</span
-            ><strong id="headroom"></strong
-            ><small
-              >Trần tổng EXCLUDED theo giả định; giá trị âm nghĩa là vượt
-              ngưỡng</small
-            >
-          </article>
-        </div>
-        <section class="live-panel">
-          <div class="live-panel-head">
-            <div>
-              <p class="live-eyebrow">03 · CHI PHÍ</p>
-              <h2>Cùng phạm vi, cùng phép tính</h2>
-            </div>
-            <span class="live-pill">B2 · CHƯA CHẠY</span>
-          </div>
-          <div class="live-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Thành phần</th>
-                  <th>B0 · hiện tại</th>
-                  <th>B1 · ứng viên</th>
-                  <th>Giảm B0 − B1</th>
-                </tr>
-              </thead>
-              <tbody id="costRows"></tbody>
-            </table>
-          </div>
-          <p class="live-muted">
-            Phí ngoài mô hình không được xem là bằng 0. Khoảng tăng/giảm được
-            khai báo ở bảng review bên dưới.
-          </p>
-        </section>
-        <section class="live-panel">
-          <div class="live-panel-head">
-            <div>
-              <p class="live-eyebrow">04 · LỊCH</p>
-              <h2>Lịch và thời gian setup từ engine</h2>
-            </div>
-            <span class="live-muted"
-              >B0: xanh dương · B1: xanh ngọc · setup: gạch chéo</span
-            >
-          </div>
-          <div class="live-table-wrap"><div id="gantt"></div></div>
-          <div class="live-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Job / khuôn</th>
-                  <th>Sản lượng</th>
-                  <th>B0: máy · bắt đầu</th>
-                  <th>B1: máy · bắt đầu</th>
-                  <th>Setup B0 → B1</th>
-                </tr>
-              </thead>
-              <tbody id="jobRows"></tbody>
-            </table>
-          </div>
-        </section>
-        <div class="live-columns">
-          <section class="live-panel">
-            <p class="live-eyebrow">05 · KIỂM CHỨNG</p>
-            <h2>Điều kiện đã khai báo</h2>
-            <div id="verification"></div>
-            <p class="live-muted">
-              PASS kiểm tra đủ công việc, máy, khuôn, hạn, setup và thời gian
-              khả dụng đã khai báo. Chưa mô hình hóa nhân sự hoặc tháo/chuyển
-              khuôn độc lập.
-            </p>
           </section>
-          <section class="live-panel">
-            <p class="live-eyebrow">06 · MIỀN TÌM KIẾM</p>
-            <h2>Phương án tốt nhất đã tìm được</h2>
-            <div id="search"></div>
-            <p class="live-muted">
-              B1 đổi tối đa một công việc; các setup liên quan được tính lại.
-              Chưa chứng minh tối ưu toàn cục hoặc tìm phương án tốt nhất theo
-              toàn bộ rủi ro.
-            </p>
-          </section>
-        </div>
-        <section class="live-panel">
-          <p class="live-eyebrow">07 · RỦI RO KINH TẾ</p>
-          <h2>Chi phí EXCLUDED và sai số công suất</h2>
-          <div class="live-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Khoản ngoài mô hình</th>
-                  <th>Trạng thái</th>
-                  <th>Incremental min → max</th>
-                  <th>Nguồn / tham chiếu</th>
-                </tr>
-              </thead>
-              <tbody id="reviewRows"></tbody>
-            </table>
+          <div hidden="" id="results">
+            <div class="tab-pane" hidden="" id="tab-overview">
+              <section
+                aria-labelledby="verdict"
+                class="live-panel live-verdict"
+              >
+                <div>
+                  <p class="live-eyebrow">02 · KẾT LUẬN ENGINE</p>
+                  <h2 id="verdict"></h2>
+                  <p id="verdictDetail"></p>
+                  <p class="live-muted" id="reasons"></p>
+                </div>
+                <button id="export" type="button">Tải báo cáo JSON</button>
+              </section>
+              <div
+                aria-label="So sánh B0, B1 và trạng thái B2"
+                class="three-tier-grid"
+                id="plansGrid"
+              ></div>
+              <div class="live-kpis">
+                <article>
+                  <span>Giảm chi phí mô hình B0 − B1</span
+                  ><strong id="saving"></strong
+                  ><small>Điện chạy + setup; chưa trừ review EXCLUDED</small>
+                </article>
+                <article>
+                  <span>Khoảng lợi ích sau rủi ro</span
+                  ><strong id="netRange"></strong
+                  ><small>Theo khoảng công suất và chi phí đã khai báo</small>
+                </article>
+                <article>
+                  <span>Chi phí phát sinh tối đa còn đạt ngưỡng</span
+                  ><strong id="headroom"></strong
+                  ><small
+                    >Trần tổng EXCLUDED theo giả định; giá trị âm nghĩa là vượt
+                    ngưỡng</small
+                  >
+                </article>
+              </div>
+              <section class="live-panel">
+                <div class="live-panel-head">
+                  <div>
+                    <p class="live-eyebrow">03 · CHI PHÍ</p>
+                    <h2>Cùng phạm vi, cùng phép tính</h2>
+                  </div>
+                  <span class="live-pill">B2 · CHƯA CHẠY</span>
+                </div>
+                <div class="live-table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Thành phần</th>
+                        <th>B0 · hiện tại</th>
+                        <th>B1 · ứng viên</th>
+                        <th>Giảm B0 − B1</th>
+                      </tr>
+                    </thead>
+                    <tbody id="costRows"></tbody>
+                  </table>
+                </div>
+                <p class="live-muted">
+                  Phí ngoài mô hình không được xem là bằng 0. Khoảng tăng/giảm
+                  được khai báo ở bảng review bên dưới.
+                </p>
+              </section>
+            </div>
+            <div class="tab-pane" hidden="" id="tab-gantt">
+              <section class="live-panel">
+                <div class="live-panel-head">
+                  <div>
+                    <p class="live-eyebrow">04 · LỊCH</p>
+                    <h2>Lịch và thời gian setup từ engine</h2>
+                  </div>
+                  <span class="live-muted"
+                    >B0: xanh dương · B1: xanh ngọc · setup: gạch chéo</span
+                  >
+                </div>
+                <div class="live-table-wrap"><div id="gantt"></div></div>
+                <div class="live-table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Job / khuôn</th>
+                        <th>Sản lượng</th>
+                        <th>B0: máy · bắt đầu</th>
+                        <th>B1: máy · bắt đầu</th>
+                        <th>Setup B0 → B1</th>
+                      </tr>
+                    </thead>
+                    <tbody id="jobRows"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+            <div class="tab-pane" hidden="" id="tab-loadcurve">
+              <section class="live-panel">
+                <div class="live-panel-head">
+                  <div>
+                    <p class="live-eyebrow">ĐIỆN NĂNG TỪ LỊCH THỰC TẾ</p>
+                    <h2>Phụ tải &amp; biểu giá</h2>
+                  </div>
+                  <span class="live-pill">B0 / B1</span>
+                </div>
+                <p class="live-muted">
+                  Công suất trung bình theo giờ, tính từ các khoảng chạy trong
+                  sổ chi phí. Không gồm điện chờ và điện setup.
+                </p>
+                <div class="load-chart" id="loadChart"></div>
+                <div class="live-table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Khoảng giờ</th>
+                        <th>B0 · kWh</th>
+                        <th>B1 · kWh</th>
+                        <th>B0 · kW TB</th>
+                        <th>B1 · kW TB</th>
+                      </tr>
+                    </thead>
+                    <tbody id="loadRows"></tbody>
+                  </table>
+                </div>
+              </section>
+              <section class="live-panel">
+                <h2>Biểu giá đang dùng</h2>
+                <p class="live-muted" id="tariffSource"></p>
+                <div class="live-table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Từ</th>
+                        <th>Đến</th>
+                        <th>Loại giờ</th>
+                        <th>VND/kWh</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tariffRows"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+            <div class="tab-pane" hidden="" id="tab-validation">
+              <div class="live-columns">
+                <section class="live-panel">
+                  <p class="live-eyebrow">05 · KIỂM CHỨNG</p>
+                  <h2>Điều kiện đã khai báo</h2>
+                  <div id="verification"></div>
+                  <p class="live-muted">
+                    PASS kiểm tra đủ công việc, máy, khuôn, hạn, setup và thời
+                    gian khả dụng đã khai báo. Chưa mô hình hóa nhân sự hoặc
+                    tháo/chuyển khuôn độc lập.
+                  </p>
+                </section>
+                <section class="live-panel">
+                  <p class="live-eyebrow">06 · MIỀN TÌM KIẾM</p>
+                  <h2>Phương án tốt nhất đã tìm được</h2>
+                  <div id="search"></div>
+                  <p class="live-muted">
+                    B1 đổi tối đa một công việc; các setup liên quan được tính
+                    lại. Chưa chứng minh tối ưu toàn cục hoặc tìm phương án tốt
+                    nhất theo toàn bộ rủi ro.
+                  </p>
+                </section>
+              </div>
+            </div>
+            <div class="tab-pane" hidden="" id="tab-sensitivity">
+              <section class="live-panel">
+                <p class="live-eyebrow">07 · RỦI RO KINH TẾ</p>
+                <h2>Chi phí EXCLUDED và sai số công suất</h2>
+                <div class="live-table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Khoản ngoài mô hình</th>
+                        <th>Trạng thái</th>
+                        <th>Incremental min → max</th>
+                        <th>Nguồn / tham chiếu</th>
+                      </tr>
+                    </thead>
+                    <tbody id="reviewRows"></tbody>
+                  </table>
+                </div>
+                <p class="live-muted" id="riskNote"></p>
+                <div class="live-table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Kịch bản minh họa</th>
+                        <th>Chi phí B0</th>
+                        <th>Chi phí B1</th>
+                        <th>Giảm chi phí mô hình</th>
+                      </tr>
+                    </thead>
+                    <tbody id="scenarioRows"></tbody>
+                  </table>
+                </div>
+                <p class="live-muted">
+                  LOW/BASE/HIGH cùng chiều chỉ minh họa. Quyết định dùng bound
+                  công suất độc lập và review EXCLUDED, không dựa riêng nhãn ổn
+                  định của ba mức. Tỷ lệ xét trên modeled B0, chưa phải tổng chi
+                  phí nhà máy.
+                </p>
+              </section>
+            </div>
+            <details class="report-details">
+              <summary>Mã lần chạy &amp; nguồn dữ liệu</summary>
+              <footer class="live-provenance">
+                <p id="runMeta"></p>
+                <p id="hashMeta"></p>
+                <p>
+                  Nguồn dữ liệu là khai báo đầu vào, chưa được xác minh độc lập.
+                  Lớp AI/OpenRouter không tham gia quyết định hoặc phép tính
+                  trong luồng này.
+                </p>
+              </footer>
+            </details>
           </div>
-          <p id="riskNote" class="live-muted"></p>
-          <div class="live-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Kịch bản minh họa</th>
-                  <th>Chi phí B0</th>
-                  <th>Chi phí B1</th>
-                  <th>Giảm chi phí mô hình</th>
-                </tr>
-              </thead>
-              <tbody id="scenarioRows"></tbody>
-            </table>
-          </div>
-          <p class="live-muted">
-            LOW/BASE/HIGH cùng chiều chỉ minh họa. Quyết định dùng bound công
-            suất độc lập và review EXCLUDED, không dựa riêng nhãn ổn định của ba
-            mức. Tỷ lệ xét trên modeled B0, chưa phải tổng chi phí nhà máy.
-          </p>
-        </section>
-        <footer class="live-provenance">
-          <p id="runMeta"></p>
-          <p id="hashMeta"></p>
-          <p>
-            Nguồn dữ liệu là khai báo đầu vào, chưa được xác minh độc lập. Lớp
-            AI/OpenRouter không tham gia quyết định hoặc phép tính trong luồng
-            này.
-          </p>
-        </footer>
+        </main>
       </div>
-    </main>
+    </div>
   </body>
 </html>

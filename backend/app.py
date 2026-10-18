@@ -60,6 +60,16 @@ def stylesheet():
     return FileResponse(ROOT / "live.css", media_type="text/css")
 
 
+@app.get("/workspace.css")
+def workspace_stylesheet():
+    return FileResponse(ROOT / "workspace.css", media_type="text/css")
+
+
+@app.get("/workspace.js")
+def workspace_script():
+    return FileResponse(ROOT / "workspace.js", media_type="text/javascript")
+
+
 @app.get("/input-model.js")
 def input_model_script():
     return FileResponse(ROOT / "input-model.js", media_type="text/javascript")

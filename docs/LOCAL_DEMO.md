@@ -13,7 +13,8 @@ Mở http://127.0.0.1:8765, không mở index.html bằng file://. Giữ process
 đang chạy. Server dành cho demo localhost; chưa có mô hình triển khai đa người
 dùng. Sau khi cài dependency có thể tắt Wi-Fi; UI không tải font/CDN hoặc API AI.
 
-Giao diện: index.html, app.js, live.css, input-model.js và input-desk.js. Bản cũ giữ trong legacy để so
+Giao diện: index.html, app.js, live.css, input-model.js, input-desk.js cùng workspace.css/workspace.js
+cho thiết kế cockpit và api-client.js/deployment-config.js cho cấu hình backend. Bản cũ giữ trong legacy để so
 source, không được API phục vụ. build_app.py chỉ rebuild legacy/app.js, không
 ghi đè app.js của luồng live. PRODUCT.md là định hướng sản phẩm, không phải
 danh sách chứng nhận tất cả khả năng đã hoàn tất.
@@ -21,8 +22,8 @@ danh sách chứng nhận tất cả khả năng đã hoàn tất.
 ## Luồng người dùng
 
 1. Bộ mẫu SYNTHETIC tự nạp, chưa có kết luận trước khi chạy.
-2. Dùng hồ sơ xưởng, sửa bảng hoặc dán Excel/nhập CSV/TSV, ghép cột rồi kiểm tra &
-   áp dụng. Có JSON nâng cao/upload JSON/chỉnh nhanh. Quantity/duration cần lot
+2. Vào Lịch chạy & Nhập liệu: dùng hồ sơ, sửa bảng hoặc dán Excel/nhập CSV/TSV,
+   ghép cột rồi bấm Phân tích kế hoạch (tự kiểm tra/áp dụng). Có JSON nâng cao/upload JSON/chỉnh nhanh. Quantity/duration cần lot
    confirmation theo demo-3. Xem INPUT_WORKSPACE.md cho bộ nhớ và giới hạn.
 3. Chạy phân tích → API data gate → B0/B1 + verifier/cost + risk policy.
 4. Xem verdict, raw modeled savings, net bounds, chi phí và Gantt B0/B1, tất
@@ -63,7 +64,8 @@ Thời gian phụ thuộc máy/tải nền; chưa cam kết SLA hoặc quy mô l
 
 ## Phục vụ file và dữ liệu
 
-Chỉ root index.html, /app.js, /live.css, /input-model.js và /input-desk.js được phục vụ. Không mount repository
+Chỉ 9 asset công khai index.html, app.js, live.css, input-model.js, input-desk.js,
+workspace.css, workspace.js, api-client.js, deployment-config.js được phục vụ. Không mount repository
 thành static directory: /.env, /.git, backend, docs, legacy và JS fragments đều
 404. Có same-origin POST check, trusted localhost hostnames, CSP và no-store.
 Đây không phải chứng nhận security cho triển khai public; giới hạn dùng local.

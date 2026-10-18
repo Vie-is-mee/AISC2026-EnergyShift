@@ -24,9 +24,10 @@ của ba sản phẩm. Không tuyên bố tính năng mới độc quyền trên
 3. Mỗi lần dùng, chọn hồ sơ → sửa bảng kế hoạch hoặc dán bảng Excel / mở CSV/TSV.
 4. Kiểm tra ghép cột và dữ liệu xem trước. Các tên cột tiếng Việt/Anh quen thuộc
    được gợi ý bằng luật xác định. Cấu hình ghép được nhớ theo đúng dãy tiêu đề.
-5. Bổ sung những chỗ thiếu/sai được nêu. Bấm **Kiểm tra & áp dụng kế hoạch**.
-6. Data gate kiểm tra schema và consistency; chưa chạy search hoặc chứng nhận
-   lịch hợp lệ. Bấm **Chạy phân tích** để verifier, costing và B1 thực sự chạy.
+5. Bổ sung những chỗ thiếu/sai được nêu. Bấm **Phân tích kế hoạch**: bảng đã sửa
+   được tự kiểm tra và áp dụng trước khi tính, không phải bấm hai nút.
+6. Data gate kiểm tra schema và consistency; sau khi READY, verifier/costing/B1
+   thực sự chạy. Nút chỉ kiểm tra/áp dụng thủ công giữ trong Thiết lập nâng cao.
 7. Xuất báo cáo: cùng input hash, snapshot và bằng chứng chuẩn bị nếu dùng bảng.
 
 Các trường mỗi lô: mã lô, mã định mức, số lượng, máy B0, bắt đầu, sẵn sàng từ,

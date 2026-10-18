@@ -22,7 +22,7 @@ python -m uvicorn backend.app:app --host 127.0.0.1 --port 8765
 
 Mở **http://127.0.0.1:8765/**. Sau khi cài dependency, giao diện/engine/fixture
 không cần Internet hoặc key OpenRouter. Dùng hồ sơ xưởng đã lưu, sửa bảng kế hoạch
-hoặc dán từ Excel / mở CSV, kiểm tra & áp dụng rồi chạy phân tích. JSON giữ ở mục
+hoặc dán từ Excel / mở CSV, rồi bấm Phân tích kế hoạch (tự kiểm tra/áp dụng). JSON giữ ở mục
 nâng cao. Sửa input làm mất hiệu lực kết quả cũ. B2 hiện CHƯA CHẠY.
 
 Kiểm thử: `python -m pip install -r requirements-dev.txt`, rồi
@@ -33,6 +33,8 @@ QA trình duyệt Windows/Edge tùy chọn: cài requirements-browser.txt, giữ
 
 Xem [hướng dẫn API, giới hạn và demo đầu cuối](docs/LOCAL_DEMO.md).
 Xem [hồ sơ xưởng, nhập bảng và nghiên cứu thiết kế đầu vào](docs/INPUT_WORKSPACE.md).
+Giao diện dùng lại thiết kế của nhóm, có sáu mục trái và luồng nhập một nút:
+[phạm vi UI/UX và cách dùng](docs/UI_RESTORATION.md).
 
 ## Backend — B0/B1 với contract demo-3
 

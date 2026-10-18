@@ -20,5 +20,6 @@ jobs:
           node-version: '22'
       - run: node --check app.js
       - run: node --check input-desk.js
+      - run: node --check workspace.js
       - run: node --test ops/input-model.test.cjs
       - run: node --test ops/deployment.test.cjs
