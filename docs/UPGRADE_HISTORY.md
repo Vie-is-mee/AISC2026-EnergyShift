@@ -509,4 +509,6 @@ riêng. Hồ sơ vẫn localStorage theo browser/origin, không database dùng c
 Không có auth/queue công nghiệp, một analysis tại một thời điểm. Không cần và
 không gọi model API; B2 vẫn NOT_RUN. Chỉ dùng dữ liệu demo khi chia sẻ công khai.
 
-Nhánh: `feature/free-cloud-deployment`; PR bổ sung sau khi tạo.
+Nhánh: `feature/free-cloud-deployment`; implementation commit:
+`0ae57acd1d5f8ea03f57b4e99b19e630864301a5`.
+PR: [#10 — cấu hình Vercel frontend và Render Free backend](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/10).
