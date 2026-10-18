@@ -1,0 +1,471 @@
+{
+  "schema_version": "demo-1",
+  "metadata": {
+    "dataset_id": "editable-cell-01",
+    "source_type": "SYNTHETIC",
+    "plant_alias": "DEMO_INJECTION_CELL",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "currency": "VND"
+  },
+  "horizon": {
+    "start": "2026-10-19T00:00:00+07:00",
+    "end": "2026-10-20T00:00:00+07:00"
+  },
+  "machines": [
+    {
+      "id": "M1",
+      "available": [
+        {
+          "start": "2026-10-19T00:00:00+07:00",
+          "end": "2026-10-20T00:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "available": [
+        {
+          "start": "2026-10-19T00:00:00+07:00",
+          "end": "2026-10-20T00:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "available": [
+        {
+          "start": "2026-10-19T00:00:00+07:00",
+          "end": "2026-10-20T00:00:00+07:00"
+        }
+      ]
+    }
+  ],
+  "molds": [
+    {
+      "id": "K1"
+    },
+    {
+      "id": "K2"
+    },
+    {
+      "id": "K3"
+    },
+    {
+      "id": "K4"
+    },
+    {
+      "id": "K5"
+    },
+    {
+      "id": "K6"
+    },
+    {
+      "id": "K7"
+    },
+    {
+      "id": "K8"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "J1",
+      "quantity": 1000,
+      "family": "A",
+      "mold_id": "K1",
+      "release": "2026-10-19T00:00:00+07:00",
+      "due": "2026-10-20T00:00:00+07:00",
+      "eligible": {
+        "M1": {
+          "duration_min": 120,
+          "avg_kw": 22.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M2": {
+          "duration_min": 135,
+          "avg_kw": 25.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M3": {
+          "duration_min": 135,
+          "avg_kw": 25.0,
+          "power_source": "SYNTHETIC"
+        }
+      }
+    },
+    {
+      "id": "J2",
+      "quantity": 2000,
+      "family": "B",
+      "mold_id": "K2",
+      "release": "2026-10-19T00:00:00+07:00",
+      "due": "2026-10-20T00:00:00+07:00",
+      "eligible": {
+        "M1": {
+          "duration_min": 120,
+          "avg_kw": 24.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M2": {
+          "duration_min": 135,
+          "avg_kw": 27.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M3": {
+          "duration_min": 135,
+          "avg_kw": 27.0,
+          "power_source": "SYNTHETIC"
+        }
+      }
+    },
+    {
+      "id": "J3",
+      "quantity": 3000,
+      "family": "A",
+      "mold_id": "K3",
+      "release": "2026-10-19T00:00:00+07:00",
+      "due": "2026-10-20T00:00:00+07:00",
+      "eligible": {
+        "M1": {
+          "duration_min": 120,
+          "avg_kw": 26.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M2": {
+          "duration_min": 135,
+          "avg_kw": 29.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M3": {
+          "duration_min": 135,
+          "avg_kw": 29.0,
+          "power_source": "SYNTHETIC"
+        }
+      }
+    },
+    {
+      "id": "J4",
+      "quantity": 4000,
+      "family": "B",
+      "mold_id": "K4",
+      "release": "2026-10-19T00:00:00+07:00",
+      "due": "2026-10-20T00:00:00+07:00",
+      "eligible": {
+        "M1": {
+          "duration_min": 135,
+          "avg_kw": 31.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M2": {
+          "duration_min": 120,
+          "avg_kw": 28.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M3": {
+          "duration_min": 135,
+          "avg_kw": 31.0,
+          "power_source": "SYNTHETIC"
+        }
+      }
+    },
+    {
+      "id": "J5",
+      "quantity": 5000,
+      "family": "A",
+      "mold_id": "K5",
+      "release": "2026-10-19T00:00:00+07:00",
+      "due": "2026-10-20T00:00:00+07:00",
+      "eligible": {
+        "M1": {
+          "duration_min": 135,
+          "avg_kw": 33.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M2": {
+          "duration_min": 120,
+          "avg_kw": 30.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M3": {
+          "duration_min": 135,
+          "avg_kw": 33.0,
+          "power_source": "SYNTHETIC"
+        }
+      }
+    },
+    {
+      "id": "J6",
+      "quantity": 6000,
+      "family": "B",
+      "mold_id": "K6",
+      "release": "2026-10-19T00:00:00+07:00",
+      "due": "2026-10-20T00:00:00+07:00",
+      "eligible": {
+        "M1": {
+          "duration_min": 135,
+          "avg_kw": 35.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M2": {
+          "duration_min": 120,
+          "avg_kw": 32.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M3": {
+          "duration_min": 135,
+          "avg_kw": 35.0,
+          "power_source": "SYNTHETIC"
+        }
+      }
+    },
+    {
+      "id": "J7",
+      "quantity": 7000,
+      "family": "A",
+      "mold_id": "K7",
+      "release": "2026-10-19T00:00:00+07:00",
+      "due": "2026-10-20T00:00:00+07:00",
+      "eligible": {
+        "M1": {
+          "duration_min": 135,
+          "avg_kw": 37.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M2": {
+          "duration_min": 135,
+          "avg_kw": 37.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M3": {
+          "duration_min": 120,
+          "avg_kw": 34.0,
+          "power_source": "SYNTHETIC"
+        }
+      }
+    },
+    {
+      "id": "J8",
+      "quantity": 8000,
+      "family": "B",
+      "mold_id": "K8",
+      "release": "2026-10-19T00:00:00+07:00",
+      "due": "2026-10-20T00:00:00+07:00",
+      "eligible": {
+        "M1": {
+          "duration_min": 135,
+          "avg_kw": 39.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M2": {
+          "duration_min": 135,
+          "avg_kw": 39.0,
+          "power_source": "SYNTHETIC"
+        },
+        "M3": {
+          "duration_min": 120,
+          "avg_kw": 36.0,
+          "power_source": "SYNTHETIC"
+        }
+      }
+    }
+  ],
+  "current_schedule": [
+    {
+      "job_id": "J1",
+      "machine_id": "M1",
+      "start": "2026-10-19T08:00:00+07:00"
+    },
+    {
+      "job_id": "J2",
+      "machine_id": "M1",
+      "start": "2026-10-19T12:00:00+07:00"
+    },
+    {
+      "job_id": "J3",
+      "machine_id": "M1",
+      "start": "2026-10-19T16:00:00+07:00"
+    },
+    {
+      "job_id": "J4",
+      "machine_id": "M2",
+      "start": "2026-10-19T08:00:00+07:00"
+    },
+    {
+      "job_id": "J5",
+      "machine_id": "M2",
+      "start": "2026-10-19T12:00:00+07:00"
+    },
+    {
+      "job_id": "J6",
+      "machine_id": "M2",
+      "start": "2026-10-19T16:00:00+07:00"
+    },
+    {
+      "job_id": "J7",
+      "machine_id": "M3",
+      "start": "2026-10-19T09:00:00+07:00"
+    },
+    {
+      "job_id": "J8",
+      "machine_id": "M3",
+      "start": "2026-10-19T14:00:00+07:00"
+    }
+  ],
+  "setup": {
+    "initial_family_by_machine": {
+      "M1": "A",
+      "M2": "A",
+      "M3": "A"
+    },
+    "transitions": [
+      {
+        "machine_id": "M1",
+        "from_family": "A",
+        "to_family": "A",
+        "minutes": 0,
+        "incremental_cost_vnd": 0
+      },
+      {
+        "machine_id": "M1",
+        "from_family": "A",
+        "to_family": "B",
+        "minutes": 30,
+        "incremental_cost_vnd": 50000
+      },
+      {
+        "machine_id": "M1",
+        "from_family": "B",
+        "to_family": "A",
+        "minutes": 30,
+        "incremental_cost_vnd": 50000
+      },
+      {
+        "machine_id": "M1",
+        "from_family": "B",
+        "to_family": "B",
+        "minutes": 0,
+        "incremental_cost_vnd": 0
+      },
+      {
+        "machine_id": "M2",
+        "from_family": "A",
+        "to_family": "A",
+        "minutes": 0,
+        "incremental_cost_vnd": 0
+      },
+      {
+        "machine_id": "M2",
+        "from_family": "A",
+        "to_family": "B",
+        "minutes": 30,
+        "incremental_cost_vnd": 50000
+      },
+      {
+        "machine_id": "M2",
+        "from_family": "B",
+        "to_family": "A",
+        "minutes": 30,
+        "incremental_cost_vnd": 50000
+      },
+      {
+        "machine_id": "M2",
+        "from_family": "B",
+        "to_family": "B",
+        "minutes": 0,
+        "incremental_cost_vnd": 0
+      },
+      {
+        "machine_id": "M3",
+        "from_family": "A",
+        "to_family": "A",
+        "minutes": 0,
+        "incremental_cost_vnd": 0
+      },
+      {
+        "machine_id": "M3",
+        "from_family": "A",
+        "to_family": "B",
+        "minutes": 30,
+        "incremental_cost_vnd": 50000
+      },
+      {
+        "machine_id": "M3",
+        "from_family": "B",
+        "to_family": "A",
+        "minutes": 30,
+        "incremental_cost_vnd": 50000
+      },
+      {
+        "machine_id": "M3",
+        "from_family": "B",
+        "to_family": "B",
+        "minutes": 0,
+        "incremental_cost_vnd": 0
+      }
+    ]
+  },
+  "tariff": {
+    "provenance": "SYNTHETIC_SAMPLE_NOT_A_CURRENT_TARIFF_CLAIM",
+    "coverage_requirement": "FULL_HORIZON",
+    "windows": [
+      {
+        "start": "2026-10-19T00:00:00+07:00",
+        "end": "2026-10-19T04:00:00+07:00",
+        "band": "OFF_PEAK",
+        "vnd_per_kwh": 1190.0
+      },
+      {
+        "start": "2026-10-19T04:00:00+07:00",
+        "end": "2026-10-19T09:30:00+07:00",
+        "band": "NORMAL",
+        "vnd_per_kwh": 1833.0
+      },
+      {
+        "start": "2026-10-19T09:30:00+07:00",
+        "end": "2026-10-19T11:30:00+07:00",
+        "band": "PEAK",
+        "vnd_per_kwh": 3398.0
+      },
+      {
+        "start": "2026-10-19T11:30:00+07:00",
+        "end": "2026-10-19T17:00:00+07:00",
+        "band": "NORMAL",
+        "vnd_per_kwh": 1833.0
+      },
+      {
+        "start": "2026-10-19T17:00:00+07:00",
+        "end": "2026-10-19T20:00:00+07:00",
+        "band": "PEAK",
+        "vnd_per_kwh": 3398.0
+      },
+      {
+        "start": "2026-10-19T20:00:00+07:00",
+        "end": "2026-10-19T22:00:00+07:00",
+        "band": "NORMAL",
+        "vnd_per_kwh": 1833.0
+      },
+      {
+        "start": "2026-10-19T22:00:00+07:00",
+        "end": "2026-10-20T00:00:00+07:00",
+        "band": "OFF_PEAK",
+        "vnd_per_kwh": 1190.0
+      }
+    ]
+  },
+  "cost_scope": {
+    "included": "RUN_ELECTRICITY_AND_SETUP",
+    "excluded": [
+      "LABOR_OVERTIME",
+      "IDLE_ENERGY",
+      "SETUP_ENERGY",
+      "OTHER_COSTS"
+    ]
+  },
+  "policy": {
+    "version": "policy-1",
+    "min_net_saving_vnd": 100000,
+    "min_net_saving_pct": 1.0,
+    "min_b2_incremental_vnd": 50000,
+    "power_uncertainty_pct": 0.15,
+    "require_all_hard_constraints_pass": true
+  }
+}
