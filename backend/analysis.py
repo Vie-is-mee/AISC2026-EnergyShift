@@ -7,6 +7,7 @@ from .b1 import search_b1
 from .costing import cost_schedule
 from .policy import decide, meets_threshold
 from .validation import validate_input
+from .risk import economic_risk, power_uncertainty
 
 
 def analyze(snapshot, *, grid_minutes=30, max_candidates=5000):
@@ -24,14 +25,13 @@ def analyze(snapshot, *, grid_minutes=30, max_candidates=5000):
         return {**common, **result, "decision": {"kind": "BASELINE_INVALID", "selected_plan": None,
                                                 "reason_codes": ["BASELINE_NOT_VERIFIED"]}}
     b0, b1 = result["B0"], result["B1"]
-    uncertainty = Fraction(str(gate.snapshot["policy"]["power_uncertainty_pct"]))
     scenarios = {}
-    for label, factor in [("LOW", 1 - uncertainty), ("BASE", Fraction(1)), ("HIGH", 1 + uncertainty)]:
+    for label, direction in [("LOW", -1), ("BASE", 0), ("HIGH", 1)]:
         varied = deepcopy(gate.snapshot)
         for job in varied["jobs"]:
             for profile in job["eligible"].values():
-                if profile["power_source"] in ("SYNTHETIC", "ESTIMATED"):
-                    profile["avg_kw"] = float(Fraction(str(profile["avg_kw"])) * factor)
+                uncertainty = power_uncertainty(profile, gate.snapshot["policy"])
+                profile["avg_kw"] = float(Fraction(str(profile["avg_kw"])) * (1 + direction * uncertainty))
         left = cost_schedule(varied, b0["schedule"])
         right = cost_schedule(varied, b1["schedule"])
         if left["status"] != "COSTED" or right["status"] != "COSTED":
@@ -41,16 +41,17 @@ def analyze(snapshot, *, grid_minutes=30, max_candidates=5000):
             scenarios[label] = {"status": "COSTED", "b0_vnd": a, "b1_vnd": b, "saving_vnd": a - b,
                                 "meets_threshold": meets_threshold(a, b, gate.snapshot["policy"]),
                                 "scenario_input_hash": left["input_hash"]}
-    sensitivity = {"method": "fixed schedules; uniform correlated power scaling for SYNTHETIC/ESTIMATED profiles only",
-                   "scope": "Three tested scenarios; not a guarantee over independent parameter combinations",
+    sensitivity = {"method": "fixed schedules; same-direction profile-specific power scenarios",
+                   "scope": "Illustrative scenarios only; policy uses independent power and excluded-cost bounds in economic_assessment",
                    "scenarios": scenarios}
     acceptance = [s.get("meets_threshold") for s in scenarios.values()]
     sensitivity["acceptance_stable_in_tested_scenarios"] = None if None in acceptance else len(set(acceptance)) == 1
     total0, total1 = b0["cost"]["total_vnd"], b1["cost"]["total_vnd"]
     component_deltas = {key: b0["cost"]["by_component"][key] - b1["cost"]["by_component"][key]
                         for key in b0["cost"]["by_component"]}
-    decision = decide(b0, b1, sensitivity, gate.snapshot["policy"], result["search"])
-    decision["evidence_ids"] = ["plans.B0.verification", "plans.B1.verification", "comparison", "sensitivity", "search"]
+    risk = economic_risk(gate.snapshot, b0, b1)
+    decision = decide(b0, b1, sensitivity, gate.snapshot["policy"], result["search"], risk)
+    decision["evidence_ids"] = ["plans.B0.verification", "plans.B1.verification", "comparison", "sensitivity", "economic_assessment", "search"]
     # Derived setup effects on other jobs are explicit; B1 moves only one assignment.
     before = {j["job_id"]: j for j in b0["verification"]["jobs"]}
     setup_effects = [{"job_id": j["job_id"], "before_setup_start": before[j["job_id"]]["setup_start"],
@@ -66,4 +67,5 @@ def analyze(snapshot, *, grid_minutes=30, max_candidates=5000):
                            "saving_pct": round((total0 - total1) * 100 / total0, 6) if total0 else None,
                            "saving_by_component_vnd": component_deltas,
                            "changed_assignments": len(b1["changes"]), "derived_setup_effects": setup_effects},
-            "search": result["search"], "sensitivity": sensitivity, "decision": decision}
+            "search": result["search"], "sensitivity": sensitivity,
+            "economic_assessment": risk, "decision": decision}

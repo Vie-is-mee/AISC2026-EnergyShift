@@ -126,4 +126,4 @@ def verify_schedule(snapshot, schedule):
     return {"status": "FAIL" if issues else "PASS", "issues": issues,
             "jobs": sorted(rows, key=lambda r: r["job_id"]),
             "mold_reservations": reservations,
-            "scope": "demo-2; mounted molds held until replacement; no standalone unload/transfer or labor model"}
+            "scope": "demo-3; mounted molds held until replacement; no standalone unload/transfer or labor model"}

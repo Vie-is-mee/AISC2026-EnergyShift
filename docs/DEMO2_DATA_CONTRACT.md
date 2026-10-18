@@ -1,6 +1,11 @@
 # EnergyShift demo-2 — khuôn vật lý và duration theo lô
 
-Contract hiện hành sau đánh giá khắt khe. Engine từ chối schema demo-1; không
+**Đã được mở rộng bởi [demo-3](DEMO3_ECONOMIC_RISK.md).** Engine hiện chỉ nhận
+demo-3. Các quy tắc khuôn/lô bên dưới vẫn áp dụng, nhưng yêu cầu input mới gồm
+review chi phí EXCLUDED; policy dùng bound công suất độc lập. Số liệu demo-2
+được giữ làm bằng chứng lịch sử.
+
+Contract tại thời điểm sửa ưu tiên 1. Engine lúc đó từ chối schema demo-1; không
 tự suy đoán xác nhận lô, khuôn đầu kỳ hoặc thời gian đổi khuôn cho input cũ.
 Các report demo-1 được giữ nguyên làm lịch sử, không dùng làm kết quả hiện tại.
 

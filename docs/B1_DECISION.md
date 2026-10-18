@@ -1,7 +1,7 @@
 # Bước 3 — B1 single-move và quyết định có bằng chứng
 
 **Bằng chứng số tiền/counts bên dưới thuộc demo-1 tại bước 3.** Contract hiện
-hành là [demo-2](DEMO2_DATA_CONTRACT.md); B0/B1 hiện tính thêm đổi khuôn vật lý.
+hành là [demo-3](DEMO3_ECONOMIC_RISK.md); B0/B1 hiện tính thêm đổi khuôn vật lý.
 Không dùng lại 157.918 VND làm kết quả build hiện tại.
 
 ```console

@@ -1,0 +1,493 @@
+{
+  "schema_version": "demo-3",
+  "source_sha256": {
+    "risk.py": "e6800616cba24d0f028bc2c39689c2557b493ecef30b6cdd8c695df0c7bd5078",
+    "analysis.py": "4620c06e7811760314ac696c4ddf534ef3577034f2b974ac345ec9dc6c906b46",
+    "policy.py": "55bf961afda7254d4518f5e667f7f238c5bdcb24470f176105f0e4801c6eec2c",
+    "schemas.py": "82135c73e0d6f27c184dd0b562a33be1bc2a779f8659e5d658691199341401c3",
+    "validation.py": "cc522e8354d6c2375b8bcae3b69a80d46ad84815ecc99a74acd7447e79ae7986"
+  },
+  "cases": [
+    {
+      "case": "declared_zero_extra_cost",
+      "input_hash": "sha256:8bd1a70a1555ca1d01309a12ca418fa7448bba81b07d58a8a4000bc905ae4f96",
+      "cost_scope": {
+        "included": "RUN_ELECTRICITY_AND_SETUP",
+        "excluded": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "review_scope": "ALL_SINGLE_JOB_MOVES_IN_HORIZON",
+        "excluded_review": {
+          "LABOR_OVERTIME": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-LABOR_OVERTIME"
+          },
+          "IDLE_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-IDLE_ENERGY"
+          },
+          "SETUP_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-SETUP_ENERGY"
+          },
+          "OTHER_COSTS": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-OTHER_COSTS"
+          }
+        }
+      },
+      "decision": {
+        "kind": "CHANGE",
+        "selected_plan": "B1",
+        "reason_codes": [
+          "B2_NOT_EVALUATED",
+          "MODELED_COST_SCOPE_ONLY",
+          "B1_SELECTED_BY_MODELED_BASE_COST",
+          "B1_QUALIFIES_OVER_DECLARED_POWER_AND_COST_BOUNDS"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "comparison",
+          "sensitivity",
+          "economic_assessment",
+          "search"
+        ]
+      },
+      "comparison": {
+        "saving_vnd": 132918,
+        "saving_pct": 8.949369,
+        "saving_by_component_vnd": {
+          "RUN_ELECTRICITY": 57918,
+          "SETUP": 75000
+        },
+        "changed_assignments": 1,
+        "derived_setup_effects": [
+          {
+            "job_id": "J4",
+            "before_setup_start": "2026-10-19T07:30:00+07:00",
+            "after_setup_start": "2026-10-19T21:30:00+07:00",
+            "before_setup_vnd": 50000,
+            "after_setup_vnd": 25000
+          },
+          {
+            "job_id": "J5",
+            "before_setup_start": "2026-10-19T11:00:00+07:00",
+            "after_setup_start": "2026-10-19T11:30:00+07:00",
+            "before_setup_vnd": 75000,
+            "after_setup_vnd": 25000
+          }
+        ]
+      },
+      "economic_assessment": {
+        "status": "BOUNDED",
+        "unknown_components": [],
+        "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+        "modeled_saving_bounds_exact_vnd": [
+          "621144/5",
+          "708036/5"
+        ],
+        "rounding_allowance_exact_vnd": "3/2",
+        "power_drivers": [
+          {
+            "job_id": "J4",
+            "machine_id": "M2",
+            "base_saving_coefficient_exact_vnd": "57918",
+            "power_uncertainty_pct_exact": "3/20",
+            "saving_range_contribution_exact_vnd": "86877/5",
+            "worst_saving_power_factor": "17/20"
+          }
+        ],
+        "max_total_extra_cost_vnd_for_robust_change": 24228,
+        "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+        "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+        "excluded_incremental_bounds_vnd": [
+          0,
+          0
+        ],
+        "headroom_after_review_vnd": 24228,
+        "net_saving_bounds_exact_vnd": [
+          "621144/5",
+          "708036/5"
+        ],
+        "percentage_margin_bounds_exact_vnd": [
+          "27039969/250",
+          "31992921/250"
+        ],
+        "all_declared_values_qualify": true,
+        "no_declared_values_qualify": false
+      }
+    },
+    {
+      "case": "unknown_overtime",
+      "input_hash": "sha256:cb72c3830fc502356254adec07511be96eea905ebceb17086fb4d4f3cb843c9b",
+      "cost_scope": {
+        "included": "RUN_ELECTRICITY_AND_SETUP",
+        "excluded": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "review_scope": "ALL_SINGLE_JOB_MOVES_IN_HORIZON",
+        "excluded_review": {
+          "LABOR_OVERTIME": {
+            "status": "UNKNOWN",
+            "incremental_min_vnd": null,
+            "incremental_max_vnd": null,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-LABOR_OVERTIME"
+          },
+          "IDLE_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-IDLE_ENERGY"
+          },
+          "SETUP_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-SETUP_ENERGY"
+          },
+          "OTHER_COSTS": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-OTHER_COSTS"
+          }
+        }
+      },
+      "decision": {
+        "kind": "MEASURE_FIRST",
+        "selected_plan": "B0",
+        "reason_codes": [
+          "B2_NOT_EVALUATED",
+          "MODELED_COST_SCOPE_ONLY",
+          "B1_SELECTED_BY_MODELED_BASE_COST",
+          "EXCLUDED_COSTS_NOT_BOUNDED"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "comparison",
+          "sensitivity",
+          "economic_assessment",
+          "search"
+        ]
+      },
+      "comparison": {
+        "saving_vnd": 132918,
+        "saving_pct": 8.949369,
+        "saving_by_component_vnd": {
+          "RUN_ELECTRICITY": 57918,
+          "SETUP": 75000
+        },
+        "changed_assignments": 1,
+        "derived_setup_effects": [
+          {
+            "job_id": "J4",
+            "before_setup_start": "2026-10-19T07:30:00+07:00",
+            "after_setup_start": "2026-10-19T21:30:00+07:00",
+            "before_setup_vnd": 50000,
+            "after_setup_vnd": 25000
+          },
+          {
+            "job_id": "J5",
+            "before_setup_start": "2026-10-19T11:00:00+07:00",
+            "after_setup_start": "2026-10-19T11:30:00+07:00",
+            "before_setup_vnd": 75000,
+            "after_setup_vnd": 25000
+          }
+        ]
+      },
+      "economic_assessment": {
+        "status": "UNKNOWN_COSTS",
+        "unknown_components": [
+          "LABOR_OVERTIME"
+        ],
+        "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+        "modeled_saving_bounds_exact_vnd": [
+          "621144/5",
+          "708036/5"
+        ],
+        "rounding_allowance_exact_vnd": "3/2",
+        "power_drivers": [
+          {
+            "job_id": "J4",
+            "machine_id": "M2",
+            "base_saving_coefficient_exact_vnd": "57918",
+            "power_uncertainty_pct_exact": "3/20",
+            "saving_range_contribution_exact_vnd": "86877/5",
+            "worst_saving_power_factor": "17/20"
+          }
+        ],
+        "max_total_extra_cost_vnd_for_robust_change": 24228,
+        "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+        "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews."
+      }
+    },
+    {
+      "case": "extra_overtime_200000",
+      "input_hash": "sha256:06dd622111b5b0b21977aa8dd55d3f51231687c6bfab23016228a27d0c2b94ef",
+      "cost_scope": {
+        "included": "RUN_ELECTRICITY_AND_SETUP",
+        "excluded": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "review_scope": "ALL_SINGLE_JOB_MOVES_IN_HORIZON",
+        "excluded_review": {
+          "LABOR_OVERTIME": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 200000,
+            "incremental_max_vnd": 200000,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-LABOR_OVERTIME"
+          },
+          "IDLE_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-IDLE_ENERGY"
+          },
+          "SETUP_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-SETUP_ENERGY"
+          },
+          "OTHER_COSTS": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-OTHER_COSTS"
+          }
+        }
+      },
+      "decision": {
+        "kind": "KEEP_CURRENT",
+        "selected_plan": "B0",
+        "reason_codes": [
+          "B2_NOT_EVALUATED",
+          "MODELED_COST_SCOPE_ONLY",
+          "B1_SELECTED_BY_MODELED_BASE_COST",
+          "SELECTED_B1_NOT_QUALIFIED_UNDER_DECLARED_BOUNDS"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "comparison",
+          "sensitivity",
+          "economic_assessment",
+          "search"
+        ]
+      },
+      "comparison": {
+        "saving_vnd": 132918,
+        "saving_pct": 8.949369,
+        "saving_by_component_vnd": {
+          "RUN_ELECTRICITY": 57918,
+          "SETUP": 75000
+        },
+        "changed_assignments": 1,
+        "derived_setup_effects": [
+          {
+            "job_id": "J4",
+            "before_setup_start": "2026-10-19T07:30:00+07:00",
+            "after_setup_start": "2026-10-19T21:30:00+07:00",
+            "before_setup_vnd": 50000,
+            "after_setup_vnd": 25000
+          },
+          {
+            "job_id": "J5",
+            "before_setup_start": "2026-10-19T11:00:00+07:00",
+            "after_setup_start": "2026-10-19T11:30:00+07:00",
+            "before_setup_vnd": 75000,
+            "after_setup_vnd": 25000
+          }
+        ]
+      },
+      "economic_assessment": {
+        "status": "BOUNDED",
+        "unknown_components": [],
+        "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+        "modeled_saving_bounds_exact_vnd": [
+          "621144/5",
+          "708036/5"
+        ],
+        "rounding_allowance_exact_vnd": "3/2",
+        "power_drivers": [
+          {
+            "job_id": "J4",
+            "machine_id": "M2",
+            "base_saving_coefficient_exact_vnd": "57918",
+            "power_uncertainty_pct_exact": "3/20",
+            "saving_range_contribution_exact_vnd": "86877/5",
+            "worst_saving_power_factor": "17/20"
+          }
+        ],
+        "max_total_extra_cost_vnd_for_robust_change": 24228,
+        "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+        "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+        "excluded_incremental_bounds_vnd": [
+          200000,
+          200000
+        ],
+        "headroom_after_review_vnd": -175772,
+        "net_saving_bounds_exact_vnd": [
+          "-378856/5",
+          "-291964/5"
+        ],
+        "percentage_margin_bounds_exact_vnd": [
+          "-22960031/250",
+          "-18007079/250"
+        ],
+        "all_declared_values_qualify": false,
+        "no_declared_values_qualify": true
+      }
+    },
+    {
+      "case": "opposite_machine_power_errors",
+      "input_hash": "sha256:b7eccaca53d6b523ab7877fbb6f33030ae878e54261c58797ebce711bdc15093",
+      "cost_scope": {
+        "included": "RUN_ELECTRICITY_AND_SETUP",
+        "excluded": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "review_scope": "ALL_SINGLE_JOB_MOVES_IN_HORIZON",
+        "excluded_review": {
+          "LABOR_OVERTIME": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-LABOR_OVERTIME"
+          },
+          "IDLE_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-IDLE_ENERGY"
+          },
+          "SETUP_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-SETUP_ENERGY"
+          },
+          "OTHER_COSTS": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-OTHER_COSTS"
+          }
+        }
+      },
+      "decision": {
+        "kind": "MEASURE_FIRST",
+        "selected_plan": "B0",
+        "reason_codes": [
+          "B2_NOT_EVALUATED",
+          "MODELED_COST_SCOPE_ONLY",
+          "B1_SELECTED_BY_MODELED_BASE_COST",
+          "INDEPENDENT_POWER_OR_EXTRA_COST_RISK"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "comparison",
+          "sensitivity",
+          "economic_assessment",
+          "search"
+        ]
+      },
+      "comparison": {
+        "saving_vnd": 5231,
+        "saving_pct": 6.766266,
+        "saving_by_component_vnd": {
+          "RUN_ELECTRICITY": 5231,
+          "SETUP": 0
+        },
+        "changed_assignments": 1,
+        "derived_setup_effects": []
+      },
+      "economic_assessment": {
+        "status": "BOUNDED",
+        "unknown_components": [],
+        "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+        "modeled_saving_bounds_exact_vnd": [
+          "-193587/20",
+          "402827/20"
+        ],
+        "rounding_allowance_exact_vnd": "2",
+        "power_drivers": [
+          {
+            "job_id": "J1",
+            "machine_id": "M1",
+            "base_saving_coefficient_exact_vnd": "52310",
+            "power_uncertainty_pct_exact": "3/20",
+            "saving_range_contribution_exact_vnd": "15693",
+            "worst_saving_power_factor": "17/20"
+          },
+          {
+            "job_id": "J1",
+            "machine_id": "M2",
+            "base_saving_coefficient_exact_vnd": "-47079",
+            "power_uncertainty_pct_exact": "3/20",
+            "saving_range_contribution_exact_vnd": "141237/10",
+            "worst_saving_power_factor": "23/20"
+          }
+        ],
+        "max_total_extra_cost_vnd_for_robust_change": -10680,
+        "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+        "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+        "excluded_incremental_bounds_vnd": [
+          0,
+          0
+        ],
+        "headroom_after_review_vnd": -10680,
+        "net_saving_bounds_exact_vnd": [
+          "-193587/20",
+          "402827/20"
+        ],
+        "percentage_margin_bounds_exact_vnd": [
+          "-414959/40",
+          "771591/40"
+        ],
+        "all_declared_values_qualify": false,
+        "no_declared_values_qualify": false
+      }
+    }
+  ],
+  "limitations": "Synthetic designed regression cases. Bounds apply only to declared power intervals and trusted incremental cost reviews; not observed plant ROI."
+}
