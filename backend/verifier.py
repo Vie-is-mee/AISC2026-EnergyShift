@@ -45,23 +45,31 @@ def verify_schedule(snapshot, schedule):
         grouped[assignment.machine_id].append(assignment)
 
     transitions = {(t.machine_id, t.from_family, t.to_family): t for t in data.setup.transitions}
+    for machine_id in machines:
+        grouped.setdefault(machine_id, [])
     for machine_id, sequence in sorted(grouped.items()):
         family = data.setup.initial_family_by_machine[machine_id]
+        mold = data.setup.initial_mold_by_machine[machine_id]
         previous_end = None
         for assignment in sorted(sequence, key=lambda a: (a.start, a.job_id)):
             job = jobs[assignment.job_id]
             processing = job.eligible[machine_id]
             setup = transitions[machine_id, family, job.family]
+            change = data.setup.mold_change_by_machine[machine_id]
+            mold_minutes = change.minutes if mold != job.mold_id else 0
+            setup_minutes = setup.minutes + mold_minutes
             start = assignment.start
             try:
                 end = start + timedelta(minutes=processing.duration_min)
-                setup_start = start - timedelta(minutes=setup.minutes)
+                setup_start = start - timedelta(minutes=setup_minutes)
             except OverflowError:
                 fail("TIME_OVERFLOW", job.id, machine_id=machine_id)
                 continue
             row = {"job_id": job.id, "machine_id": machine_id, "mold_id": job.mold_id,
                    "quantity": job.quantity, "start": start.isoformat(), "end": end.isoformat(),
-                   "setup_start": setup_start.isoformat(), "setup_minutes": setup.minutes,
+                   "setup_start": setup_start.isoformat(), "setup_minutes": setup_minutes,
+                   "family_setup_minutes": setup.minutes, "mold_change_minutes": mold_minutes,
+                   "previous_mold_id": mold,
                    "due": job.due.isoformat()}
             rows.append(row)
             context = {"machine_id": machine_id, "start": start.isoformat(), "end": end.isoformat()}
@@ -85,20 +93,37 @@ def verify_schedule(snapshot, schedule):
                     fail("INSUFFICIENT_SETUP", job.id, setup_start=setup_start.isoformat(), **context)
             previous_end = max(previous_end, end) if previous_end else end
             family = job.family
+            mold = job.mold_id
 
-    # Mold reserved for setup + run. Transfer/unmount time is outside demo-1.
+    # Conservative mounted occupancy: a mold stays on a machine through idle
+    # time until its replacement is installed (next run start). No implicit
+    # instant removal/reuse on a second machine. Both molds are reserved during
+    # a physical replacement; standalone unmount/transfer operations are not supported.
+    reservations = []
+    for machine_id in machines:
+        mold = data.setup.initial_mold_by_machine[machine_id]
+        since = data.horizon.start.isoformat()
+        for row in sorted((r for r in rows if r["machine_id"] == machine_id), key=lambda r: (r["start"], r["job_id"])):
+            if mold != row["mold_id"]:
+                if mold is not None and since < row["start"]:
+                    reservations.append({"mold_id": mold, "machine_id": machine_id, "start": since, "end": row["start"]})
+                mold, since = row["mold_id"], row["setup_start"]
+        if mold is not None and since < data.horizon.end.isoformat():
+            reservations.append({"mold_id": mold, "machine_id": machine_id, "start": since, "end": data.horizon.end.isoformat()})
     by_mold = defaultdict(list)
-    for row in rows:
+    for row in reservations:
         by_mold[row["mold_id"]].append(row)
     for mold_id, sequence in by_mold.items():
-        active_end, active_job = None, None
-        for row in sorted(sequence, key=lambda r: (r["setup_start"], r["job_id"])):
-            # All normalized timestamps have identical offset and precision.
-            if active_end is not None and row["setup_start"] < active_end:
-                fail("MOLD_OVERLAP", row["job_id"], mold_id=mold_id, other_job_id=active_job,
-                     start=row["setup_start"], end=row["end"])
-            if active_end is None or row["end"] > active_end:
-                active_end, active_job = row["end"], row["job_id"]
+        ordered = sorted(sequence, key=lambda r: r["start"])
+        for i, left in enumerate(ordered):
+            for right in ordered[i + 1:]:
+                if right["start"] >= left["end"]:
+                    break
+                if left["machine_id"] != right["machine_id"]:
+                    fail("MOLD_OVERLAP", mold_id=mold_id, machine_id=right["machine_id"],
+                         other_machine_id=left["machine_id"], start=max(left["start"], right["start"]),
+                         end=min(left["end"], right["end"]))
     return {"status": "FAIL" if issues else "PASS", "issues": issues,
             "jobs": sorted(rows, key=lambda r: r["job_id"]),
-            "scope": "demo-1 declared constraints only; excludes labor and mold transfer time"}
+            "mold_reservations": reservations,
+            "scope": "demo-2; mounted molds held until replacement; no standalone unload/transfer or labor model"}

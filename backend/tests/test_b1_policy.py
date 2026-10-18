@@ -10,6 +10,7 @@ from backend.analysis import analyze
 from backend.b1 import search_b1
 from backend.costing import cost_schedule
 from backend.policy import meets_threshold
+from backend.tests.support import profile
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -18,7 +19,7 @@ def small_fixture():
     """Independent one-job example with an analytically checkable best move."""
     data = json.loads((ROOT / "backend/fixtures/editable_cell.json").read_text())
     data["jobs"] = data["jobs"][:1]
-    data["jobs"][0]["eligible"] = {"M1": {"duration_min": 60, "avg_kw": 20.0, "power_source": "SYNTHETIC"}}
+    data["jobs"][0]["eligible"] = {"M1": profile(1000, 60, 20.0)}
     data["setup"]["initial_family_by_machine"]["M3"] = "B"
     data["current_schedule"] = [{"job_id": "J1", "machine_id": "M1", "start": "2026-10-19T09:30:00+07:00"}]
     data["policy"]["min_net_saving_vnd"] = 10000
@@ -140,7 +141,8 @@ class B1Tests(unittest.TestCase):
         self.data["jobs"][0]["release"] = "2026-10-19T09:07:00+07:00"
         self.data["jobs"][0]["due"] = "2026-10-19T10:07:00+07:00"
         self.data["current_schedule"][0]["start"] = "2026-10-19T09:07:00+07:00"
-        self.data["jobs"][0]["eligible"]["M2"] = {"duration_min": 60, "avg_kw": 1.0, "power_source": "SYNTHETIC"}
+        self.data["jobs"][0]["eligible"]["M2"] = profile(1000, 60, 1.0)
+        self.data["jobs"][0]["mold_id"] = "K8"  # initially unmounted, available to either machine
         report = search_b1(self.data)
         self.assertEqual(report["B1"]["schedule"][0]["machine_id"], "M2")
         self.assertEqual(report["B1"]["schedule"][0]["start"], "2026-10-19T09:07:00+07:00")
@@ -169,8 +171,8 @@ class FullCellTests(unittest.TestCase):
         self.assertEqual(b1["cost"], cost_schedule(data, b1["schedule"])["cost"])
         self.assertLessEqual(b1["cost"]["total_vnd"], b0["cost"]["total_vnd"])
         self.assertEqual(sum(x != y for x, y in zip(b0["schedule"], b1["schedule"])), 1)
-        self.assertEqual(result["comparison"]["saving_vnd"], 157918)
-        self.assertEqual(result["comparison"]["saving_by_component_vnd"]["SETUP"], 100000)
+        self.assertEqual(result["comparison"]["saving_vnd"], 132918)
+        self.assertEqual(result["comparison"]["saving_by_component_vnd"]["SETUP"], 75000)
         self.assertEqual({x["job_id"] for x in result["comparison"]["derived_setup_effects"]}, {"J4", "J5"})
         search = result["search"]
         self.assertEqual(search["evaluated_candidates"], search["rejected_candidates"] + search["valid_candidates"])

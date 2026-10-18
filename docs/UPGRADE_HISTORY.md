@@ -229,3 +229,61 @@ Nhánh: `feature/openrouter-evaluation`.
 Commit triển khai: `9594685eb742fe9f0b8227a7f893cb65efe3d5b4`.
 PR: [#5 — benchmark engine and evaluate OpenRouter fidelity](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/5).
 CI và bản ghi merge chính thức được lưu trên PR.
+
+## Ưu tiên 1 sau đánh giá khắt khe — khuôn vật lý và consistency lô
+
+Ngày: 18/10/2026 (Asia/Ho_Chi_Minh). Source trước sửa:
+`dd5cc6d2fc6db28e5fc28ab161830d05c5b63490` (PR #5 đã merge).
+
+### Điểm yếu tái hiện
+
+- Hai job cùng family, khác mold_id được xếp sát nhau với setup 0 và PASS.
+- Tăng quantity J1 từ 1.000 lên 1.000.000 mà giữ duration vẫn PASS và cùng cost.
+- Thiếu initial mold state và việc giữ khuôn khi máy idle có thể cho phép reuse
+  khuôn ở máy khác mà chưa mô hình hóa tháo/thay.
+
+### Kỹ thuật và thay đổi
+
+- Bump contract demo-2, reject demo-1 thay vì tự thêm default cho bằng chứng.
+- Mỗi profile job/machine có lot_confirmation khóa quantity + duration, kèm
+  source/reference. Sửa riêng quantity/duration hoặc quên một alternative bị
+  LOT_CONFIRMATION_MISMATCH. Đây là kiểm tra khai báo nhất quán, không phải
+  mô hình cycle time hoặc chứng thực chữ ký/nguồn của nhà máy.
+- initial_mold_by_machine đầy đủ (mold ID hoặc null), cấm một khuôn gắn hai máy.
+- Mechanical mold change có phút dương và cost tường minh cho từng máy, tách
+  khỏi family cleaning/purge; scope ADDITIONAL_CLEANING_ONLY tránh cộng trùng.
+- Verifier và costing tự tính lại initial/sequential mold state, setup tổng và
+  chi phí cơ khí. Cùng family nhưng đổi khuôn vẫn mất thời gian/cost đã khai báo.
+- MOLD occupancy HOLD_UNTIL_REPLACEMENT_COMPLETE: giữ khuôn qua idle, nhả khi
+  thay thế hoàn tất; reserve cả khuôn cũ/mới trong setup. Chưa hỗ trợ tháo khuôn
+  riêng hoặc resource vận chuyển. Có thể reject bảo thủ một số lịch nhà máy.
+- Ledger ghi from/to mold, phần family/physical; report công khai ảnh hưởng
+  setup về thời gian và chi phí của các job khác.
+- Fixture cập nhật toàn bộ bằng chứng giả lập. Các report demo-1 giữ nguyên và
+  được đánh dấu lịch sử, không thay số cũ để làm đẹp kết quả.
+
+### Kiểm chứng và số liệu mới
+
+- **19 tests regression mới, tổng 105 tests PASS** local Python 3.11.8; các
+  test cũ được cập nhật để khai báo lot evidence tường minh cho dữ liệu test.
+- Bắt lại hai ca hở quantity và different-mold/same-family; kiểm tra initial
+  mold trùng/thiếu, setup zero/missing, initial install, maintenance và reuse
+  khuôn chỉ sau khi nguồn đã nhả; cùng khuôn được tiếp tục chạy sát nhau.
+- B0: điện 1.060.222 + setup 425.000 = **1.485.222 VND**.
+- B1: điện 1.002.304 + setup 350.000 = **1.352.304 VND**.
+- Modeled saving **132.918 VND**, giảm 25.000 so demo-1 do J4 cuối ngày vẫn
+  cần đổi K6→K4 dù cùng family B. Giữ kết quả mới, không ép engine ra số cũ.
+- Artifact engine_demo2.json: 4 ca, một lượt/ca, expected verdict và invariant
+  checks đều đạt. Không tuyên bố đã đo lặp lại từ một lượt. Không gọi API thật.
+
+### Còn lại
+
+Chưa xử lý independent uncertainty/chi phí EXCLUDED của ưu tiên 2; frontend
+vẫn mockup; chưa B2, nguồn xác nhận thực hoặc chứng minh ROI nhà máy. Phiên bản
+này khóa quantity với duration đã xác nhận, chưa tự suy ra thời gian sản xuất.
+Chi tiết contract mới: DEMO2_DATA_CONTRACT.md.
+
+Nhánh: `fix/physical-molds-lot-consistency`.
+Commit triển khai: `a1de7dcbd482caf6815c6f8ecd4a18700c91c0d7`.
+PR: [#6 — physical mold setup and confirmed lot durations](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/6).
+CI và bản ghi merge chính thức được lưu trên PR.

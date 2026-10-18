@@ -16,7 +16,7 @@ def benchmark(repeats=3):
     raw = json.loads((Path(__file__).parent / "fixtures/editable_cell.json").read_text(encoding="utf-8"))
     keep, measure, invalid = deepcopy(raw), deepcopy(raw), deepcopy(raw)
     keep["policy"]["min_net_saving_vnd"] = 10000000
-    measure["policy"]["min_net_saving_vnd"] = 157000
+    measure["policy"]["min_net_saving_vnd"] = 132000
     invalid["current_schedule"][1]["start"] = "2026-10-19T09:00:00+07:00"
     cases = [("change", raw, "CHANGE"), ("keep", keep, "KEEP_CURRENT"),
              ("measure", measure, "MEASURE_FIRST"), ("invalid", invalid, "BASELINE_INVALID")]
@@ -42,14 +42,16 @@ def benchmark(repeats=3):
                          "b1_schedule": report["plans"]["B1"]["schedule"] if completed else None,
                          "comparison": report.get("comparison"), "search": report.get("search")})
             print(json.dumps({"case": name, "repeat": len(runs), "seconds": seconds, "decision": runs[-1]["decision"]}), flush=True)
-        stable = all((r["b1_schedule"], r["comparison"], r["decision"], r["input_hash"]) ==
+        stable = None if repeats < 2 else all((r["b1_schedule"], r["comparison"], r["decision"], r["input_hash"]) ==
                      (runs[0]["b1_schedule"], runs[0]["comparison"], runs[0]["decision"], runs[0]["input_hash"]) for r in runs)
         results.append({"case": name, "repeatable": stable, "median_seconds": statistics.median(r["seconds"] for r in runs), "runs": runs})
     total = sum(len(c["runs"]) for c in results)
-    passed = all(c["repeatable"] and all(r["expected_decision_matches"] and all(r["invariants"].values()) for r in c["runs"]) for c in results)
+    passed = all(c["repeatable"] is not False and all(r["expected_decision_matches"] and all(r["invariants"].values()) for r in c["runs"]) for c in results)
     return {"evaluated_at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).isoformat(),
             "environment": {"python": platform.python_version(), "os": platform.system()},
-            "summary": {"cases": len(results), "runs": total, "all_checks_pass": passed}, "cases": results,
+            "schema_version": raw["schema_version"],
+            "summary": {"cases": len(results), "runs": total, "all_checks_pass": passed,
+                        "repeatability_assessed": repeats >= 2}, "cases": results,
             "limitations": "Small designed synthetic regression/performance benchmark on this machine; no observed factory savings or industrial model-accuracy claim."}
 
 

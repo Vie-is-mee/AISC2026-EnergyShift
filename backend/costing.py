@@ -37,6 +37,7 @@ def cost_schedule(snapshot, schedule):
     total_energy = Fraction(0)
     for machine_id, assignments in sorted(by_machine.items()):
         family = data.setup.initial_family_by_machine[machine_id]
+        mold = data.setup.initial_mold_by_machine[machine_id]
         for assignment in sorted(assignments, key=lambda a: (a.start, a.job_id)):
             job = jobs[assignment.job_id]
             profile = job.eligible[machine_id]
@@ -61,15 +62,24 @@ def cost_schedule(snapshot, schedule):
                 band_costs[window.band] += amount
                 band_energy[window.band] += kwh
             setup = transitions[machine_id, family, job.family]
+            change = data.setup.mold_change_by_machine[machine_id]
+            mold_changed = mold != job.mold_id
+            mold_cost = change.incremental_cost_vnd if mold_changed else 0
+            mold_minutes = change.minutes if mold_changed else 0
+            setup_total = setup.incremental_cost_vnd + mold_cost
             ledger.append({"job_id": job.id, "machine_id": machine_id, "component": "SETUP",
-                           "from_family": family, "to_family": job.family, "minutes": setup.minutes,
-                           "cost_vnd": setup.incremental_cost_vnd})
-            total = electricity + setup.incremental_cost_vnd
-            job_costs[job.id] = {"electricity_vnd": electricity, "setup_vnd": setup.incremental_cost_vnd,
+                           "from_family": family, "to_family": job.family, "minutes": setup.minutes + mold_minutes,
+                           "from_mold": mold, "to_mold": job.mold_id, "mold_change_minutes": mold_minutes,
+                           "family_setup_vnd": setup.incremental_cost_vnd, "mold_change_vnd": mold_cost,
+                           "cost_vnd": setup_total})
+            total = electricity + setup_total
+            job_costs[job.id] = {"electricity_vnd": electricity, "setup_vnd": setup_total,
+                                "family_setup_vnd": setup.incremental_cost_vnd, "mold_change_vnd": mold_cost,
                                 "total_vnd": total, "kwh_exact": energy_string(energy)}
             machine_costs[machine_id] += total
             total_energy += energy
             family = job.family
+            mold = job.mold_id
     electric = sum(v["electricity_vnd"] for v in job_costs.values())
     setup_cost = sum(v["setup_vnd"] for v in job_costs.values())
     return {"status": "COSTED", "verification": verification, "input_hash": gate.input_hash,

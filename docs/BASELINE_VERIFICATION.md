@@ -1,5 +1,9 @@
 # Bước 2 — kiểm chứng lịch và tính chi phí B0
 
+**Các số tiền và giới hạn bên dưới ghi lại demo-1 tại bước 2.** Xem
+[demo-2](DEMO2_DATA_CONTRACT.md) cho contract hiện hành, trạng thái khuôn đầu kỳ,
+giữ khuôn khi idle, xác nhận lô và kết quả tính mới.
+
 ## Chạy local
 
 ```console

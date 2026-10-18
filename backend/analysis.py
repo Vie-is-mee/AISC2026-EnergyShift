@@ -17,6 +17,7 @@ def analyze(snapshot, *, grid_minutes=30, max_candidates=5000):
                 "decision": None}
     result = search_b1(gate.snapshot, grid_minutes=grid_minutes, max_candidates=max_candidates)
     common = {"run_id": run_id, "input_hash": gate.input_hash,
+              "schema_version": gate.snapshot["schema_version"],
               "source_type": gate.snapshot["metadata"]["source_type"],
               "cost_scope": gate.snapshot["cost_scope"], "policy": gate.snapshot["policy"]}
     if result["status"] != "COMPLETED":
@@ -53,8 +54,12 @@ def analyze(snapshot, *, grid_minutes=30, max_candidates=5000):
     # Derived setup effects on other jobs are explicit; B1 moves only one assignment.
     before = {j["job_id"]: j for j in b0["verification"]["jobs"]}
     setup_effects = [{"job_id": j["job_id"], "before_setup_start": before[j["job_id"]]["setup_start"],
-                      "after_setup_start": j["setup_start"]}
-                     for j in b1["verification"]["jobs"] if j["setup_start"] != before[j["job_id"]]["setup_start"]]
+                      "after_setup_start": j["setup_start"],
+                      "before_setup_vnd": b0["cost"]["by_job"][j["job_id"]]["setup_vnd"],
+                      "after_setup_vnd": b1["cost"]["by_job"][j["job_id"]]["setup_vnd"]}
+                     for j in b1["verification"]["jobs"]
+                     if j["setup_start"] != before[j["job_id"]]["setup_start"]
+                     or b0["cost"]["by_job"][j["job_id"]]["setup_vnd"] != b1["cost"]["by_job"][j["job_id"]]["setup_vnd"]]
     return {**common, "status": "COMPLETED", "plans": {"B0": b0, "B1": b1,
             "B2": {"status": "NOT_RUN", "solver_status": "NOT_RUN", "cost": None, "schedule": None}},
             "comparison": {"saving_vnd": total0 - total1,

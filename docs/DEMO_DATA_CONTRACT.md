@@ -1,4 +1,9 @@
-# EnergyShift demo-1 — hợp đồng dữ liệu
+# EnergyShift demo-1 — hợp đồng dữ liệu (lịch sử)
+
+**Đã được thay bằng [DEMO2_DATA_CONTRACT.md](DEMO2_DATA_CONTRACT.md).**
+Engine hiện chỉ nhận demo-2; không tự thêm xác nhận lô hoặc giả định đổi khuôn
+cho input cũ. Nội dung dưới đây lưu phạm vi của các bước trước, không phải
+contract hiện hành.
 
 Ngày chốt: 18/10/2026 (Asia/Ho_Chi_Minh). Phạm vi bước 1: T00 phần contract,
 T01 fixture, T02 parser/data gate của master roadmap.

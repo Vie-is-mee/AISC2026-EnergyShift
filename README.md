@@ -5,7 +5,7 @@ Hỗ trợ quyết định điều chỉnh lịch sản xuất dựa trên tính
 Frontend HTML/CSS/JavaScript hiện tại là demo minh họa dùng kịch bản khai báo
 sẵn. Backend mới đang được xây theo từng bước; chưa phải hệ thống tối ưu hoàn chỉnh.
 
-## Backend — bước 3
+## Backend — B0/B1 với contract demo-2
 
 Python 3.11, chạy từ thư mục gốc repository:
 
@@ -25,7 +25,7 @@ và setup. `--analyze` tạo B1 single-move, kiểm tra LOW/BASE/HIGH trên lị
 B2 chưa chạy; frontend chưa nối engine. Sau khi cài dependency, CLI và tests
 không yêu cầu mạng.
 
-- [Contract dữ liệu và giới hạn](docs/DEMO_DATA_CONTRACT.md)
+- [Contract demo-2: khuôn vật lý và duration theo lô](docs/DEMO2_DATA_CONTRACT.md)
 - [Kiểm chứng lịch, số học và bằng chứng bước 2](docs/BASELINE_VERIFICATION.md)
 - [B1, policy và bằng chứng bước 3](docs/B1_DECISION.md)
 - [Lịch sử nhận diện điểm yếu và nâng cấp](docs/UPGRADE_HISTORY.md)
