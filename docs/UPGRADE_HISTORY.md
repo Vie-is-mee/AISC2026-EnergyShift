@@ -66,6 +66,8 @@ verifier lịch B0/máy/khuôn/setup/deadline/calendar, cùng kiểm thử đố
 
 ### Dấu vết GitHub
 
-Nhánh: `feature/step-01-data-foundation`. PR và kết quả merge được ghi tiếp
-trong mục này sau khi kiểm tra thay đổi và tạo PR; số PR truy được từ lịch sử
-merge GitHub. Chưa ghi nhận merge khi chưa có xác nhận từ GitHub.
+Nhánh: `feature/step-01-data-foundation`.
+Commit triển khai: `32fc645e083f55a1cab0166e043b3bf4ac5cfa90`.
+PR: [#1 — validated demo input foundation](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/1).
+Kết quả CI và bản ghi merge chính thức được lưu trên PR này; không suy ra trạng
+thái merge từ commit đang nằm trên feature branch.
