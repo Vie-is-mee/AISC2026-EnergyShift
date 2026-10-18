@@ -488,3 +488,100 @@ tr.live-changed {
     gap: 0;
   }
 }
+/* Guided input workspace shares the live demo's typography and colors. */
+.desk {
+  margin: 1rem 0;
+  border: 1px solid #c9ddd8;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.desk > details,
+.desk > .live-actions,
+.desk > p,
+.desk > ul {
+  margin: 0;
+  padding: 1rem;
+}
+.desk > details + details {
+  border-top: 1px solid #e0e9e6;
+}
+.desk summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+.desk-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  background: #e9f5ef;
+  padding: 1rem;
+}
+.desk-banner span {
+  color: #4c665e;
+}
+.desk-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.7rem;
+  margin: 0.8rem 0;
+}
+.desk label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+}
+.desk input,
+.desk select {
+  font: inherit;
+  color: inherit;
+  border: 1px solid #bfd1cb;
+  border-radius: 6px;
+  padding: 0.55rem;
+  background: white;
+  max-width: 100%;
+}
+.desk select {
+  min-width: 5rem;
+}
+.desk .desk-check {
+  flex-direction: row;
+  align-items: start;
+  line-height: 1.6;
+  max-width: 46rem;
+}
+.desk-check input {
+  flex-shrink: 0;
+  margin-top: 0.35rem;
+}
+.desk-plan {
+  min-width: 1200px;
+}
+.desk-plan input {
+  width: 100%;
+  min-width: 6rem;
+}
+.desk-plan input[type="datetime-local"] {
+  min-width: 12rem;
+}
+.desk textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.6rem 0;
+}
+.desk .live-errors {
+  margin: 0.8rem;
+  padding: 1rem 2rem;
+}
+.desk button {
+  white-space: normal;
+}
+@media (max-width: 600px) {
+  .desk-controls > label {
+    width: 100%;
+  }
+  .desk > details {
+    padding: 0.8rem;
+  }
+}

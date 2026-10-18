@@ -77,6 +77,9 @@ function setDataset(data) {
   $("dataset").value = JSON.stringify(data, null, 2);
   syncQuick();
   $("analyze").disabled = pending;
+  document.dispatchEvent(
+    new CustomEvent("energyshift:dataset", { detail: data }),
+  );
 }
 function errors(items) {
   $("errors").replaceChildren();
@@ -131,6 +134,7 @@ function edit(mutator) {
 $("dataset").addEventListener("input", () => {
   clearResult();
   syncQuick();
+  window.InputDesk?.externalEdit();
 });
 $("minSaving").addEventListener("change", () =>
   edit((d) => {
@@ -183,6 +187,7 @@ $("upload").addEventListener("change", async (event) => {
     if (stamp !== revision) return;
     $("dataset").value = text;
     syncQuick();
+    window.InputDesk?.externalEdit();
     $("analyze").disabled = pending;
   } catch {
     errors([{ code: "READ_ERROR", why: "Không đọc được file JSON." }]);
@@ -245,6 +250,8 @@ function renderGantt(report) {
 }
 function render(report) {
   currentReport = report;
+  if (window.InputDesk?.evidence())
+    currentReport.input_preparation = window.InputDesk.evidence();
   const b0 = report.plans.B0,
     b1 = report.plans.B1,
     risk = report.economic_assessment;
@@ -390,6 +397,7 @@ function render(report) {
 }
 $("analyze").addEventListener("click", async () => {
   if (pending) return;
+  if (window.InputDesk && !window.InputDesk.beforeAnalyze()) return;
   clearResult();
   const stamp = revision,
     payload = $("dataset").value;

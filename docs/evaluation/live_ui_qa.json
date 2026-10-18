@@ -1,10 +1,13 @@
 {
   "browser": "headless Microsoft Edge via CDP",
   "all_checks_pass": true,
+  "scope": "full-regression",
   "javascript_exceptions": 0,
   "screenshots": [
     "work/ui-qa/desktop.png",
-    "work/ui-qa/mobile.png"
+    "work/ui-qa/mobile.png",
+    "work/ui-qa/input-desktop.png",
+    "work/ui-qa/input-mobile.png"
   ],
   "flows": [
     "default CHANGE",
@@ -15,13 +18,27 @@
     "stale response",
     "untrusted reference as text",
     "JSON export roundtrip",
-    "JSON file upload"
+    "JSON file upload",
+    "profile persistence",
+    "draft recovery",
+    "CSV mapping memory",
+    "extra-column preservation",
+    "explicit lot reconfirmation",
+    "new plan cost reset",
+    "day shift confirmation",
+    "structured workshop fields",
+    "storage denied",
+    "input desktop/mobile",
+    "workspace file restore",
+    "CSV file BOM/CRLF preservation"
   ],
   "source_sha256": {
-    "index.html": "b452ffbf8376cff9b65f69b8c23fa8af55adfea6069b762380b0aa40dfd1d8ef",
-    "app.js": "36ce02012d93f4d8fcce22c3aa294e66cb6b550e28a507d43a93c77826127b34",
-    "live.css": "ec40ba2c184f012977e4071e7334b6de026f5863025898457803db321b17cb1c",
-    "backend/app.py": "c8ab13563254b06153ddcb9990516ac04481f37959f7a430b938178a2a744484"
+    "index.html": "8754921cdfacd597061da137865c39e6b3bfa1d09e44c59172b7bedc26609aba",
+    "app.js": "3453edb38b18759daa093911b3c458618b6772e3275ecacbfd2ddc5c975def8a",
+    "live.css": "60f15c49c8057f8c98ec2ec815a46a96c552c034874c97f65c0f402e29afdcd0",
+    "backend/app.py": "9987e43dd8be20af3e255d488dccf14097786f327fb471e9f0a53eca7a775710",
+    "input-model.js": "2fb17888f18bc160d278af7628dcca3e2e1e8691ad34c0dbdaa559b22d9184cc",
+    "input-desk.js": "516e1bfdc323d70c7850ac8b7ee3240432b3e48841320ef94229fbdf69b0cdc6"
   },
   "limitations": "One local browser run, synthetic data. Does not certify all browsers or industrial operation."
 }

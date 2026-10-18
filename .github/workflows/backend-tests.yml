@@ -19,3 +19,5 @@ jobs:
         with:
           node-version: '22'
       - run: node --check app.js
+      - run: node --check input-desk.js
+      - run: node --test ops/input-model.test.cjs

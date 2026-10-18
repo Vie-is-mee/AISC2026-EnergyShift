@@ -55,6 +55,16 @@ def stylesheet():
     return FileResponse(ROOT / "live.css", media_type="text/css")
 
 
+@app.get("/input-model.js")
+def input_model_script():
+    return FileResponse(ROOT / "input-model.js", media_type="text/javascript")
+
+
+@app.get("/input-desk.js")
+def input_desk_script():
+    return FileResponse(ROOT / "input-desk.js", media_type="text/javascript")
+
+
 @app.get("/api/demo/health")
 def health():
     sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
@@ -74,6 +84,7 @@ def fixture(fixture_id: str):
     return json.loads((ROOT / "backend/fixtures/editable_cell.json").read_text(encoding="utf-8"))
 
 
+@app.post("/api/demo/validate")
 @app.post("/api/demo/analyze")
 async def analyze_request(request: Request):
     if request.headers.get("content-type", "").split(";")[0].strip() != "application/json":
@@ -93,6 +104,9 @@ async def analyze_request(request: Request):
     horizon_minutes = (datetime.fromisoformat(data["horizon"]["end"]) - datetime.fromisoformat(data["horizon"]["start"])) / timedelta(minutes=1)
     if len(data["jobs"]) > 8 or len(data["machines"]) > 3 or horizon_minutes > 48 * 60:
         return error(422, "DEMO_LIMIT", "Local demo supports up to 8 jobs, 3 machines and 48 hours")
+    if request.url.path == "/api/demo/validate":
+        return {"status": "READY", "input_hash": gate.input_hash, "snapshot": data,
+                "note": "Data contract only; schedule verification runs during analysis"}
     if not analysis_lock.acquire(blocking=False):
         return error(409, "ANALYSIS_BUSY", "An analysis is running; wait for it to finish")
     try:

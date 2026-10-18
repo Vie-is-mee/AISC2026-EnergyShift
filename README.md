@@ -15,15 +15,18 @@ python -m uvicorn backend.app:app --host 127.0.0.1 --port 8765
 ```
 
 Mở **http://127.0.0.1:8765/**. Sau khi cài dependency, giao diện/engine/fixture
-không cần Internet hoặc key OpenRouter. Nạp JSON, sửa input và chọn Chạy phân
-tích. Sửa input làm mất hiệu lực kết quả cũ. B2 hiện CHƯA CHẠY.
+không cần Internet hoặc key OpenRouter. Dùng hồ sơ xưởng đã lưu, sửa bảng kế hoạch
+hoặc dán từ Excel / mở CSV, kiểm tra & áp dụng rồi chạy phân tích. JSON giữ ở mục
+nâng cao. Sửa input làm mất hiệu lực kết quả cũ. B2 hiện CHƯA CHẠY.
 
 Kiểm thử: `python -m pip install -r requirements-dev.txt`, rồi
-`python -m unittest discover -s backend/tests -v` và `node --check app.js`.
+`python -m unittest discover -s backend/tests -v`, `node --check app.js` và
+`node --test ops/input-model.test.cjs`.
 QA trình duyệt Windows/Edge tùy chọn: cài requirements-browser.txt, giữ server
 đang chạy và chạy `python ops/browser_smoke.py` (Edge headless/profile riêng).
 
 Xem [hướng dẫn API, giới hạn và demo đầu cuối](docs/LOCAL_DEMO.md).
+Xem [hồ sơ xưởng, nhập bảng và nghiên cứu thiết kế đầu vào](docs/INPUT_WORKSPACE.md).
 
 ## Backend — B0/B1 với contract demo-3
 
