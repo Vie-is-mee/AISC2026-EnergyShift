@@ -342,4 +342,7 @@ B1 vẫn chọn theo base modeled cost, chưa robust-optimize toàn miền. Fron
 vẫn mockup, B2 chưa có. Các báo cáo demo-1/demo-2 giữ nguyên làm lịch sử.
 Contract chi tiết: DEMO3_ECONOMIC_RISK.md.
 
-Nhánh: `fix/economic-risk-guards`; PR bổ sung sau khi tạo.
+Nhánh: `fix/economic-risk-guards`.
+Commit triển khai: `6d9eb923e14f1968c09ab658818214a0189ed2d4`.
+PR: [#7 — bound excluded costs and independent power risk](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/7).
+CI và bản ghi merge chính thức được lưu trên PR.
