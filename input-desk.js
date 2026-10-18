@@ -29,6 +29,10 @@ window.InputDesk = (() => {
     box.replaceChildren();
     box.hidden = !items.length;
     items.forEach((s) => box.append(node("li", s)));
+    if (items.length) {
+      window.Workspace?.show("tab-dispatch");
+      box.scrollIntoView({ block: "center" });
+    }
   };
   function read(key, fallback) {
     try {
@@ -86,7 +90,7 @@ window.InputDesk = (() => {
     clearResult();
     el("confirmCosts").checked = false;
     el("confirmCalendar").checked = false;
-    msg("Bản chuẩn bị đã đổi. Kiểm tra & áp dụng trước khi chạy.");
+    msg("Đã ghi nhận chỉnh sửa. Bấm Phân tích kế hoạch khi sẵn sàng.");
     scheduleDraft();
   }
   function packet() {
@@ -102,8 +106,9 @@ window.InputDesk = (() => {
     clearTimeout(timer);
     timer = setTimeout(() => {
       if (base && write(KEYS.draft, packet()))
-        el("memoryStatus").textContent =
-          "Đã lưu bản nháp trên trình duyệt này. Chưa phải đầu vào đã áp dụng.";
+        el("memoryStatus").textContent = dirty
+          ? "Đã lưu bản nháp. Bấm Phân tích kế hoạch để xem kết quả mới."
+          : "Đã lưu bản nháp trên trình duyệt này.";
     }, 350);
   }
   function summary() {
@@ -343,6 +348,7 @@ window.InputDesk = (() => {
             showRows();
           });
         const td = node("td");
+        td.dataset.field = f;
         td.append(c);
         tr.append(td);
       });
@@ -386,7 +392,7 @@ window.InputDesk = (() => {
     showWorkshop();
     summary();
     issue([]);
-    msg("Đã đọc đầu vào. Có thể sửa bảng hoặc dùng hồ sơ đã lưu.");
+    msg("Đã nạp kế hoạch. Bạn có thể sửa bảng hoặc phân tích ngay.");
     el("deskApplied").textContent =
       "Đầu vào engine giữ nguyên; chỉnh bảng rồi áp dụng khi cần.";
   }
@@ -439,9 +445,7 @@ window.InputDesk = (() => {
       note: "User-supplied preparation; not independently authenticated. Unmapped columns are retained, not modeled.",
     };
     issue([]);
-    msg(
-      "Đầu vào đủ cấu trúc. Bấm Chạy phân tích để kiểm định lịch và tính B0/B1.",
-    );
+    msg("Đầu vào đủ cấu trúc. Sẵn sàng tính chi phí và kiểm định lịch.");
     el("deskApplied").textContent =
       `${rows.length} lô · dùng lại định mức và hồ sơ · chi phí ngoài mô hình: ${costConfirmed ? "giữ review đã xác nhận" : "UNKNOWN — cần rà soát"}.`;
     scheduleDraft();
@@ -466,7 +470,8 @@ window.InputDesk = (() => {
     o.value = "";
     el("profileList").append(o);
     profiles().forEach((p) => {
-      const o = node("option", p.name + " · " + p.saved_at);
+      const o = node("option", p.name);
+      o.title = "Lưu lúc: " + p.saved_at;
       o.value = p.name;
       el("profileList").append(o);
     });
@@ -778,7 +783,7 @@ window.InputDesk = (() => {
     stamp();
     showRows();
     msg(
-      "Đã khôi phục bản chuẩn bị. Kiểm tra và áp dụng lại; không phục hồi kết luận cũ.",
+      "Đã khôi phục kế hoạch. Kiểm tra bảng rồi bấm Phân tích kế hoạch; kết quả cũ không được khôi phục.",
     );
   }
   action("restoreDraft", async () => {
@@ -929,6 +934,17 @@ window.InputDesk = (() => {
     /* Wait for canonical data. */
   }
   return {
+    async prepareForAnalysis() {
+      if (!dirty) return true;
+      try {
+        await apply();
+        return true;
+      } catch (e) {
+        issue(String(e.message).split("\n"));
+        msg("Chưa thể phân tích. Sửa các mục được chỉ ra rồi thử lại.");
+        return false;
+      }
+    },
     beforeAnalyze() {
       if (dirty) {
         issue([

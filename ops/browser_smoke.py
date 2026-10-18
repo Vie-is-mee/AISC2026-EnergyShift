@@ -100,6 +100,21 @@ try:
         check('document.getElementById("results").hidden', 'initial_has_no_fake_result')
         run()
         check('currentReport.decision.kind === "CHANGE" && document.getElementById("saving").textContent.includes("132.918")', 'real_default_change_and_saving')
+        check('document.querySelectorAll(".rail-item[data-tab]").length===6 && document.querySelector(".rail-item.active").dataset.tab==="tab-overview"', 'reference_six_section_navigation_and_result_redirect')
+        js('Workspace.show("tab-loadcurve")')
+        check('!document.getElementById("tab-loadcurve").hidden && document.querySelectorAll("#loadRows tr").length===24 && document.querySelectorAll("#loadChart svg polyline").length===2', 'load_and_tariff_view_is_computed_from_current_report')
+        check('Math.abs([...document.querySelectorAll("#loadRows tr")].reduce((n,r)=>n+Number(r.children[1].textContent.replaceAll(".","").replace(",",".")),0)-rational(currentReport.plans.B0.cost.total_kwh_exact))<0.2', 'hourly_energy_display_reconciles_with_engine_ledger')
+        js('Workspace.show("tab-gantt")')
+        check('!document.getElementById("tab-gantt").hidden && document.getElementById("tab-overview").hidden', 'navigation_shows_only_selected_report_section')
+        js('Workspace.show("tab-dispatch")')
+        check('!document.getElementById("advancedInput").open && document.querySelectorAll("#planInputRows tr:first-child td[data-field]").length===7 && getComputedStyle(document.querySelector("#planInputRows td[data-field=template_id]")).display==="none"', 'daily_input_is_compact_with_advanced_fields_preserved')
+        click('themeToggle')
+        check('document.documentElement.dataset.theme==="dark"', 'reference_theme_toggle_works')
+        wait('getComputedStyle(document.body).color==="rgb(248, 250, 252)"')
+        screenshot = command('Page.captureScreenshot', {'format': 'png', 'captureBeyondViewport': True})
+        (OUT / 'workspace-dark.png').write_bytes(base64.b64decode(screenshot['data']))
+        click('themeToggle')
+        js('Workspace.show("tab-overview")')
         check('document.querySelectorAll("#jobRows tr").length === 8 && document.querySelectorAll(".live-track").length === 6', 'all_jobs_and_machine_plan_tracks_render')
         check('document.getElementById("results").dataset.runId === currentReport.run_id && document.getElementById("hashMeta").textContent.includes(currentReport.input_hash)', 'same_run_and_hash')
         run_id = js('currentReport.run_id')
@@ -115,6 +130,10 @@ try:
         screenshot = command('Page.captureScreenshot', {'format': 'png', 'captureBeyondViewport': True})
         (OUT / 'desktop.png').write_bytes(base64.b64decode(screenshot['data']))
         command('Emulation.setDeviceMetricsOverride', {'width': 390, 'height': 844, 'deviceScaleFactor': 1, 'mobile': True})
+        click('menuToggle')
+        check('document.body.classList.contains("mobile-nav-open") && document.getElementById("menuToggle").getAttribute("aria-expanded")==="true"', 'reference_mobile_menu_opens')
+        click('closeMenu')
+        wait('getComputedStyle(document.getElementById("mainRail")).visibility==="hidden"')
         check('document.documentElement.scrollWidth <= 390', 'mobile_no_page_overflow')
         screenshot = command('Page.captureScreenshot', {'format': 'png', 'captureBeyondViewport': True})
         (OUT / 'mobile.png').write_bytes(base64.b64decode(screenshot['data']))
@@ -153,9 +172,9 @@ try:
     assert not failures, 'Browser JavaScript exception'
     summary = {'browser': 'headless Microsoft Edge via CDP', 'all_checks_pass': True, 'base_url': args.base_url, 'scope': 'input-only' if '--input-only' in sys.argv else 'full-regression',
                'javascript_exceptions': len(failures),
-               'screenshots': (['work/ui-qa/desktop.png','work/ui-qa/mobile.png'] if '--input-only' not in sys.argv else []) + ['work/ui-qa/input-desktop.png','work/ui-qa/input-mobile.png'],
-               'flows': (['default CHANGE','unknown MEASURE','extra-cost KEEP','quantity invalid','baseline invalid','stale response','untrusted reference as text','JSON export roundtrip','JSON file upload'] if '--input-only' not in sys.argv else []) + ['profile persistence','draft recovery','CSV mapping memory','extra-column preservation','explicit lot reconfirmation','new plan cost reset','day shift confirmation','structured workshop fields','storage denied','input desktop/mobile','workspace file restore','CSV file BOM/CRLF preservation'],
-               'source_sha256': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in ['index.html','app.js','live.css','backend/app.py','input-model.js','input-desk.js','api-client.js','deployment-config.js']},
+               'screenshots': (['work/ui-qa/desktop.png','work/ui-qa/mobile.png','work/ui-qa/workspace-dark.png'] if '--input-only' not in sys.argv else []) + ['work/ui-qa/input-desktop.png','work/ui-qa/input-mobile.png'],
+               'flows': (['default CHANGE','unknown MEASURE','extra-cost KEEP','quantity invalid','baseline invalid','stale response','untrusted reference as text','JSON export roundtrip','JSON file upload','six-section reference navigation','computed hourly kWh versus ledger','compact daily fields','light/dark theme','mobile navigation'] if '--input-only' not in sys.argv else []) + ['profile persistence','draft recovery','CSV mapping memory','extra-column preservation','explicit lot reconfirmation','new plan cost reset','day shift confirmation','structured workshop fields','storage denied','input desktop/mobile','workspace file restore','CSV file BOM/CRLF preservation','one-click prepare and analyze','visible primary action'],
+               'source_sha256': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in ['index.html','app.js','live.css','backend/app.py','input-model.js','input-desk.js','api-client.js','deployment-config.js','workspace.css','workspace.js']},
                'limitations': 'One local browser run, synthetic data. Does not certify all browsers or industrial operation.'}
     (ROOT / ('docs/evaluation/input_ui_qa.json' if '--input-only' in sys.argv else 'docs/evaluation/live_ui_qa.json')).write_text(json.dumps(summary, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(summary), flush=True)

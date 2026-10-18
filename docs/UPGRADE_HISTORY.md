@@ -512,3 +512,61 @@ không gọi model API; B2 vẫn NOT_RUN. Chỉ dùng dữ liệu demo khi chia 
 Nhánh: `feature/free-cloud-deployment`; implementation commit:
 `0ae57acd1d5f8ea03f57b4e99b19e630864301a5`.
 PR: [#10 — cấu hình Vercel frontend và Render Free backend](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/10).
+
+## Khôi phục UI/UX của nhóm và rút gọn luồng nhập kế hoạch
+
+Ngày: 19/10/2026 (Asia/Ho_Chi_Minh). Source trước nâng cấp:
+`78d9f392dac493f3db39c316c5f489bdf5208da1` (PR #10 đã merge).
+
+### Điểm yếu và yêu cầu điều chỉnh
+
+Frontend live trước đó thay mất khung dashboard/menu trái của bản gốc. Lớp nhập
+liệu có quá nhiều thiết lập/bộ nhớ/JSON trên cùng một trang và yêu cầu người dùng
+hiểu sự khác biệt giữa áp dụng bảng và phân tích. Người dùng cung cấp thư mục
+EnergyShift_Complete_UI_UX_Chat_Changes và yêu cầu dùng lại thiết kế đó, giữ mọi
+nâng cấp engine/input/deploy đã thực hiện.
+
+### Thay đổi
+
+- Dùng CSS, khung header/brand, sáu mục rail với SVG, bảng màu/card, sáng/tối và
+  responsive từ GitHub-UI của bản thiết kế. workspace.css tách riêng; workspace.js
+  nối navigation/theme vào UI live. Không chạy scenario JS hoặc flags mẫu của UI.
+- Sáu mục: Quyết định & So sánh; Tiến độ Gantt; Phụ tải & Biểu giá; Ràng buộc vật
+  lý; Độ nhạy & Rủi ro; Lịch chạy & Nhập liệu. Chưa chạy thì không có kết quả giả.
+  Không cố định nhãn 24H hoặc 5 quy tắc khi engine hỗ trợ phạm vi khác.
+- Input mặc định còn hồ sơ, bảng lô và một nút Phân tích kế hoạch. Ẩn định mức,
+  release/due bằng tùy chọn Hiện định mức & hạn hoàn thành, không xóa dữ liệu.
+  Máy/khuôn/tariff/lot confirmations/cost review/JSON/backup giữ trong Nâng cao;
+  nhập Excel/CSV mở riêng khi cần. Nút chính bám vùng nhìn khi cuộn.
+- Khi bảng thay đổi, một click thực hiện data gate → áp dụng snapshot → phân
+  tích → chuyển sang kết quả. Input lỗi thì dừng, không chạy snapshot cũ. Giữ
+  việc cost UNKNOWN, quantity-duration confirmation và stale response guards.
+- Card B0/B1 lấy tiền và PASS thật; B2 không có số và ghi chưa chạy. Biểu đồ phụ
+  tải mới tổng hợp RUN_ELECTRICITY ledger theo giờ, kèm bảng kWh/kW trung bình và
+  tariff input. Không phải peak tức thời/điện đo IoT; không cộng điện chờ/setup.
+- Thêm hai asset workspace vào allowlist backend/Vercel; 9 public assets. Không
+  đổi key/env/CORS/engine/solver/cost/risk. Không runtime CDN hoặc gọi model API.
+
+### Kiểm chứng
+
+- 143 Python tests và 23 Node tests PASS; CI thêm syntax workspace.js.
+- Edge desktop/mobile: sáu mục, chỉ hiện mục được chọn, theme, menu, compact input,
+  một click từ bảng tới kết quả thật; toàn bộ regression profile/nháp/import/CSV/
+  backup, invalid input/baseline, stale response và quyết định B0/B1.
+- Tổng kWh trong bảng giờ khớp total ledger trong sai số làm tròn hiển thị.
+  Visually kiểm tra ảnh sáng/tối và input desktop/mobile, sửa checkbox/header/
+  menu mobile để không gây chồng chữ hoặc tràn trang.
+- Diễn tập build static và backend hai origin vẫn chạy qua CORS/CSP. Evidence:
+  live_ui_qa.json, cloud_rehearsal.json; ảnh giữ local trong work/ui-qa.
+
+### Giới hạn
+
+UI không thay chứng nhận nguồn dữ liệu: SYNTHETIC, phạm vi chi phí và B2 NOT_RUN
+giữ rõ. Không khôi phục ERP/IoT/approval hoặc số liệu dựng sẵn từ bản UI. Chưa
+kiểm thử usability với kỹ sư thực; đây là cải tiến theo phản hồi người dùng,
+không tuyên bố đã đo mức giảm thời gian nhập. Chưa truy cập URL cloud người dùng.
+Chi tiết: [UI_RESTORATION.md](UI_RESTORATION.md).
+
+Nhánh: `fix/restore-workspace-navigation`; implementation commit:
+`fa48ece8088a356228c76837daf2a8a3ed2946b9`.
+PR: [#11 — khôi phục UI cockpit và rút gọn nhập kế hoạch](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/11).

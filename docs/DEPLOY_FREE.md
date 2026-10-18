@@ -19,7 +19,7 @@ chưa cần đợi Vercel. Không chạy engine Python bằng Vercel Functions t
 | render.yaml | Blueprint Web Service Python, plan free, 1 worker, health check |
 | .python-version | Chọn Python 3.11 thay vì phụ thuộc bản mặc định của Render |
 | vercel.json | Framework Other, build bằng Node, chỉ publish thư mục dist |
-| ops/build-static.cjs | Copy đúng 7 asset public, tạo cấu hình URL backend |
+| ops/build-static.cjs | Copy đúng 9 asset public (gồm workspace UI), tạo cấu hình URL backend |
 | .env.render.example | Mẫu biến Render có thể commit |
 | .env.vercel.example | Mẫu biến Vercel có thể commit |
 | .env.render / .env.vercel | Bản local để bạn điền, Git bỏ qua; không tự được cloud đọc |
@@ -113,7 +113,7 @@ Blueprint dùng sync:false để những lần sync sau không ghi đè origin b
    tính trước. Console/Network không có lỗi CORS hoặc 404 deployment-config.js.
 3. Chạy phân tích bộ mẫu: B0/B1 thật, raw modeled saving **132.918 đ**; đây vẫn là
    dữ liệu SYNTHETIC, không phải ROI nhà máy. B2 vẫn chưa chạy.
-4. Sửa bảng, **Kiểm tra & áp dụng kế hoạch**. Khi chưa xác nhận review chi phí,
+4. Vào Lịch chạy & Nhập liệu, sửa bảng và bấm **Phân tích kế hoạch**. Khi chưa xác nhận review chi phí,
    UNKNOWN có thể đưa kết luận về MEASURE_FIRST. Không coi khác CHANGE là lỗi deploy.
 5. Thử lưu hồ sơ, reload, khôi phục và xuất JSON. Bộ nhớ riêng theo origin/browser:
    hồ sơ ở localhost hoặc URL Render không tự xuất hiện trên URL Vercel. Tải bản
