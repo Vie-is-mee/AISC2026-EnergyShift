@@ -6,18 +6,25 @@ from pathlib import Path
 
 from .validation import parse_json
 from .costing import cost_schedule
+from .analysis import analyze
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dataset", type=Path)
-    parser.add_argument("--baseline", action="store_true", help="Independently verify and recost B0")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--baseline", action="store_true", help="Independently verify and recost B0")
+    mode.add_argument("--analyze", action="store_true", help="Search B1 and evaluate economic policy")
     args = parser.parse_args()
     try:
         result = parse_json(args.dataset.read_text(encoding="utf-8"))
     except (OSError, UnicodeError) as exc:
         print(json.dumps({"status": "BLOCKED_INVALID", "errors": [{"field": "$", "code": "READ_ERROR", "why": str(exc), "how_to_fix": "Use a readable UTF-8 JSON file"}]}))
         return 1
+    if args.analyze and result.status == "READY":
+        report = analyze(result.snapshot)
+        print(json.dumps(report, ensure_ascii=True, indent=2))
+        return 0 if report["status"] == "COMPLETED" else 1
     if args.baseline and result.status == "READY":
         report = cost_schedule(result.snapshot, result.snapshot["current_schedule"])
         report["plan_id"] = "B0"

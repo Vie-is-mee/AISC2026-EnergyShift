@@ -95,16 +95,19 @@ phải sửa dữ liệu; không biến lỗi input thành khuyến nghị MEASU
 **READY chỉ là data readiness.** Chạy thêm `--baseline` để kiểm chứng start/end,
 release/due, máy/khuôn, setup và calendar; chỉ lịch PASS mới được tính chi phí.
 CLI trả BASELINE_VERIFIED hoặc BASELINE_INVALID; xem BASELINE_VERIFICATION.md.
-Chưa có run_id, API, solver hay verdict kinh tế.
+Bước 3 thêm `--analyze` để có run_id, B0/B1 và verdict kinh tế trong phạm vi mô
+hình. Chưa có API hoặc B2; xem B1_DECISION.md.
 
-## Contract output engine dự kiến (chưa triển khai)
+## Contract output engine — bước 3 và phần còn lại
 
-Các bước tiếp theo dùng một result snapshot có `run_id`, `input_hash`,
+Bước 3 dùng một result snapshot có `run_id`, `input_hash`,
 `source_type`, `plans`, `comparison`, `sensitivity`, `decision`, cost_scope.
 Mỗi plan có status riêng: B2 NOT_RUN không có lịch/chi phí giả hoặc solver status
 toàn cục áp nhầm cho B0/B1. Lỗi input khác BASELINE_INVALID và MEASURE_FIRST.
-Chỉ candidate được verifier PASS mới được đưa vào policy kinh tế.
+Chỉ candidate được verifier PASS mới được đưa vào policy kinh tế. Chưa có
+USE_SIMPLE_RULE vì chưa có B2 để chứng minh giá trị tăng thêm không đáng kể.
 
 Sensitivity đánh giá lịch cố định dưới cùng parameter scenario với B0; nếu chạy
 lại solver theo từng scenario, xuất riêng và không dùng để khẳng định một lịch
-đã chọn là robust. Đây là yêu cầu thiết kế, chưa phải tính năng hoàn thành.
+đã chọn là robust. Bước 3 đã triển khai ba mức correlated power scaling; chưa
+bao phủ các tổ hợp biến độc lập hoặc bất định duration/setup/calendar.
