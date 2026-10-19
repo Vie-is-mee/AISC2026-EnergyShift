@@ -801,7 +801,10 @@ công, đối chiếu số lô/focus/thông báo và hash với engine; kiểm t
 đổi cách nhập, mở thiết lập/chi tiết, hover và kéo Gantt. Không dùng lượt giả làm
 bằng chứng gọi API; bằng chứng API thật của bước 2 được giữ riêng.
 
-Kết quả cuối: **201 tests Python + 40 tests Node đạt**, browser không có lỗi JS.
+Thay đổi cách hiển thị cột/cách nhập không tự hủy bản rà soát CSV khi nội dung
+nguồn vẫn giữ nguyên. Thay đổi dữ liệu thực vẫn vô hiệu hóa bản cũ như trước.
+
+Kết quả cuối: **201 tests Python + 41 tests Node đạt**, browser không có lỗi JS.
 Luồng duyệt và engine nhận cùng snapshot/hash; nguồn BOM/CRLF vẫn nguyên vẹn.
 Bằng chứng UI: [cloud_rehearsal.json](evaluation/cloud_rehearsal.json), chế độ
 `EXPLICIT_TEST_DOUBLE`. Không có thay đổi dependency hoặc biến môi trường.

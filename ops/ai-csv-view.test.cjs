@@ -70,3 +70,13 @@ test('approval shows pending feedback and a backend rejection beside the action,
   assert.equal(applied.length,0);assert.equal(get('aiCSVAccept').disabled,false);
   assert.equal(get('aiCSVReviewStatus').hidden,false);assert.match(get('aiCSVReviewStatus').textContent,/Số lượng/);
 });
+
+test('display-only input choices and column visibility do not discard the current CSV review',async()=>{
+  const {get}=setup();get('aiCSVConsent').checked=true;await get('aiCSVStart').onclick();
+  acknowledge(get);const first=get('aiCSVReviewRows').children[0];
+  for(const target of [{id:'showPlanDetails'},{name:'inputMethod'}]){
+    for(const event of ['input','change'])get('inputDesk').events[event]({target});
+    assert.equal(get('aiCSVResult').hidden,false);assert.equal(get('aiCSVAccept').disabled,false);
+    assert.equal(get('aiCSVReviewRows').children[0],first);
+  }
+});

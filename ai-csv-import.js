@@ -199,7 +199,10 @@ window.AICSVImport = (() => {
       catch(e){if(epoch===expected){busy=false;status(e.message);buttons();}}
     };
     $("tablePaste").addEventListener("input",invalidate);$("tableFile").addEventListener("change",invalidate);$("aiCSVNotes").addEventListener("input",invalidate);
-    for(const event of ["input","change"])$("inputDesk").addEventListener(event,e=>{if(!$("aiCSVPanel").contains(e.target))invalidate();});
+    for(const event of ["input","change"])$("inputDesk").addEventListener(event,e=>{
+      if(e.target.id==="showPlanDetails" || e.target.name==="inputMethod")return;
+      if(!$("aiCSVPanel").contains(e.target))invalidate();
+    });
     $("aiCSVConsent").addEventListener("change",()=>{if(!$("aiCSVConsent").checked)invalidate();});
     $("aiCSVAck").addEventListener("change",buttons);
     ["aiCSVExtras","aiCSVQuestionsAck"].forEach(id=>$(id).addEventListener("change",unacknowledge));$("aiCSVReviewNote").addEventListener("input",unacknowledge);

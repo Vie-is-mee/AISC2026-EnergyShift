@@ -17,7 +17,7 @@
     "input-desk.js": "280117429b0756ceecc20a4ec7f8eb58e450371e6d63b84a23daaee58a9e897a",
     "input-model.js": "6791b5b1053a7838aa9ac8594452c74eb30d9915b2ed907f52177f0b56b990d3",
     "assistant.js": "94be3a2c1675f468a8929e1d7ec029dde72bcc0c6825935b1bc3c76cfeb981e3",
-    "ai-csv-import.js": "642c09db6399d1989ac8e65c72daa4a245e6f2da4fa106b74a8efc8e9d58e290",
+    "ai-csv-import.js": "3333ad202ce5dd27bbdbdba91e490b8669d90fee24d9d6f123b3ef54748d33ab",
     "backend/assistant.py": "8b041ac473168d66c6e68078c07ad9cbb6f7d8e2f81b989aec7dffcc9aca3801",
     "backend/assistant_csv.py": "1ffba99991374d9a9f41cd51e82ec16780264ba243e36e458b6e45d9f415eff4",
     "backend/openrouter.py": "a76c43c1ea8028d302e9751a0e3b67dd979170767153deafeec62fc45d887871",
@@ -31,7 +31,7 @@
   "topology": "Static allowlisted build on :8766 -> actual FastAPI on :8767, real browser CORS/preflight",
   "live_cloud_deployed": false,
   "built_artifact_sha256": {
-    "ai-csv-import.js": "642c09db6399d1989ac8e65c72daa4a245e6f2da4fa106b74a8efc8e9d58e290",
+    "ai-csv-import.js": "3333ad202ce5dd27bbdbdba91e490b8669d90fee24d9d6f123b3ef54748d33ab",
     "api-client.js": "8522aa8d7de6f901800dbc2e4564e77879d2c22a63e321813a9b05ac1ee33b8a",
     "app.js": "5421152536d3ef2270d62d89fe8cdd3ced73a9b3b637b924f6cbcfee9848810c",
     "assistant.js": "94be3a2c1675f468a8929e1d7ec029dde72bcc0c6825935b1bc3c76cfeb981e3",

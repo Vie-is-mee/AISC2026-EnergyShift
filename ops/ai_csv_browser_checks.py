@@ -70,6 +70,9 @@ def run_checks(js,click,wait,check,run,command,out,root):
     print(json.dumps({'csv_handoff_state':staged},ensure_ascii=True),flush=True)
     assert staged['rows']==1 and not staged['export_disabled'], staged
     check('!document.getElementById("planReceipt").hidden && document.getElementById("planReceipt").textContent.includes("1 lô") && document.activeElement.id==="inputPlanStepTitle"', 'csv_acceptance_shows_row_receipt_and_focuses_updated_plan')
+    click('showPlanDetails')
+    check('!document.getElementById("aiCSVExport").disabled && document.getElementById("inputDesk").classList.contains("show-plan-details")', 'viewing_plan_details_keeps_accepted_csv_record_available')
+    click('showPlanDetails')
     for width,height,name in [(1440,1100,'csv-receipt-desktop.png'),(390,844,'csv-receipt-mobile.png')]:
         command('Emulation.setDeviceMetricsOverride',{'width':width,'height':height,'deviceScaleFactor':1,'mobile':width==390})
         js('document.getElementById("inputPlanStep").scrollIntoView({block:"start",behavior:"instant"})')
