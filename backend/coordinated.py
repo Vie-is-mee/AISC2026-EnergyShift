@@ -4,9 +4,9 @@ from .b2 import search_b2
 from .risk import economic_risk, linear_bounds
 
 
-def extend_with_b2(snapshot, report, *, grid_minutes=30, time_limit_seconds=6):
+def extend_with_b2(snapshot, report, *, grid_minutes=30, time_limit_seconds=6, neighborhood_limit=0):
     b0, b1 = report["plans"]["B0"], report["plans"]["B1"]
-    b2 = search_b2(snapshot, b0, b1, grid_minutes=grid_minutes, time_limit_seconds=time_limit_seconds)
+    b2 = search_b2(snapshot, b0, b1, grid_minutes=grid_minutes, time_limit_seconds=time_limit_seconds, neighborhood_limit=neighborhood_limit)
     report["plans"]["B2"] = b2
     risk1, risk2 = report["economic_assessment"], economic_risk(snapshot, b0, b2)
     wide = snapshot["cost_scope"]["review_scope"] == "ALL_CANDIDATE_SCHEDULES_IN_HORIZON"
@@ -21,7 +21,7 @@ def extend_with_b2(snapshot, report, *, grid_minutes=30, time_limit_seconds=6):
         incremental = {"status": "BOUNDED", "net_incremental_bounds_exact_vnd": [str(low - width), str(high + width)],
                        "method": "Independent power bounds; excluded costs may differ throughout declared bounds, no assumed cancellation"}
     qualifies = {code: risk.get("all_declared_values_qualify", False) and report["plans"][code]["schedule"] != b0["schedule"] for code, risk in risks.items()}
-    reasons = ["MODELED_COST_SCOPE_ONLY", "B2_BOUNDED_FIXED_ASSIGNMENTS_AND_ORDER"]
+    reasons = ["MODELED_COST_SCOPE_ONLY", "B2_BOUNDED_NEIGHBORHOODS" if neighborhood_limit else "B2_BOUNDED_FIXED_ASSIGNMENTS_AND_ORDER"]
     if b2["solver"]["optimality"] != "PROVEN_IN_DECLARED_DOMAIN":
         reasons.append("B2_SEARCH_INCOMPLETE")
     if qualifies["B1"] and qualifies["B2"]:

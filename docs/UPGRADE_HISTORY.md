@@ -37,6 +37,8 @@ PR [#14](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/14), CI đạt 
 
 ## 19/10/2026 — Ưu tiên 3: chuẩn bị đối chiếu số đo và thử nghiệm thực
 
+PR [#15](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/15), CI đạt trước merge.
+
 - Người dùng xác nhận chưa có dữ liệu thực; làm sẵn luồng thay vì dựng kết quả.
 - Nhập CSV tối đa 500 khoảng đo, giữ nguồn/reference, yêu cầu xác nhận lịch đã
   thực hiện. Backend kiểm tra lịch và tính lại ledger; chỉ chấm RUN_ONLY cùng
@@ -49,6 +51,34 @@ PR [#14](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/14), CI đạt 
 - Tests chặn overlap, sai máy/horizon/offset, thiếu attestation, JSON trùng khóa,
   số đo tổng khác phạm vi; kiểm tra kWh/sai lệch/coverage và CSV không mất cột.
   Chi tiết: [MEASUREMENT_PILOT.md](MEASUREMENT_PILOT.md).
+
+## 19/10/2026 — Ưu tiên 4: solver láng giềng và vận hành nhóm demo
+
+- Điểm yếu: B2 chỉ có máy/thứ tự B0/B1; API chỉ trả busy, không có lịch sử riêng.
+- Thêm tối đa 12 miền đổi job kề nhau/chuyển một job vào máy đủ điều kiện trên
+  API (CLI cho 0..24). Mỗi miền phối hợp giờ bằng CP-SAT và vẫn hậu kiểm độc lập.
+  Phân biệt miền mới infeasible với bất nhất của miền đã có incumbent. Ghi rõ
+  giới hạn/số miền/origin, không nhận tối ưu toàn nhà máy hoặc tối ưu peak kW.
+- Có queue một worker, 4 lượt toàn service/2 mỗi phiên; dùng cùng khóa engine,
+  trả 202/polling, 429 khi đầy. Chỉ hủy lượt chờ; chạy lỗi/restart có trạng thái
+  thật. Input đổi không lấy response cũ; không tự replay POST hoặc lịch cũ.
+- Phiên riêng bằng capability ngẫu nhiên, chỉ gửi trong Authorization. SQLite
+  giữ hash token, report/snapshot, tối đa 10 lượt/phiên, TTL 7 ngày. Không đọc
+  được report ngoài phiên; không xuất token vào báo cáo. Xóa phiên xóa lịch sử.
+- UI nhóm nằm trong phần nhập hiện có, mặc định vẫn chạy trực tiếp. Mở lịch sử
+  lấy đúng snapshot/trace cũ; không gắn bằng chứng của input hiện tại. Giữ UI/CSS
+  chuẩn và các luồng hồ sơ/CSV/quantity/đối chiếu số đo đã làm.
+- Chế độ nhóm demo không có định danh/role/phê duyệt doanh nghiệp. Render Free
+  /tmp có thể mất dữ liệu; blueprint một worker. Chưa kiểm chứng tải công nghiệp,
+  chưa có SLA. Người dùng đã chọn làm sẵn nhóm demo, chưa có dữ liệu xưởng.
+- Tests: giảm setup nhờ đổi thứ tự, chặn chuyển máy khi khuôn còn bị giữ,
+  giới hạn miền/fallback; queue tuần tự, admission, owner isolation, hủy, xóa,
+  history cap/TTL/restart; Edge chạy queue thật và mở lại report. Chi tiết:
+  [TEAM_DEMO.md](TEAM_DEMO.md). Các PR trước: #13, #14, #15.
+- Kết quả cuối: 173 Python tests, 30 Node tests PASS; Edge desktop/mobile và
+  two-origin build PASS. Chạy ba lượt queue engine thật trên ca SYNTHETIC,
+  verifier PASS cả ba, đọc chéo phiên bị 404; đây không phải load benchmark.
+  Evidence: [team_demo_cases.json](evaluation/team_demo_cases.json).
 
 ## 19/10/2026 — B2 phối hợp nhiều lô trên UI/UX chuẩn
 

@@ -89,6 +89,8 @@ function clearResult() {
   put("measurementResult", "Chưa có đối chiếu cho đầu vào hiện tại.");
   revision++;
   currentReport = null;
+  if ($("verdictHeroCard"))
+    $("verdictHeroCard").className = "command-verdict-card";
   put(
     "peakComparisonNote",
     "Chưa có kết quả cho đầu vào hiện tại. Chưa thể kết luận thay đổi đỉnh tải.",
@@ -206,7 +208,11 @@ function peak(plan) {
 }
 function renderReport(report) {
   activeGanttPlan = "compare";
-  report.input_preparation = window.InputDesk?.evidence();
+  if (report.input_preparation === undefined) {
+    const evidence = window.InputDesk?.evidence();
+    report.input_preparation =
+      evidence?.input_hash === report.input_hash ? evidence : null;
+  }
   currentReport = report;
   const plans = report.plans,
     chosen = report.decision.selected_plan,
@@ -219,6 +225,14 @@ function renderReport(report) {
     KEEP_CURRENT: "Giữ lịch hiện tại",
     MEASURE_FIRST: "Cần bổ sung bằng chứng",
   };
+  $("verdictHeroCard").className =
+    "command-verdict-card verdict-" +
+    ({
+      CHANGE: "change",
+      USE_SIMPLE_RULE: "simple",
+      KEEP_CURRENT: "keep",
+      MEASURE_FIRST: "measure",
+    }[report.decision.kind] || "measure");
   const reasons = {
     B2_COST_REVIEW_REQUIRED:
       "B2 chưa được xác nhận đầy đủ chi phí ngoài mô hình.",
@@ -240,9 +254,7 @@ function renderReport(report) {
     `Đề xuất ${chosen}. Nguồn ${report.source_type}; chi phí gồm điện và chuyển đổi đã khai báo. ${report.decision.reason_codes
       .map((c) => reasons[c])
       .filter(Boolean)
-      .join(
-        " ",
-      )} B2 chỉ dịch thời điểm trong cấu hình máy/thứ tự của B0 và B1.`,
+      .join(" ")} ${solverScope(report)}`,
   );
   put("kpiPlanTag", `Đề xuất ${chosen}`);
   put("kpiTotalCost", money(selected.total_vnd));
@@ -570,14 +582,30 @@ async function revalidateDashboard() {
   $("analyze").disabled = true;
   put("analyze", "Đang kiểm tra và tối ưu…");
   try {
-    const response = await apiFetch("/api/demo/analyze", {
+    let report;
+    const snapshot = JSON.parse($("dataset").value);
+    if ($("teamMode").checked) {
+      report = await TeamDemo.run(
+        snapshot,
+        window.InputDesk?.evidence(),
+        token,
+      );
+      if (!report) return;
+    } else {
+      const response = await apiFetch("/api/demo/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(JSON.parse($("dataset").value)),
-      }),
+        body: JSON.stringify(snapshot),
+      });
       report = await response.json();
+      if (!response.ok)
+        throw Error(
+          report.errors?.map((e) => e.why).join("; ") ||
+            report.detail ||
+            "Không phân tích được đầu vào.",
+        );
+    }
     if (token !== revision) return;
-    if (!response.ok) throw Error(JSON.stringify(report));
     if (report.status !== "COMPLETED") {
       errors(
         report.errors || report.B0?.verification?.issues || [report.status],
@@ -1269,6 +1297,233 @@ function initializeMeasurements() {
   };
 }
 
+function solverScope(report) {
+  const s = report.plans.B2.solver;
+  return s.neighborhood_limit
+    ? `B2 xét ${s.declared_domains} miền máy/thứ tự, gồm tối đa ${s.neighborhood_limit} láng giềng đổi thứ tự/chuyển một lô; tối ưu phối hợp thời điểm trong từng miền. Không phải tối ưu toàn nhà máy.`
+    : "B2 chỉ dịch phối hợp thời điểm trong cấu hình máy/thứ tự của B0 và B1.";
+}
+const TeamDemo = (() => {
+  let token = "",
+    creating = null,
+    activeJob = null;
+  const key = "energyshift.team.session.v1";
+  const labels = {
+    QUEUED: "Đang chờ đến lượt",
+    RUNNING: "Đang tính và kiểm tra lịch",
+    COMPLETED: "Đã tính",
+    CANCELLED: "Đã hủy lượt chờ",
+    ERROR: "Tính toán lỗi",
+    INTERRUPTED: "Server đã khởi động lại, cần gửi lại",
+  };
+  function save(value) {
+    token = value;
+    try {
+      if (value) sessionStorage.setItem(key, value);
+      else sessionStorage.removeItem(key);
+    } catch {
+      put(
+        "teamStatus",
+        "Không lưu được phiên trên trình duyệt; phiên chỉ còn trong lần mở trang này.",
+      );
+    }
+  }
+  async function request(path, options = {}) {
+    const response = await apiFetch(path, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: "Bearer " + token } : {}),
+        ...(options.headers || {}),
+      },
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      if (response.status === 401) save("");
+      throw Error(
+        result.errors?.map((e) => e.why).join("; ") ||
+          result.detail ||
+          "Không truy cập được hàng đợi demo.",
+      );
+    }
+    return result;
+  }
+  async function ensure() {
+    if (token) return;
+    if (!creating)
+      creating = (async () => {
+        const response = await apiFetch("/api/demo/workspaces", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: "{}",
+          }),
+          result = await response.json();
+        if (!response.ok)
+          throw Error(
+            result.errors?.map((e) => e.why).join("; ") ||
+              "Chưa tạo được phiên demo.",
+          );
+        save(result.workspace_token);
+        put(
+          "teamStatus",
+          "Đã tạo phiên riêng. Giữ tối đa 10 lượt trong 7 ngày; ổ đĩa máy chủ miễn phí có thể bị xóa khi redeploy.",
+        );
+      })();
+    try {
+      await creating;
+    } finally {
+      creating = null;
+    }
+  }
+  async function history() {
+    if (!token) {
+      put("teamHistory", "Bật hàng đợi hoặc tạo phiên để có lịch sử riêng.");
+      return;
+    }
+    const session = token;
+    const result = await request("/api/demo/jobs");
+    if (session !== token) return;
+    const box = $("teamHistory");
+    box.replaceChildren();
+    if (!result.jobs.length)
+      box.append(node("p", "Chưa có lượt trong phiên này."));
+    result.jobs.forEach((job) => {
+      const row = node("div", null, "live-actions");
+      row.append(
+        node(
+          "span",
+          `${new Date(job.created * 1000).toLocaleString("vi-VN")} · ${labels[job.status] || job.status}`,
+        ),
+      );
+      if (job.status === "COMPLETED") {
+        const open = node("button", "Mở kết quả", "manual-btn");
+        open.onclick = async () => {
+          try {
+            const expectedRevision = revision;
+            const value = await request("/api/demo/jobs/" + job.job_id);
+            if (session !== token || expectedRevision !== revision) {
+              put(
+                "teamStatus",
+                "Đầu vào hoặc phiên đã đổi trong khi tải lịch sử. Mở lại nếu vẫn muốn thay kế hoạch hiện tại.",
+              );
+              return;
+            }
+            if (value.report?.status !== "COMPLETED") {
+              errors(
+                value.report?.B0?.verification?.issues ||
+                  value.report?.errors || [
+                    "Lượt tính đã kết thúc nhưng chưa có đề xuất hợp lệ.",
+                  ],
+              );
+              return;
+            }
+            setDataset(value.report.input_snapshot);
+            value.report.team_job_id = job.job_id;
+            renderReport(value.report);
+            switchMainTab("tab-overview");
+          } catch (e) {
+            put("teamStatus", e.message);
+          }
+        };
+        row.append(open);
+      }
+      box.append(row);
+    });
+  }
+  async function run(snapshot, preparation, expectedRevision) {
+    await ensure();
+    if (revision !== expectedRevision) return null;
+    const submitted = await request("/api/demo/jobs", {
+      method: "POST",
+      body: JSON.stringify({ snapshot, input_preparation: preparation }),
+    });
+    activeJob = submitted.job_id;
+    $("cancelTeamJob").disabled = false;
+    const deadline = Date.now() + 180000;
+    try {
+      while (Date.now() < deadline) {
+        if (revision !== expectedRevision) {
+          put(
+            "teamStatus",
+            "Đầu vào đã đổi; lượt cũ vẫn có thể hoàn tất trong lịch sử.",
+          );
+          return null;
+        }
+        const job = await request("/api/demo/jobs/" + submitted.job_id);
+        put("teamStatus", labels[job.status] || job.status);
+        if (job.status === "COMPLETED") {
+          job.report.team_job_id = job.job_id;
+          return job.report;
+        }
+        if (["ERROR", "CANCELLED", "INTERRUPTED"].includes(job.status))
+          throw Error(labels[job.status]);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+      throw Error(
+        "Đã dừng chờ trên trình duyệt; lượt có thể còn chạy. Làm mới lịch sử để xem kết quả, không tự gửi lại.",
+      );
+    } finally {
+      activeJob = null;
+      $("cancelTeamJob").disabled = true;
+      history().catch((e) => put("teamStatus", e.message));
+    }
+  }
+  function init() {
+    try {
+      token = sessionStorage.getItem(key) || "";
+    } catch {
+      /* memory-only fallback */
+    }
+    $("teamMode").onchange = async () => {
+      if ($("teamMode").checked) {
+        try {
+          await ensure();
+          await history();
+        } catch (e) {
+          put("teamStatus", e.message);
+        }
+      }
+    };
+    $("teamRefresh").onclick = async () => {
+      try {
+        await ensure();
+        await history();
+      } catch (e) {
+        put("teamStatus", e.message);
+      }
+    };
+    $("cancelTeamJob").onclick = async () => {
+      if (activeJob)
+        try {
+          await request("/api/demo/jobs/" + activeJob + "/cancel", {
+            method: "POST",
+            body: "{}",
+          });
+          put("teamStatus", "Đã hủy lượt chờ.");
+        } catch (e) {
+          put("teamStatus", e.message);
+        }
+    };
+    $("teamForget").onclick = async () => {
+      try {
+        if (token)
+          await request("/api/demo/workspaces/current", { method: "DELETE" });
+        save("");
+        $("teamMode").checked = false;
+        $("teamHistory").replaceChildren();
+        put(
+          "teamStatus",
+          "Đã xóa phiên và lịch sử trên máy chủ. Công việc đang chạy có thể kết thúc nhưng không lưu báo cáo.",
+        );
+      } catch (e) {
+        put("teamStatus", e.message);
+      }
+    };
+    history().catch((e) => put("teamStatus", e.message));
+  }
+  return { init, run, history, hasSession: () => Boolean(token) };
+})();
+
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     applyTheme(localStorage.getItem("energyshift_theme") || "dark");
@@ -1386,6 +1641,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       setDataset(d);
     };
+  TeamDemo.init();
   initializeMeasurements();
   clearResult();
   closeScheduleEditor();

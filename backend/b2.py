@@ -10,6 +10,11 @@ from ortools.sat.python import cp_model
 
 from .costing import cost_schedule, round_vnd
 from .schemas import Dataset
+from .neighborhoods import search_domains
+
+
+class EmptyDomain(ValueError):
+    pass
 
 
 def _energy(data, job, machine, start):
@@ -65,8 +70,10 @@ def _model(data, seed, anchors, grid):
                     continue
                 if any(left <= start - timedelta(minutes=setup) and end <= right for left, right in windows):
                     allowed.append((minute, _energy(data, job, mid, start)))
-            if not allowed or max(v for _, v in allowed) >= 2**50:
-                raise ValueError("Empty or unsafe integer cost domain")
+            if not allowed:
+                raise EmptyDomain("No available start in declared grid/anchors")
+            if max(v for _, v in allowed) >= 2**50:
+                raise ValueError("Unsafe integer cost domain")
             start_var = model.new_int_var(0, horizon, job.id + "_start")
             cost_var = model.new_int_var(0, max(v for _, v in allowed), job.id + "_cost")
             model.add_allowed_assignments([start_var, cost_var], allowed)
@@ -91,9 +98,11 @@ def _model(data, seed, anchors, grid):
     return model, starts, costs, constant
 
 
-def search_b2(snapshot, b0, b1, *, grid_minutes=30, time_limit_seconds=6):
+def search_b2(snapshot, b0, b1, *, grid_minutes=30, time_limit_seconds=6, neighborhood_limit=0):
     if type(grid_minutes) is not int or grid_minutes <= 0:
         raise ValueError("Positive integer grid required")
+    if type(neighborhood_limit) is not int or not 0 <= neighborhood_limit <= 24:
+        raise ValueError("Neighborhood limit must be 0..24")
     if isinstance(time_limit_seconds, bool) or not isinstance(time_limit_seconds, (int, float)) or not 0 <= time_limit_seconds <= 30:
         raise ValueError("Budget must be 0..30 seconds")
     begun = perf_counter()
@@ -111,7 +120,8 @@ def search_b2(snapshot, b0, b1, *, grid_minutes=30, time_limit_seconds=6):
         for assignment in plan["schedule"]:
             anchors[assignment["job_id"]].add((datetime.fromisoformat(assignment["start"]) - data.horizon.start) // timedelta(minutes=1))
     records, seen = [], set()
-    for name, seed in incumbents:
+    domains = search_domains(data, incumbents, neighborhood_limit)
+    for domain_index, (name, seed, seed_valid) in enumerate(domains):
         signature = tuple((a["job_id"], a["machine_id"]) for a in sorted(seed["schedule"], key=lambda a: (a["machine_id"], a["start"], a["job_id"])))
         if signature in seen:
             continue
@@ -126,7 +136,7 @@ def search_b2(snapshot, b0, b1, *, grid_minutes=30, time_limit_seconds=6):
                 records.append({"seed": name, "status": "NOT_RUN", "reason": "BUILD_BUDGET_EXHAUSTED"})
                 continue
             solver = cp_model.CpSolver()
-            solver.parameters.max_time_in_seconds = remaining / max(1, 2 - len(records))
+            solver.parameters.max_time_in_seconds = remaining / max(1, len(domains)-domain_index)
             solver.parameters.num_search_workers = 1
             solver.parameters.random_seed = 0
             status = solver.solve(model)
@@ -142,11 +152,13 @@ def search_b2(snapshot, b0, b1, *, grid_minutes=30, time_limit_seconds=6):
                 elif objective < best["cost"]["total_vnd"]:
                     origin, best = "CP_SAT_" + name, {**checked, "schedule": schedule}
             elif status == cp_model.INFEASIBLE:
-                record["status"] = "MODEL_INCONSISTENT_WITH_VALID_SEED"
+                record["status"] = "MODEL_INCONSISTENT_WITH_VALID_SEED" if seed_valid else "INFEASIBLE"
             records.append(record)
+        except EmptyDomain:
+            records.append({"seed":name,"status":"MODEL_INCONSISTENT_WITH_VALID_SEED" if seed_valid else "INFEASIBLE","reason":"EMPTY_START_DOMAIN"})
         except (ValueError, OverflowError):
             records.append({"seed": name, "status": "MODEL_REJECTED"})
-    proven = bool(records) and all(r["status"] == "OPTIMAL" for r in records)
+    proven = bool(records) and all(r["status"] in ("OPTIMAL","INFEASIBLE") for r in records) and any(r["status"]=="OPTIMAL" for r in records)
     status = "OPTIMAL" if proven else "FEASIBLE" if any(r["status"] in ("OPTIMAL", "FEASIBLE") for r in records) else "UNKNOWN"
     before = {a["job_id"]: a for a in b0["schedule"]}
     return {**best, "origin": origin, "solver_status": status,
@@ -154,7 +166,8 @@ def search_b2(snapshot, b0, b1, *, grid_minutes=30, time_limit_seconds=6):
             "solver": {"algorithm": "OR-Tools CP-SAT", "version": version("ortools"), "models": records,
                        "grid_minutes": grid_minutes, "time_limit_seconds": time_limit_seconds,
                        "runtime_seconds": round(perf_counter() - begun, 6),
-                       "domain": "Union of B0/B1 fixed machine assignments and job orders; grid plus incumbent anchors",
+                       "domain": "B0/B1 domains plus bounded adjacent swaps and single-job machine insertions; coordinated starts on grid plus incumbent anchors" if neighborhood_limit else "Union of B0/B1 fixed machine assignments and job orders; grid plus incumbent anchors",
+                       "neighborhood_limit": neighborhood_limit, "declared_domains":len(domains),
                        "optimality": "PROVEN_IN_DECLARED_DOMAIN" if proven else "NOT_PROVEN",
                        "global_optimum_proven": False,
                        "fallback": "Retain independently verified best B0/B1 on timeout/rejection; origin identifies source"}}

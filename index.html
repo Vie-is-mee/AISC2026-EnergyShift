@@ -249,7 +249,10 @@
             <span class="hotkey-pill">M</span>
           </button>
           <!-- User Profile Capsule -->
-          <div class="user-capsule" title="Kế hoạch trưởng: Nguyễn Võ An Vi">
+          <div
+            class="user-capsule"
+            title="Phiên demo — chưa xác thực danh tính người dùng"
+          >
             <div class="user-avatar">AV</div>
           </div>
         </div>
@@ -1023,7 +1026,7 @@
                 </div>
                 <div class="legend-tag tariff-setup">
                   <span class="swatch-square swatch-setup"></span>
-                  <span>Thay khuôn / Chuẩn bị máy (Setup 45-60p)</span>
+                  <span>Thay khuôn / Chuẩn bị máy (thời lượng theo từng lô)</span>
                 </div>
                 <p class="gantt-legend-helper">
                   Nền xanh: giờ thấp điểm · Nền đỏ: giờ cao điểm · Nền xám: giờ
@@ -1353,7 +1356,7 @@
                         </p>
                       </div>
                     </div>
-                    <span class="status-chip chip-pass" id="transSafetyBadge"
+                    <span class="status-chip chip-warn" id="transSafetyBadge"
                       >Chưa xác định</span
                     >
                   </div>
@@ -1541,6 +1544,31 @@
                   <h2 id="inputTitle">Chuẩn bị kế hoạch sản xuất</h2>
                 </div>
               </div>
+              <details class="analytics-card" id="teamPanel">
+                <summary>Nhóm demo: hàng đợi và lịch sử riêng</summary>
+                <p>
+                  Chế độ thử nghiệm cho nhiều phiên trình duyệt. Mỗi phiên giữ
+                  khóa truy cập riêng trong sessionStorage; chưa phải tài khoản
+                  và phân quyền doanh nghiệp. Dữ liệu máy chủ miễn phí có thể
+                  mất khi redeploy; hãy tải báo cáo cần giữ.
+                </p>
+                <label
+                  ><input id="teamMode" type="checkbox" /> Gửi phân tích qua
+                  hàng đợi nhóm demo (tối đa 4 lượt toàn máy chủ, 2 lượt mỗi
+                  phiên)</label
+                >
+                <div class="live-actions">
+                  <button id="teamRefresh" type="button">
+                    Tạo phiên / làm mới lịch sử</button
+                  ><button disabled="" id="cancelTeamJob" type="button">
+                    Hủy lượt đang chờ</button
+                  ><button id="teamForget" type="button">
+                    Xóa phiên và lịch sử
+                  </button>
+                </div>
+                <p id="teamStatus" role="status">Chưa bật hàng đợi.</p>
+                <div id="teamHistory"></div>
+              </details>
               <div
                 aria-label="Trợ lý chuẩn bị kế hoạch"
                 class="desk desk-simple"

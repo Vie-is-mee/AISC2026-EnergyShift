@@ -1,5 +1,10 @@
 # B2: dịch lịch phối hợp, kiểm tra độc lập
 
+Cập nhật sau đánh giá: API nay bật thêm tối đa 12 miền láng giềng đổi thứ tự/
+chuyển máy; mô tả dưới đây là mốc B2 ban đầu. [Phạm vi mới và nhóm demo](TEAM_DEMO.md).
+UI đã có trục/bảng giờ, bằng chứng chi tiết và tờ trình; có [luồng số đo](MEASUREMENT_PILOT.md)
+nhưng chưa có số đo thực tế để xác nhận độ chính xác ngoài xưởng.
+
 Ngày 19/10/2026. UI chuẩn lấy từ bản người dùng xác nhận sau khi agent UI hoàn tất,
 trên nền `ec408d9`. Giữ nguyên `workspace.css`, bố cục header/sáu mục, bảng màu,
 theme và responsive. Thay controller dựng sẵn bằng dữ liệu thật, giữ input

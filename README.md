@@ -37,6 +37,11 @@ Xem [hồ sơ xưởng, nhập bảng và nghiên cứu thiết kế đầu vào
 Giao diện dùng lại thiết kế của nhóm, có sáu mục trái và luồng nhập một nút:
 [phạm vi UI/UX và cách dùng](docs/UI_RESTORATION.md).
 
+Đã có biểu đồ/bằng chứng ràng buộc và tờ trình dễ đọc, [đối chiếu số đo theo
+đúng phạm vi](docs/MEASUREMENT_PILOT.md), cùng [hàng đợi/lịch sử nhóm demo và
+miền solver mở rộng](docs/TEAM_DEMO.md). Chưa có số đo nhà máy trong demo;
+không công bố measured savings hoặc phân quyền doanh nghiệp.
+
 ## Backend — B0/B1 với contract demo-3
 
 Python 3.11, chạy từ thư mục gốc repository:

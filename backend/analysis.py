@@ -10,7 +10,7 @@ from .validation import validate_input
 from .risk import economic_risk, power_uncertainty
 
 
-def analyze(snapshot, *, grid_minutes=30, max_candidates=5000, enable_b2=False, b2_time_limit_seconds=6):
+def analyze(snapshot, *, grid_minutes=30, max_candidates=5000, enable_b2=False, b2_time_limit_seconds=6, b2_neighborhood_limit=0):
     gate = validate_input(snapshot)
     run_id = "run_" + uuid4().hex
     if gate.status != "READY":
@@ -71,5 +71,5 @@ def analyze(snapshot, *, grid_minutes=30, max_candidates=5000, enable_b2=False, 
             "economic_assessment": risk, "decision": decision}
     if enable_b2:
         from .coordinated import extend_with_b2
-        report = extend_with_b2(gate.snapshot, report, grid_minutes=grid_minutes, time_limit_seconds=b2_time_limit_seconds)
+        report = extend_with_b2(gate.snapshot, report, grid_minutes=grid_minutes, time_limit_seconds=b2_time_limit_seconds, neighborhood_limit=b2_neighborhood_limit)
     return report
