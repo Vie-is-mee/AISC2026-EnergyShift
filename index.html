@@ -695,317 +695,104 @@
            =================================================================== -->
           <div class="tab-pane" id="tab-gantt">
             <section class="section-container">
-              <!-- Live Animated Energy Circuit Telemetry -->
-              <div class="circuit-telemetry-panel">
-                <div class="circuit-telemetry-header">
-                  <div class="circuit-header-left">
-                    <span class="live-pulse-dot"></span>
-                    <span class="circuit-panel-title"
-                      >SƠ ĐỒ TRỰC QUAN DÒNG CHẢY NĂNG LƯỢNG LƯỚI · TRẠM · MÁY
-                      (GRID-TO-MACHINE TELEMETRY)</span
-                    >
-                    <span class="circuit-tariff-chip" id="circuitTariffChip"
-                      >Biểu giá theo đầu vào · không phải dữ liệu trực
-                      tiếp</span
-                    >
-                  </div>
-                  <div class="circuit-header-right">
-                    <span class="circuit-mode-indicator" id="circuitModeBadge"
-                      >Mô hình · chưa phân tích</span
-                    >
-                  </div>
-                </div>
-                <div class="circuit-flow-canvas-wrap">
-                  <svg
-                    class="circuit-flow-svg"
-                    preserveaspectratio="xMidYMid meet"
-                    viewbox="0 0 920 120"
-                  >
-                    <!-- Grid Node -->
-                    <g
-                      class="circuit-node node-grid"
-                      transform="translate(50, 60)"
-                    >
-                      <circle class="node-outer-ring" r="26"></circle>
-                      <circle class="node-inner-core" r="18"></circle>
-                      <path class="node-glyph" d="M-6 -6 L6 -6 L0 8 Z"></path>
-                      <text
-                        class="circuit-node-label"
-                        text-anchor="middle"
-                        y="42"
-                      >
-                        NGUỒN ĐIỆN
-                      </text>
-                      <text
-                        class="circuit-node-sub"
-                        text-anchor="middle"
-                        y="54"
-                      >
-                        TOU 3 Biểu Giá
-                      </text>
-                    </g>
-                    <!-- Main Feeder Cable (Grid -> Substation) -->
-                    <path class="cable-base" d="M 76 60 L 226 60"></path>
-                    <path
-                      class="cable-pulse cable-main-pulse"
-                      d="M 76 60 L 226 60"
-                      id="cableGridToSub"
-                      style="animation: none; opacity: 0.2"
-                    ></path>
-                    <!-- Substation Node -->
-                    <g
-                      class="circuit-node node-substation"
-                      transform="translate(250, 60)"
-                    >
-                      <rect
-                        class="node-rect-outer"
-                        height="48"
-                        rx="8"
-                        width="48"
-                        x="-24"
-                        y="-24"
-                      ></rect>
-                      <rect
-                        class="node-rect-inner"
-                        height="32"
-                        rx="4"
-                        width="32"
-                        x="-16"
-                        y="-16"
-                      ></rect>
-                      <text
-                        class="circuit-node-center-text"
-                        text-anchor="middle"
-                        y="4"
-                      >
-                        TBA?
-                      </text>
-                      <text
-                        class="circuit-node-label"
-                        text-anchor="middle"
-                        y="42"
-                      >
-                        TRẠM BIẾN ÁP
-                      </text>
-                      <text
-                        class="circuit-node-sub"
-                        id="circuitPmaxLive"
-                        text-anchor="middle"
-                        y="54"
-                      >
-                        Chưa phân tích
-                      </text>
-                    </g>
-                    <!-- 5 Branch Cables to Machines -->
-                    <path
-                      class="cable-base"
-                      d="M 274 60 C 330 60, 370 20, 470 20"
-                    ></path>
-                    <path
-                      class="cable-pulse"
-                      d="M 274 60 C 330 60, 370 20, 470 20"
-                      id="cableBranchM1"
-                      style="animation: none; opacity: 0.2"
-                    ></path>
-                    <path
-                      class="cable-base"
-                      d="M 274 60 C 330 60, 370 40, 470 40"
-                    ></path>
-                    <path
-                      class="cable-pulse"
-                      d="M 274 60 C 330 60, 370 40, 470 40"
-                      id="cableBranchM2"
-                      style="animation: none; opacity: 0.2"
-                    ></path>
-                    <path
-                      class="cable-base"
-                      d="M 274 60 C 330 60, 370 60, 470 60"
-                    ></path>
-                    <path
-                      class="cable-pulse"
-                      d="M 274 60 C 330 60, 370 60, 470 60"
-                      id="cableBranchM3"
-                      style="animation: none; opacity: 0.2"
-                    ></path>
-                    <path
-                      class="cable-base"
-                      d="M 274 60 C 330 60, 370 80, 470 80"
-                    ></path>
-                    <path
-                      class="cable-pulse"
-                      d="M 274 60 C 330 60, 370 80, 470 80"
-                      id="cableBranchM4"
-                      style="animation: none; opacity: 0.2"
-                    ></path>
-                    <path
-                      class="cable-base"
-                      d="M 274 60 C 330 60, 370 100, 470 100"
-                    ></path>
-                    <path
-                      class="cable-pulse"
-                      d="M 274 60 C 330 60, 370 100, 470 100"
-                      id="cableBranchM5"
-                      style="animation: none; opacity: 0.2"
-                    ></path>
-                    <!-- Machine Nodes -->
-                    <g
-                      class="circuit-node machine-node"
-                      transform="translate(470, 20)"
-                    >
-                      <circle
-                        class="machine-status-led"
-                        id="ledM1"
-                        r="7"
-                      ></circle>
-                      <text class="circuit-machine-text" x="14" y="4">
-                        M1: theo hồ sơ
-                        <tspan class="circuit-kw-highlight" id="kwM1">—</tspan>
-                      </text>
-                    </g>
-                    <g
-                      class="circuit-node machine-node"
-                      transform="translate(470, 40)"
-                    >
-                      <circle
-                        class="machine-status-led"
-                        id="ledM2"
-                        r="7"
-                      ></circle>
-                      <text class="circuit-machine-text" x="14" y="4">
-                        M2: theo hồ sơ
-                        <tspan class="circuit-kw-setup" id="kwM2">—</tspan>
-                      </text>
-                    </g>
-                    <g
-                      class="circuit-node machine-node"
-                      transform="translate(470, 60)"
-                    >
-                      <circle
-                        class="machine-status-led"
-                        id="ledM3"
-                        r="7"
-                      ></circle>
-                      <text class="circuit-machine-text" x="14" y="4">
-                        M3: theo hồ sơ
-                        <tspan class="circuit-kw-highlight" id="kwM3">—</tspan>
-                      </text>
-                    </g>
-                    <g
-                      class="circuit-node machine-node"
-                      transform="translate(470, 80)"
-                    >
-                      <circle
-                        class="machine-status-led"
-                        id="ledM4"
-                        r="7"
-                      ></circle>
-                      <text class="circuit-machine-text" x="14" y="4">
-                        M4: theo hồ sơ
-                        <tspan class="circuit-kw-highlight" id="kwM4">—</tspan>
-                      </text>
-                    </g>
-                    <g
-                      class="circuit-node machine-node"
-                      transform="translate(470, 100)"
-                    >
-                      <circle
-                        class="machine-status-led"
-                        id="ledM5"
-                        r="7"
-                      ></circle>
-                      <text class="circuit-machine-text" x="14" y="4">
-                        M5: theo hồ sơ
-                        <tspan class="circuit-kw-highlight" id="kwM5">—</tspan>
-                      </text>
-                    </g>
-                  </svg>
-                </div>
-              </div>
               <div class="gantt-control-header">
                 <div>
                   <h2 class="section-heading">
-                    Tiến độ chạy máy trong chân trời đã khai báo
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    Lịch chạy & điều chỉnh bản nháp
                   </h2>
                   <p class="section-subtitle">
-                    So sánh lịch gốc và lịch được đề xuất. Có thể xem riêng B0,
-                    B1 hoặc B2; B2 chưa được chọn vẫn là đối chứng.
+                    Chọn B0, B1 hoặc B2 để xem lịch hoặc tạo bản nháp từ phương
+                    án. Lưu bản nháp rồi tính lại để cập nhật chi phí và kiểm
+                    định.
                   </p>
                 </div>
+
                 <!-- Gantt Mode Segmented Buttons -->
                 <div class="segmented-control">
                   <button
                     class="segment-btn active"
-                    data-action="selectGanttPlan('compare')"
                     data-plan="compare"
                     id="btnViewCompare"
+                    data-action="selectGanttPlan('compare')"
                   >
-                    So sánh Đối chiếu (B0 vs B2)
+                    So sánh B0 & lịch đề xuất
                   </button>
                   <button
                     class="segment-btn"
-                    data-action="selectGanttPlan('b0')"
                     data-plan="b0"
                     id="btnViewB0"
+                    data-action="selectGanttPlan('b0')"
                   >
                     Lịch Hiện Tại (B0)
                   </button>
                   <button
                     class="segment-btn"
-                    data-action="selectGanttPlan('b1')"
                     data-plan="b1"
                     id="btnViewB1"
+                    data-action="selectGanttPlan('b1')"
                   >
                     Quy Tắc Đơn Giản (B1)
                   </button>
                   <button
                     class="segment-btn"
-                    data-action="selectGanttPlan('b2')"
                     data-plan="b2"
                     id="btnViewB2"
+                    data-action="selectGanttPlan('b2')"
                   >
                     Phương Án Phối Hợp (B2)
                   </button>
                 </div>
               </div>
+
               <div class="schedule-review-grid">
                 <div class="schedule-list-card">
                   <div class="schedule-list-head">
                     <div>
                       <h3>Lô sản xuất trong phương án</h3>
                       <p>
-                        Xem nhanh trên Gantt; mở bảng chi tiết khi cần kiểm tra
-                        từng lô.
+                        Danh sách và thanh trên lịch mô phỏng cùng dùng một dữ
+                        liệu. Chọn Sửa để điều chỉnh từng lô.
                       </p>
                     </div>
-                    <span class="manual-counter" id="scheduleListCount">—</span>
+                    <span id="scheduleListCount" class="manual-counter">—</span>
                   </div>
-                  <details>
-                    <summary>Mở danh sách lô và thời gian chi tiết</summary>
-                    <div
-                      aria-label="Danh sách lô chạy, cuộn ngang khi cần"
-                      class="table-responsive"
-                      tabindex="0"
-                    >
-                      <table class="schedule-jobs-table">
-                        <thead>
-                          <tr>
-                            <th>LÔ SẢN XUẤT</th>
-                            <th>MÁY</th>
-                            <th>BẮT ĐẦU</th>
-                            <th>KẾT THÚC</th>
-                            <th>SETUP</th>
-                            <th>PHƯƠNG ÁN / KIỂM TRA</th>
-                          </tr>
-                        </thead>
-                        <tbody id="scheduleJobRows"></tbody>
-                      </table>
-                    </div>
-                  </details>
+                  <div
+                    class="table-responsive"
+                    tabindex="0"
+                    aria-label="Danh sách lô chạy, cuộn ngang khi cần"
+                  >
+                    <table class="schedule-jobs-table">
+                      <thead>
+                        <tr>
+                          <th>LÔ SẢN XUẤT</th>
+                          <th>MÁY</th>
+                          <th>BẮT ĐẦU</th>
+                          <th>KẾT THÚC</th>
+                          <th>SETUP</th>
+                          <th>THAO TÁC</th>
+                        </tr>
+                      </thead>
+                      <tbody id="scheduleJobRows"></tbody>
+                    </table>
+                  </div>
                 </div>
                 <div
-                  aria-live="polite"
                   class="schedule-check-card"
                   id="scheduleConflictReport"
+                  aria-live="polite"
                 ></div>
               </div>
               <!-- EVN TOU Tariff Legend & Machine specs -->
@@ -1015,19 +802,19 @@
                 >
                 <div class="legend-tag tariff-offpeak">
                   <span class="swatch-square swatch-offpeak"></span>
-                  <span>Thấp điểm · theo đầu vào</span>
+                  <span>Thấp điểm · theo dữ liệu đầu vào</span>
                 </div>
                 <div class="legend-tag tariff-normal">
                   <span class="swatch-square swatch-normal"></span>
-                  <span>Bình thường · theo đầu vào</span>
+                  <span>Bình thường · theo dữ liệu đầu vào</span>
                 </div>
                 <div class="legend-tag tariff-peak">
                   <span class="swatch-square swatch-peak"></span>
-                  <span>Cao điểm · theo đầu vào</span>
+                  <span>Cao điểm · theo dữ liệu đầu vào</span>
                 </div>
                 <div class="legend-tag tariff-setup">
                   <span class="swatch-square swatch-setup"></span>
-                  <span>Thay khuôn / Chuẩn bị máy (thời lượng theo từng lô)</span>
+                  <span>Setup · theo quy tắc máy và khuôn</span>
                 </div>
                 <p class="gantt-legend-helper">
                   Nền xanh: giờ thấp điểm · Nền đỏ: giờ cao điểm · Nền xám: giờ
@@ -1036,173 +823,210 @@
                   cảnh báo trùng lịch.
                 </p>
               </div>
+
               <!-- Manual schedule editing workspace, next to live simulation -->
               <div class="manual-panel" id="scheduleTools">
                 <div class="manual-toolbar">
                   <div class="manual-intro">
-                    <span class="manual-eyebrow"
-                      >WORKSPACE / ĐIỀU ĐỘ THỦ CÔNG</span
-                    >
                     <h3>Điều chỉnh lịch chạy</h3>
                     <p>
-                      <strong>Bước 1:</strong> chọn phương án B0, B1 hoặc B2.
-                      <strong>Bước 2:</strong> Thêm / Sửa / Xóa lô trong bảng
-                      phía trên. <strong>Bước 3:</strong> xem lịch mô phỏng cập
-                      nhật ngay. Trên máy tính còn có thể kéo thanh để dời giờ.
+                      Chọn phương án, thêm hoặc sửa lô ngay tại đây. Lưu bản
+                      nháp sẽ xóa kết quả và xác nhận cũ. Bấm Tính lại để kiểm
+                      định và tính chi phí mới.
                     </p>
                   </div>
                   <div class="manual-actions">
-                    <span
-                      aria-live="polite"
+                    <button
+                      type="button"
+                      class="manual-btn"
+                      data-action="restoreScheduleDraft()"
+                    >
+                      Khôi phục bản nháp đã lưu</button
+                    ><span
                       class="manual-state"
                       id="scheduleEditStatus"
+                      aria-live="polite"
                       >Đang xem so sánh</span
                     >
                     <button
-                      class="manual-btn manual-btn-primary"
-                      data-action="openScheduleEditor(null, true)"
-                      id="newScheduleJobBtn"
                       type="button"
+                      class="manual-btn manual-btn-primary"
+                      id="newScheduleJobBtn"
+                      data-action="openScheduleEditor(null, true)"
                     >
                       + Thêm lô
                     </button>
                     <button
-                      class="manual-btn"
-                      data-action="exportScheduleCSV()"
-                      id="exportScheduleBtn"
                       type="button"
+                      class="manual-btn"
+                      id="exportScheduleBtn"
+                      data-action="exportScheduleCSV()"
                     >
                       Xuất CSV
                     </button>
                     <button
-                      class="manual-btn manual-btn-danger"
-                      data-action="resetManualSchedule()"
-                      id="resetScheduleBtn"
                       type="button"
+                      class="manual-btn manual-btn-danger"
+                      id="resetScheduleBtn"
+                      data-action="resetManualSchedule()"
                     >
-                      Khôi phục mẫu
+                      Khôi phục mẫu</button
+                    ><button
+                      id="recalculateScheduleBtn"
+                      type="button"
+                      class="manual-btn manual-btn-primary"
+                      data-action="revalidateDashboard()"
+                    >
+                      Tính lại lịch & chi phí
                     </button>
                   </div>
                 </div>
                 <div
-                  aria-live="polite"
                   class="manual-context-note"
                   id="manualScheduleNotice"
                   role="status"
+                  aria-live="polite"
                 >
                   Chọn một phương án riêng để bắt đầu điều chỉnh.
                 </div>
-                <form
-                  class="schedule-editor"
-                  hidden=""
-                  id="scheduleEditForm"
-                  oninput="previewScheduleEditor()"
-                  onsubmit="saveScheduleJob(event)"
-                >
+                <form id="scheduleEditForm" class="schedule-editor" hidden>
                   <div class="schedule-editor-head">
-                    <div>
-                      <span class="manual-eyebrow">CHỈNH SỬA THỦ CÔNG</span>
-                      <h4 id="scheduleEditorTitle">Chỉnh sửa lô sản xuất</h4>
-                    </div>
+                    <h3 id="scheduleEditorTitle">Chỉnh sửa bản nháp</h3>
                     <button
-                      aria-label="Đóng phần chỉnh sửa"
+                      type="button"
                       class="manual-btn"
                       data-action="closeScheduleEditor()"
-                      type="button"
                     >
                       Đóng
                     </button>
                   </div>
                   <div class="schedule-form-grid">
                     <label
-                      >Tên lô sản xuất
-                      <input
+                      >Mã lô<input
                         id="editJobName"
-                        maxlength="100"
-                        placeholder="Ví dụ: Đơn F (Khớp nối)"
-                        required=""
-                        type="text"
+                        pattern="[A-Za-z0-9_-]+"
+                        maxlength="80"
+                        required
                     /></label>
                     <label
-                      >Máy ép
-                      <select id="editJobMachine" required=""></select
+                      >Máy<select id="editJobMachine" required></select
                     ></label>
                     <label
-                      >Bắt đầu
-                      <input
+                      >Bắt đầu<input
                         id="editJobStart"
-                        required=""
-                        step="1800"
-                        type="time"
+                        type="datetime-local"
+                        step="60"
+                        required
                     /></label>
                     <label
-                      >Thời lượng (giờ)
-                      <input
+                      >Thời lượng (phút)<input
                         id="editJobDuration"
-                        max="18"
-                        min="0.5"
-                        required=""
-                        step="0.5"
                         type="number"
+                        min="1"
+                        max="2880"
+                        step="1"
+                        required
                     /></label>
                     <label
-                      >Setup trước lô (giờ)
-                      <input
-                        id="editJobSetup"
-                        max="3"
-                        min="0"
-                        required=""
-                        step="0.25"
+                      >Sản lượng<input
+                        id="editJobQuantity"
                         type="number"
+                        min="1"
+                        step="1"
+                        required
+                    /></label>
+                    <label
+                      >Công suất trung bình (kW)<input
+                        id="editJobPower"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        required
+                    /></label>
+                    <label
+                      >Nhóm sản phẩm<select id="editJobFamily" required></select
+                    ></label>
+                    <label
+                      >Khuôn<select id="editJobMold" required></select
+                    ></label>
+                    <label
+                      >Được bắt đầu từ<input
+                        id="editJobRelease"
+                        type="datetime-local"
+                        step="60"
+                        required
+                    /></label>
+                    <label
+                      >Hạn hoàn thành<input
+                        id="editJobDue"
+                        type="datetime-local"
+                        step="60"
+                        required
+                    /></label>
+                    <label
+                      >Nguồn định mức<input
+                        id="editJobReference"
+                        required
+                        placeholder="Biên bản đo hoặc xác nhận định mức"
                     /></label>
                   </div>
+                  <label class="gate-confirm-checkbox"
+                    ><input
+                      id="editProcessingConfirmed"
+                      type="checkbox"
+                      required
+                    />
+                    Tôi xác nhận sản lượng và thời lượng đã khai báo cho máy
+                    này.</label
+                  >
+                  <p id="scheduleFormHint">
+                    Setup được tính từ quy tắc máy, khuôn và nhóm sản phẩm đã
+                    khai báo. Sản lượng lô hiện có được sửa tại Điều chuyển đơn
+                    hàng.
+                  </p>
+                  <p
+                    id="schedulePreviewHint"
+                    class="schedule-preview-hint"
+                    role="status"
+                  ></p>
                   <div class="schedule-editor-footer">
-                    <span
-                      ><span id="scheduleFormHint"
-                        >Thay đổi chỉ tác động lịch mô phỏng, chưa tính lại chi
-                        phí và KPI.</span
-                      ><small
-                        aria-live="polite"
-                        class="schedule-preview-hint"
-                        id="schedulePreviewHint"
-                      ></small
-                    ></span>
+                    <p id="scheduleEditorError" role="alert"></p>
                     <div class="manual-actions">
                       <button
-                        class="manual-btn manual-btn-danger"
-                        data-action="deleteScheduleJob()"
                         id="deleteScheduleJobBtn"
                         type="button"
+                        class="manual-btn manual-btn-danger"
+                        data-action="deleteScheduleJob()"
                       >
                         Xóa lô
                       </button>
                       <button
-                        class="manual-btn manual-btn-primary"
                         type="submit"
+                        class="manual-btn manual-btn-primary"
                       >
-                        Lưu thay đổi
+                        Lưu bản nháp
                       </button>
                     </div>
                   </div>
                 </form>
               </div>
+
               <div class="gantt-live-heading">
                 <div>
-                  <span class="manual-eyebrow"
-                    >TRỰC QUAN HÓA LỊCH ĐANG CHỌN</span
-                  >
                   <h3>Lịch mô phỏng</h3>
                 </div>
                 <p>
-                  Thanh màu thay đổi ngay khi sửa; chỉ bấm
-                  <strong>Lưu thay đổi</strong> để giữ chỉnh sửa.
+                  Kéo thanh ngang để dời giờ theo bước 30 phút; nhấn để sửa chi tiết.
+                  Nét đứt: bản nháp chưa kiểm định. Lịch và chi phí chỉ có hiệu
+                  lực sau khi tính lại.
                 </p>
               </div>
+
               <!-- The Gantt Board Wrapper -->
               <div class="gantt-board-card">
                 <div class="gantt-timeline-header">
                   <div class="gantt-machine-col-header">
-                    MÁY ÉP &amp; THÔNG SỐ KỸ THUẬT
+                    MÁY ÉP & THÔNG SỐ KỸ THUẬT
                   </div>
                   <div class="gantt-hours-track">
                     <span class="hour-mark">00:00</span>
@@ -1220,22 +1044,23 @@
                     <span class="hour-mark">24:00</span>
                   </div>
                 </div>
+
                 <div class="gantt-lanes-container" id="ganttLanes">
                   <!-- Rendered dynamically by app.js -->
                 </div>
               </div>
               <div
-                aria-live="polite"
-                class="gantt-change-feedback"
-                hidden=""
                 id="ganttChangeFeedback"
+                class="gantt-change-feedback"
                 role="status"
+                aria-live="polite"
+                hidden
               ></div>
               <div
-                aria-live="polite"
-                class="gantt-nextday-preview"
-                hidden=""
                 id="ganttNextDayPreview"
+                class="gantt-nextday-preview"
+                aria-live="polite"
+                hidden
               ></div>
             </section>
           </div>
@@ -1247,30 +1072,43 @@
               <div class="chart-section-header">
                 <div>
                   <h2 class="section-heading" id="loadComparisonTitle">
-                    Phụ tải và tiền điện của lịch đề xuất
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M3 3v18h18" />
+                      <path d="m19 9-5 5-4-4-3 3" />
+                    </svg>
+                    Phụ tải & chi phí điện theo lịch
                   </h2>
                   <p class="section-subtitle" id="peakComparisonNote">
-                    Chưa có kết quả. Phụ tải là mô hình theo lịch, không phải số
-                    đo trực tiếp.
+                    Chưa có kết quả. Dữ liệu được tính từ lịch đã phân tích,
+                    không phải số đo trực tiếp.
                   </p>
                 </div>
+
                 <div class="chart-controls-group">
                   <div class="segmented-control">
                     <button
+                      id="btnMetricCost"
                       class="segment-btn active"
                       data-action="switchChartMetric('cost')"
-                      id="btnMetricCost"
                     >
                       Tiền Điện Từng Giờ (VNĐ/h)
                     </button>
                     <button
+                      id="btnMetricPower"
                       class="segment-btn"
                       data-action="switchChartMetric('power')"
-                      id="btnMetricPower"
                     >
                       Công Suất Tiêu Thụ (kW)
                     </button>
                   </div>
+
                   <div class="chart-legend-pills">
                     <span class="legend-pill"
                       ><span class="line-dot dot-b0"></span
@@ -1283,87 +1121,52 @@
                   </div>
                 </div>
               </div>
-              <!-- Synchronized Real-Time Factory Telemetry HUD -->
-              <div
-                aria-label="Bảng chỉ số tức thời theo mốc giờ quét"
-                class="telemetry-hud-banner"
-                id="telemetryHud"
-              >
-                <div class="hud-item hud-hour">
-                  <span class="hud-label">MỐC GIỜ QUÉT</span>
-                  <span class="hud-val tabular" id="hudHourVal"
-                    >Chưa phân tích</span
-                  >
-                </div>
-                <div class="hud-item hud-tariff">
-                  <span class="hud-label">BIỂU GIÁ EVN</span>
-                  <span class="hud-val hud-tariff-peak" id="hudTariffVal"
-                    >Chưa phân tích</span
-                  >
-                </div>
-                <div class="hud-item hud-load-b0">
-                  <span class="hud-label">TẢI GỐC (B0)</span>
-                  <span class="hud-val tabular" id="hudB0Val"
-                    >Chưa phân tích</span
-                  >
-                </div>
-                <div class="hud-item hud-load-b2">
-                  <span class="hud-label">LỊCH ĐƯỢC ĐỀ XUẤT</span>
-                  <span class="hud-val tabular text-success" id="hudB2Val"
-                    >Chưa phân tích</span
-                  >
-                </div>
-                <div class="hud-item hud-saving">
-                  <span class="hud-label">CHÊNH LỆCH ĐỈNH MÔ HÌNH</span>
-                  <span class="hud-val tabular text-highlight" id="hudSavingVal"
-                    >Chưa phân tích</span
-                  >
-                </div>
-              </div>
+
               <div class="chart-card-viewport">
                 <svg
-                  aria-label="Biểu đồ đường phụ tải 24h"
-                  class="interactive-chart-svg"
                   id="elecLineChartSvg"
-                  viewbox="0 0 950 330"
+                  class="interactive-chart-svg"
+                  viewBox="0 0 950 330"
+                  aria-label="Biểu đồ đường phụ tải 24h"
                 ></svg>
-                <div class="chart-floating-tooltip" id="chartTooltip"></div>
+                <div id="chartTooltip" class="chart-floating-tooltip"></div>
               </div>
-              <details id="hourlyDetails"></details>
+
+              <details id="hourlyDetails" class="hourly-details"></details>
               <!-- Transformer Safety Sub-card -->
               <div class="sub-card-container">
                 <div class="transformer-monitor-card" id="cardTransformer">
                   <div class="trans-header">
                     <div class="trans-title-group">
                       <svg
-                        fill="none"
+                        width="18"
                         height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
                         stroke="currentColor"
                         stroke-width="2"
-                        viewbox="0 0 24 24"
-                        width="18"
                       >
                         <polygon
                           points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
-                        ></polygon>
+                        />
                       </svg>
                       <div>
                         <h3 class="trans-title">
-                          Phụ tải đỉnh theo lịch và thông tin máy biến áp
+                          Phụ tải đỉnh theo lịch & thông tin máy biến áp
                         </h3>
                         <p class="trans-sub">
-                          Chỉ gồm công suất chạy đã khai báo. Cần công suất nền
-                          và định mức TBA trước khi đánh giá an toàn vận hành.
+                          Cần công suất nền và định mức máy biến áp thực tế
+                          trước khi đánh giá an toàn vận hành.
                         </p>
                       </div>
                     </div>
-                    <span class="status-chip chip-warn" id="transSafetyBadge"
+                    <span id="transSafetyBadge" class="status-chip chip-warn"
                       >Chưa xác định</span
                     >
                   </div>
                   <div
-                    class="trans-content-mount"
                     id="transformerMonitorContent"
+                    class="trans-content-mount"
                   >
                     <!-- Rendered dynamically by app.js -->
                   </div>
@@ -1448,11 +1251,18 @@
                     Chưa kiểm tra
                   </h3>
                   <p>
-                    Xem kết quả và tải báo cáo của cùng đầu vào. Chưa thay thế
-                    kiểm tra hiện trường.
+                    Kết quả tự động và xác nhận của người rà soát được hiển thị
+                    riêng cho từng điều kiện.
                   </p>
                 </div>
                 <div class="validation-confirm-actions">
+                  <button
+                    type="button"
+                    class="manual-btn"
+                    data-action="clearManualConfirmations()"
+                  >
+                    Bỏ xác nhận thủ công
+                  </button>
                   <label for="validationPlanSelect"
                     >Phương án xem chi tiết</label
                   ><select id="validationPlanSelect">
@@ -1478,7 +1288,10 @@
               <div class="validation-cards-grid" id="validationList">
                 <!-- Rendered by app.js -->
               </div>
-              <div class="section-container" id="validationEvidence"></div>
+              <details
+                class="section-container"
+                id="validationEvidence"
+              ></details>
             </section>
           </div>
           <!-- ===================================================================

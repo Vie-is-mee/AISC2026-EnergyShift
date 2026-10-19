@@ -1059,3 +1059,140 @@ body {
     margin-left: 15px;
   }
 }
+
+/* Integrated planning tabs: original comparison layout, canonical live data. */
+#tab-gantt .gantt-job-pill { cursor:grab;user-select:none; }
+#tab-gantt .gantt-job-pill.job-dragging { cursor:grabbing;z-index:20;opacity:.85; }
+#tab-gantt .schedule-check-card {
+  white-space: pre-line;
+  line-height: 1.7;
+}
+#tab-gantt .draft-job {
+  border: 2px dashed var(--brand-primary);
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+#tab-gantt .draft-conflict {
+  border-color: var(--danger-text, #dc2626);
+}
+#tab-gantt .schedule-form-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+#tab-gantt .gantt-job-pill {
+  min-width: 8px;
+}
+#tab-gantt .gantt-subtrack {
+  overflow: hidden;
+}
+#tab-gantt .schedule-editor[hidden] {
+  display: none;
+}
+#scheduleEditorError {
+  color: var(--danger-text, #b91c1c);
+}
+[data-theme="dark"] #scheduleEditorError {
+  color: #fca5a5;
+}
+#tab-gantt input[readonly] {
+  background: var(--bg-subtle);
+}
+#tab-gantt .gantt-live-heading {
+  margin-top: 24px;
+}
+#tab-gantt .manual-actions {
+  flex-wrap: wrap;
+}
+#tab-loadcurve .chart-card-viewport {
+  margin: 18px 0;
+}
+#tab-loadcurve .interactive-chart-svg {
+  height: auto;
+  aspect-ratio: 960/360;
+}
+#tab-loadcurve .line-dot.dot-b0 {
+  background: #2563eb;
+}
+#tab-loadcurve .line-dot.dot-b2 {
+  background: #10b981;
+}
+#tab-loadcurve .chart-floating-tooltip {
+  text-align: left;
+  line-height: 1.6;
+  background: #0f172a;
+  color: #f8fafc;
+}
+#tab-loadcurve .chart-floating-tooltip strong {
+  display: block;
+  margin-bottom: 5px;
+}
+.hover-tariff {
+  font-size: 11px;
+  color: #cbd5e1;
+  margin-bottom: 5px;
+}
+.hover-baseline {
+  color: #93c5fd;
+}
+.hover-selected {
+  color: #6ee7b7;
+}
+.hover-delta {
+  border-top: 1px solid #475569;
+  margin-top: 5px;
+  padding-top: 5px;
+}
+#hourlyDetails,
+#measurementPanel,
+#validationEvidence {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+#hourlyDetails summary,
+#measurementPanel summary,
+#validationEvidence summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+#validationEvidence h3 {
+  margin-top: 20px;
+}
+#tab-validation .validation-cards-grid .analytics-card {
+  padding: 20px;
+}
+#tab-validation .validation-cards-grid h3 {
+  margin: 12px 0 8px;
+}
+#tab-validation .validation-cards-grid .status-chip {
+  display: inline-block;
+  white-space: normal;
+}
+#tab-validation .gate-user-checked {
+  outline: 1px solid #059669;
+}
+#tab-validation input[type="checkbox"],
+#tab-gantt input[type="checkbox"] {
+  width: 19px;
+}
+@media (max-width: 650px) {
+  #tab-gantt .schedule-form-grid {
+    grid-template-columns: 1fr;
+  }
+  #tab-gantt .manual-actions {
+    width: 100%;
+  }
+  #tab-loadcurve .chart-section-header {
+    flex-direction: column;
+  }
+  #tab-loadcurve .trans-header {
+    align-items: flex-start;
+    gap: 12px;
+    flex-direction: column;
+  }
+  #tab-loadcurve .chart-controls-group {
+    width: 100%;
+  }
+}
