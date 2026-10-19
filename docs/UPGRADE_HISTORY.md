@@ -54,6 +54,10 @@ PR [#15](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/15), CI đạt 
 
 ## 19/10/2026 — Ưu tiên 4: solver láng giềng và vận hành nhóm demo
 
+PR [#16](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/16).
+Implementation commit: `b05fd2e2a8fa0317b0fa38d50d15eb6b6a63edc3`.
+Chỉ merge khi CI của commit cuối đạt. Chuỗi bốn nâng cấp: PR #13–#16.
+
 - Điểm yếu: B2 chỉ có máy/thứ tự B0/B1; API chỉ trả busy, không có lịch sử riêng.
 - Thêm tối đa 12 miền đổi job kề nhau/chuyển một job vào máy đủ điều kiện trên
   API (CLI cho 0..24). Mỗi miền phối hợp giờ bằng CP-SAT và vẫn hậu kiểm độc lập.
