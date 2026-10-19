@@ -6,6 +6,12 @@ import json
 
 
 def run_checks(js,click,wait,check,run,command,out,root):
+    def pointer_click(identifier):
+        js('document.getElementById('+json.dumps(identifier)+').scrollIntoView({block:"center",behavior:"instant"})')
+        point=js('(()=>{const r=document.getElementById('+json.dumps(identifier)+').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()')
+        assert js('document.elementFromPoint('+str(point['x'])+','+str(point['y'])+').closest("button")?.id')==identifier, 'Action must be visible and unobstructed'
+        command('Input.dispatchMouseEvent',{'type':'mousePressed','button':'left','buttons':1,'clickCount':1,**point})
+        command('Input.dispatchMouseEvent',{'type':'mouseReleased','button':'left','buttons':0,'clickCount':1,**point})
     js('loadFixture("editable-cell")')
     wait('!fixtureLoading && JSON.parse(document.getElementById("dataset").value).jobs.length===8')
     js('switchMainTab("tab-dispatch");document.getElementById("importSettings").open=true;window.csvDatasetBefore=document.getElementById("dataset").value')
@@ -45,9 +51,10 @@ def run_checks(js,click,wait,check,run,command,out,root):
     js('document.querySelector("#aiCSVReviewRows input[data-field=quantity]").value="1001";document.querySelector("#aiCSVReviewRows input[data-field=quantity]").dispatchEvent(new Event("input"))')
     check('!document.getElementById("aiCSVAck").checked && document.getElementById("aiCSVAccept").disabled', 'csv_cell_edit_resets_human_ack')
     js('document.getElementById("aiCSVAck").checked=true;document.getElementById("aiCSVAck").dispatchEvent(new Event("change"))')
-    click('aiCSVAccept')
+    pointer_click('aiCSVAccept')
     wait('!document.getElementById("aiCSVStart").disabled')
     check('document.getElementById("aiCSVStatus").textContent.includes("Số lượng") && document.getElementById("dataset").value===window.csvDatasetBefore', 'csv_backend_rejects_quantity_guess_without_changing_plan')
+    check('document.getElementById("aiCSVReviewStatus").textContent.includes("Số lượng") && !document.getElementById("aiCSVReviewStatus").hidden', 'csv_error_is_repeated_next_to_approval_action')
     js('document.querySelector("#aiCSVReviewRows input[data-field=quantity]").closest("td").querySelector("button").click()')
     js('document.getElementById("aiCSVPanel").scrollIntoView({block:"start"})')
     command('Emulation.setDeviceMetricsOverride',{'width':1440,'height':1100,'deviceScaleFactor':1,'mobile':False})
@@ -57,11 +64,17 @@ def run_checks(js,click,wait,check,run,command,out,root):
     (out/'ai-csv-mobile.png').write_bytes(base64.b64decode(command('Page.captureScreenshot',{'format':'png','captureBeyondViewport':True})['data']))
     command('Emulation.setDeviceMetricsOverride',{'width':1440,'height':1100,'deviceScaleFactor':1,'mobile':False})
     js('document.getElementById("aiCSVAck").checked=true;document.getElementById("aiCSVAck").dispatchEvent(new Event("change"))')
-    click('aiCSVAccept')
+    pointer_click('aiCSVAccept')
     wait('!document.getElementById("aiCSVStart").disabled')
     staged=js('({status:document.getElementById("aiCSVStatus").textContent,rows:document.querySelectorAll("#planInputRows tr").length,export_disabled:document.getElementById("aiCSVExport").disabled})')
     print(json.dumps({'csv_handoff_state':staged},ensure_ascii=True),flush=True)
     assert staged['rows']==1 and not staged['export_disabled'], staged
+    check('!document.getElementById("planReceipt").hidden && document.getElementById("planReceipt").textContent.includes("1 lô") && document.activeElement.id==="inputPlanStepTitle"', 'csv_acceptance_shows_row_receipt_and_focuses_updated_plan')
+    for width,height,name in [(1440,1100,'csv-receipt-desktop.png'),(390,844,'csv-receipt-mobile.png')]:
+        command('Emulation.setDeviceMetricsOverride',{'width':width,'height':height,'deviceScaleFactor':1,'mobile':width==390})
+        js('document.getElementById("inputPlanStep").scrollIntoView({block:"start",behavior:"instant"})')
+        (out/name).write_bytes(base64.b64decode(command('Page.captureScreenshot',{'format':'png','captureBeyondViewport':True})['data']))
+    command('Emulation.setDeviceMetricsOverride',{'width':1440,'height':1100,'deviceScaleFactor':1,'mobile':False})
     wait('!document.getElementById("aiCSVExport").disabled && document.querySelectorAll("#planInputRows tr").length===1')
     check('currentReport===null && document.getElementById("dataset").value===window.csvDatasetBefore', 'csv_approval_stages_rows_without_silently_running_engine')
     js('window.csvReviewId=document.getElementById("aiCSVTrace").textContent.match(/^Lượt ([a-z0-9]+) /)[1]')

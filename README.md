@@ -6,14 +6,20 @@ Frontend HTML/CSS/JavaScript hiện tại nhận kết quả tính thật từ A
 Dữ liệu mẫu là SYNTHETIC; đây chưa phải hệ thống vận hành công nghiệp hoàn chỉnh.
 
 Đã có [trợ lý AI bước 1: hiểu yêu cầu và con người rà soát](docs/AI_ASSISTANT_STEP1.md).
-Trong Điều chuyển đơn hàng, mô tả phát sinh và chọn **Nhờ AI xem yêu cầu** để
+Trong bước 4 của Điều chuyển đơn hàng, mở **Hỏi AI về tình huống sản xuất**,
+mô tả phát sinh và chọn **Nhờ AI xem yêu cầu** để
 gọi model thật qua backend. Cần cấu hình key/model ở Render hoặc `.env` local;
 nút Phân tích kế hoạch vẫn chạy engine độc lập. AI chưa tự sửa dữ liệu/chọn lịch.
 
 Đã thêm [bước 2: AI ghép cột CSV và cổng người dùng rà soát](docs/AI_CSV_WORKFLOW.md).
-Mở Nhập bảng từ Excel / CSV, gửi bảng cho AI, sửa mapping/ô dữ liệu và chọn gợi ý
+Trong **2. Nhập lệnh sản xuất**, chọn tải CSV/TSV hoặc dán từ Excel,
+gửi bảng cho AI, sửa mapping/ô dữ liệu và chọn gợi ý
 hồ sơ khi phù hợp. Chỉ bảng qua kiểm tra backend và duyệt mới được đưa vào bản
 chuẩn bị; vẫn cần chủ động phân tích. Có [CSV giả lập để thử](docs/templates/ai_import_demo.csv).
+
+Điều chuyển đơn hàng là màn hình bắt đầu, theo thứ tự **1. Hồ sơ → 2. Nhập lệnh
+→ 3. Rà soát bảng → 4. Phân tích**. Chọn **Sửa bảng trực tiếp** để dùng bảng mẫu
+hoặc tự nhập mà không gửi CSV. Công cụ nâng cao được thu gọn dưới luồng chính.
 
 ## Xem demo trên Internet
 

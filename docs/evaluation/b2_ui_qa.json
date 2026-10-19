@@ -3,7 +3,7 @@
   "all_checks_pass": true,
   "base_url": "http://127.0.0.1:8766",
   "javascript_exceptions": 0,
-  "csv_check_mode": "LIVE_PROVIDER",
+  "csv_check_mode": "EXPLICIT_TEST_DOUBLE",
   "scope": "selected-plan consistency; hourly axes/table, verifier evidence, readable memo, scope-safe synthetic measurement check, private queued team run/history, and input regression",
   "screenshots": [
     "work/ui-qa/workspace-dark.png",
@@ -11,15 +11,15 @@
     "work/ui-qa/input-mobile.png"
   ],
   "source_sha256": {
-    "index.html": "4b33e5651e761a739e700f9ada85bfa025108154f9bda2ba4e5719ce61baa849",
+    "index.html": "67841cb480954bef9d743da53d4ffc9dd8e3ec90f03008c55cb2cc0ed23b58e4",
     "app.js": "5421152536d3ef2270d62d89fe8cdd3ced73a9b3b637b924f6cbcfee9848810c",
     "workspace.css": "6d3509def38c7b33aca1eba98e01a5fb119c78045f6e6cf3a616d67681b3d2ce",
-    "input-desk.js": "e093438b1af8fe0301adba27d94228c510ebcad1004eb7564a0d6fa8fe1d1a77",
+    "input-desk.js": "280117429b0756ceecc20a4ec7f8eb58e450371e6d63b84a23daaee58a9e897a",
     "input-model.js": "6791b5b1053a7838aa9ac8594452c74eb30d9915b2ed907f52177f0b56b990d3",
     "assistant.js": "94be3a2c1675f468a8929e1d7ec029dde72bcc0c6825935b1bc3c76cfeb981e3",
-    "ai-csv-import.js": "3d978adf9106a06322a3b310606f5ffbe3464e4f062c937a3baa5e460e321619",
+    "ai-csv-import.js": "642c09db6399d1989ac8e65c72daa4a245e6f2da4fa106b74a8efc8e9d58e290",
     "backend/assistant.py": "8b041ac473168d66c6e68078c07ad9cbb6f7d8e2f81b989aec7dffcc9aca3801",
-    "backend/assistant_csv.py": "11b6bb2effc0ca395504cad7cf18598ad742d94e5b6f61787d11b850859e8e2c",
+    "backend/assistant_csv.py": "1ffba99991374d9a9f41cd51e82ec16780264ba243e36e458b6e45d9f415eff4",
     "backend/openrouter.py": "a76c43c1ea8028d302e9751a0e3b67dd979170767153deafeec62fc45d887871",
     "backend/b2.py": "673aaae1964db5754a006d73265b536b8ac3f5c89215435749f1915255c9fbbc",
     "backend/neighborhoods.py": "813b404c68050edf315d01d2ee825004e56b5f5e72cb7a94885d9d29662b2ad4",
