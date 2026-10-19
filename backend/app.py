@@ -24,6 +24,7 @@ from .reconciliation import reconcile
 from pydantic import ValidationError
 from .team import TeamService, TeamError
 from .schemas import Model
+from .assistant import AssistantService
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ID = "editable-cell"
@@ -32,6 +33,7 @@ MAX_BYTES = 512 * 1024
 analysis_lock = Lock()
 team_lock = Lock()
 team_service = None
+assistant_service = None
 workspace_requests = defaultdict(deque)
 FRONTEND_ORIGINS = allowed_origins()
 app = FastAPI(title="EnergyShift demo", docs_url=None, redoc_url=None, openapi_url=None)
@@ -101,6 +103,11 @@ def deployment_config():
 @app.get("/api-client.js")
 def api_client_script():
     return FileResponse(ROOT / "api-client.js", media_type="text/javascript")
+
+
+@app.get("/assistant.js")
+def assistant_script():
+    return FileResponse(ROOT / "assistant.js", media_type="text/javascript")
 
 
 @app.get("/api/demo/health")
@@ -199,6 +206,56 @@ def team_error(exc):
     response=error(exc.status,"TEAM_DEMO",exc.message)
     if exc.status==429:response.headers["Retry-After"]="3"
     return response
+
+
+def get_assistant():
+    global assistant_service
+    team = get_team()
+    with team_lock:
+        if assistant_service is None:
+            assistant_service = AssistantService(team)
+    return assistant_service
+
+
+@app.post("/api/demo/assistant/requests", status_code=202)
+async def assistant_submit(request: Request):
+    raw = await read_json(request)
+    try:
+        return await run_in_threadpool(get_assistant().submit, workspace_token(request), raw)
+    except TeamError as exc:
+        return team_error(exc)
+    except ValidationError:
+        return error(422, "ASSISTANT_SCHEMA", "Yêu cầu trợ lý sai cấu trúc hoặc chưa xác nhận gửi dữ liệu.")
+
+
+@app.get("/api/demo/assistant/requests/{ident}")
+async def assistant_get(ident: str, request: Request):
+    try:
+        return await run_in_threadpool(get_assistant().get, workspace_token(request), ident)
+    except TeamError as exc:
+        return team_error(exc)
+
+
+@app.post("/api/demo/assistant/requests/{ident}/review")
+async def assistant_review(ident: str, request: Request):
+    raw = await read_json(request)
+    try:
+        return await run_in_threadpool(get_assistant().review, workspace_token(request), ident, raw)
+    except TeamError as exc:
+        return team_error(exc)
+    except ValidationError:
+        return error(422, "ASSISTANT_REVIEW", "Cần rà soát nội dung, xác nhận và gửi đúng phiên bản để duyệt.")
+
+
+@app.post("/api/demo/assistant/requests/{ident}/cancel")
+async def assistant_cancel(ident: str, request: Request):
+    raw = await read_json(request)
+    if raw:
+        return error(422,"ASSISTANT_CANCEL","Use an empty JSON object")
+    try:
+        return await run_in_threadpool(get_assistant().cancel, workspace_token(request), ident)
+    except TeamError as exc:
+        return team_error(exc)
 
 
 @app.post("/api/demo/workspaces")

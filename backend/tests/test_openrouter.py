@@ -12,6 +12,31 @@ from backend.openrouter import chat_json, load_config
 
 
 class OpenRouterTests(unittest.TestCase):
+    def test_structured_output_requests_supported_endpoints_and_keeps_local_validation(self):
+        payload={"choices":[{"message":{"content":"{}"},"finish_reason":"stop"}]}
+        schema={"type":"object","properties":{},"additionalProperties":False}
+        with patch("urllib.request.urlopen",return_value=io.BytesIO(json.dumps(payload).encode())) as request:
+            chat_json([],config={"OPENROUTER_API_KEY":"fake-only","OPENROUTER_MODEL":"test"},response_schema=schema)
+            sent=json.loads(request.call_args.args[0].data)
+            self.assertEqual(sent["response_format"]["json_schema"]["schema"],schema)
+            self.assertTrue(sent["provider"]["require_parameters"])
+
+    def test_exact_json_fence_accepted_but_embedded_prose_rejected(self):
+        for content,expected in [('```json\n{"summary":"ok"}\n```','OK'),('Here is a guess: {"summary":"ok"}','INVALID_RESPONSE')]:
+            payload={"choices":[{"message":{"content":content},"finish_reason":"stop"}]}
+            with patch("urllib.request.urlopen",return_value=io.BytesIO(json.dumps(payload).encode())):
+                result=chat_json([],config={"OPENROUTER_API_KEY":"fake-only","OPENROUTER_MODEL":"test"})
+                self.assertEqual(result["status"],expected)
+
+    def test_assistant_can_bound_output_and_disable_reasoning_without_changing_defaults(self):
+        payload={"choices":[{"message":{"content":"{}"},"finish_reason":"stop"}]}
+        with patch("urllib.request.urlopen",return_value=io.BytesIO(json.dumps(payload).encode())) as request:
+            chat_json([],config={"OPENROUTER_API_KEY":"fake-only","OPENROUTER_MODEL":"test"},max_completion_tokens=4000,reasoning_enabled=False)
+            sent=json.loads(request.call_args.args[0].data)
+            self.assertEqual(sent["max_completion_tokens"],4000)
+            self.assertEqual(sent["reasoning"],{"enabled":False,"exclude":True})
+        with self.assertRaises(ValueError):chat_json([],max_completion_tokens=999999)
+
     def test_missing_config_does_not_call_network(self):
         with patch("urllib.request.urlopen") as request:
             self.assertEqual(chat_json([], config={})["status"], "CONFIG_MISSING")

@@ -16,6 +16,7 @@
     <script defer="" src="/app.js"></script>
     <script defer="" src="/input-model.js"></script>
     <script defer="" src="/input-desk.js"></script>
+    <script defer="" src="/assistant.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#workspaceMain">Chuyển đến nội dung chính</a>
@@ -1544,6 +1545,45 @@
                   <h2 id="inputTitle">Chuẩn bị kế hoạch sản xuất</h2>
                 </div>
               </div>
+              <section class="analytics-card assistant-panel" id="assistantPanel" aria-labelledby="assistantTitle">
+                <p class="live-eyebrow">TRỢ LÝ AI · BƯỚC 1</p>
+                <h3 id="assistantTitle">Bạn cần xử lý thay đổi gì trong kế hoạch?</h3>
+                <p>AI đọc yêu cầu cùng kế hoạch đang nhập, nêu cách hiểu và hỏi thông tin còn thiếu. Bạn rà soát trước khi tiếp tục; bước này chưa sửa dữ liệu hoặc chọn lịch thay bạn.</p>
+                <ol class="assistant-flow" aria-label="Luồng trợ lý">
+                  <li id="aiStepInput" aria-current="step">1. Mô tả</li>
+                  <li id="aiStepModel">2. AI đọc yêu cầu</li>
+                  <li id="aiStepReview">3. Bạn rà soát</li>
+                  <li id="aiStepDone">4. Lưu quyết định</li>
+                </ol>
+                <label for="aiMessage">Tình huống và yêu cầu của bạn</label>
+                <textarea id="aiMessage" rows="3" minlength="10" maxlength="4000" placeholder="Ví dụ: M2 cần bảo trì chiều nay. Tôi muốn giữ hạn giao của lô A; AI hãy chỉ ra thông tin cần xác nhận trước khi đổi lịch."></textarea>
+                <label class="desk-check"><input id="aiConsent" type="checkbox" />Tôi đồng ý gửi kế hoạch hiện tại và mô tả này tới model qua OpenRouter. Không nhập thông tin mật; chưa gửi file CSV thô ở bước này.</label>
+                <div class="live-actions">
+                  <button type="button" id="aiSend">Nhờ AI xem yêu cầu</button>
+                  <button type="button" id="aiCancel" disabled>Dừng / bỏ lượt này</button>
+                  <button type="button" id="aiResume">Mở lượt gần nhất</button>
+                </div>
+                <p id="aiStatus" role="status" aria-live="polite">Chưa gọi AI. Phân tích kế hoạch bằng engine vẫn dùng riêng như trước.</p>
+                <div id="aiResult" hidden>
+                  <h4>AI đã hiểu như sau</h4>
+                  <p id="aiOriginal"></p>
+                  <ul id="aiObservations"></ul>
+                  <h4>Thông tin cần bạn làm rõ</h4>
+                  <ul id="aiQuestions"></ul>
+                  <p class="live-muted">Nếu còn thiếu thông tin, sửa mô tả ở trên rồi gửi lại để AI đọc phiên bản mới.</p>
+                  <h4>Các bước AI đề nghị</h4>
+                  <ul id="aiNextSteps"></ul>
+                  <label for="aiReviewedSummary">Nội dung bạn xác nhận (có thể sửa)</label>
+                  <textarea id="aiReviewedSummary" rows="3" maxlength="1600"></textarea>
+                  <label class="desk-check"><input id="aiAcknowledged" type="checkbox" />Tôi đã rà soát cách hiểu. Xác nhận này chỉ ghi nhận yêu cầu; chưa duyệt ràng buộc hoặc lịch chạy.</label>
+                  <div class="live-actions">
+                    <button type="button" id="aiAccept" disabled>Xác nhận cách hiểu</button>
+                    <button type="button" id="aiReject" disabled>Từ chối đề xuất</button>
+                    <button type="button" id="aiExport" disabled>Tải bản ghi rà soát</button>
+                  </div>
+                </div>
+                <details><summary>Dấu vết gọi model và phạm vi bước này</summary><p id="aiTrace">Chưa có lượt API.</p><p>Không tự sửa kế hoạch, không chạy B1/B2 từ lời AI và không tự phê duyệt. Chuẩn hóa CSV, duyệt ràng buộc và điều phối kịch bản là các bước nâng cấp sau. Bản ghi thuộc phiên demo, chưa xác thực danh tính; ổ đĩa miễn phí có thể mất khi redeploy.</p></details>
+              </section>
               <details class="analytics-card" id="teamPanel">
                 <summary>Nhóm demo: hàng đợi và lịch sử riêng</summary>
                 <p>

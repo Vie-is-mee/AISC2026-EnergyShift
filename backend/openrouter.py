@@ -22,13 +22,20 @@ def load_config(path=None):
             for key in ("OPENROUTER_API_KEY", "OPENROUTER_MODEL")}
 
 
-def chat_json(messages, *, config=None, timeout=45):
+def chat_json(messages, *, config=None, timeout=45, max_completion_tokens=1500, reasoning_enabled=None, response_schema=None):
+    if type(max_completion_tokens) is not int or not 1 <= max_completion_tokens <= 6000:
+        raise ValueError("Completion budget must be 1..6000")
     config = load_config() if config is None else config
     key, model = config.get("OPENROUTER_API_KEY", ""), config.get("OPENROUTER_MODEL", "")
     if not key or not model:
         return {"status": "CONFIG_MISSING", "latency_seconds": 0, "usage": None}
     body = {"model": model, "messages": messages, "stream": False, "temperature": 0,
-            "max_completion_tokens": 1500, "response_format": {"type": "json_object"}}
+            "max_completion_tokens": max_completion_tokens, "response_format": {"type": "json_object"}}
+    if reasoning_enabled is not None:
+        body["reasoning"] = {"enabled": bool(reasoning_enabled), "exclude": True}
+    if response_schema is not None:
+        body["response_format"] = {"type":"json_schema", "json_schema":{"name":"energyshift_intake", "strict":True, "schema":response_schema}}
+        body["provider"] = {"require_parameters": True}
     request = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions",
               data=json.dumps(body).encode("utf-8"), method="POST",
               headers={"Authorization": "Bearer " + key, "Content-Type": "application/json",
@@ -44,6 +51,13 @@ def chat_json(messages, *, config=None, timeout=45):
         response_meta["finish_reason"] = choice.get("finish_reason")
         content = choice.get("message", {}).get("content")
         # Do not persist raw prose/errors/reasoning; benchmark only JSON facts.
+        if isinstance(content, str):
+            content = content.strip()
+            # Accept an exact Markdown JSON envelope, never extract JSON from prose.
+            if content.startswith("```json\n") and content.endswith("\n```"):
+                content = content[8:-4]
+            elif content.startswith("```\n") and content.endswith("\n```"):
+                content = content[4:-4]
         parsed = json.loads(content) if isinstance(content, str) else None
         if not isinstance(parsed, dict):
             raise ValueError("Expected a JSON object")

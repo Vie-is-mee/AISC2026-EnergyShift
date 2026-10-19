@@ -85,6 +85,7 @@ function table(id, rows) {
     );
 }
 function clearResult() {
+  window.AssistantIntake?.invalidate();
   if ($("measurementConfirmed")) $("measurementConfirmed").checked = false;
   put("measurementResult", "Chưa có đối chiếu cho đầu vào hiện tại.");
   revision++;
