@@ -1,0 +1,820 @@
+{
+  "created_at_utc": "2026-10-19T14:26:05.020174+00:00",
+  "purpose": "AISC26 Round 2 slide evidence. All data synthetic; not factory savings.",
+  "python": "3.11.8",
+  "code_sha256": {
+    "backend/analysis.py": "445993c11bec2ffb0cdd8b6ef2d5b4823bbf8c64b516302ad88b9931048fda1b",
+    "backend/b1.py": "02aa523b5056672badfd31275ae83dc060a557b3bd61b1abaa77f69f1d9d13fd",
+    "backend/b2.py": "673aaae1964db5754a006d73265b536b8ac3f5c89215435749f1915255c9fbbc",
+    "backend/costing.py": "697c004f08badabde1f971987e59d3651fe1180463470760a72826c0277fe390",
+    "backend/verifier.py": "9cd6fe2a919cd865e0a5272411573e293c4c634f660dec5627eba0cbaf16d7b9",
+    "backend/risk.py": "2b287f1f566e52440eb5a05840df9233ef79ed9c7b874fae3566e5028874fc59"
+  },
+  "cases": {
+    "main_8_jobs": {
+      "case": "main_8_jobs",
+      "fixture_path": "backend/fixtures/editable_cell.json",
+      "fixture_sha256": "70e1252d20ad68e884ad1a750d64738e6f4b3b3e1a9786a0ab73c0dd88576336",
+      "dataset_id": "editable-cell-01",
+      "source_type": "SYNTHETIC",
+      "plant_alias": "DEMO_INJECTION_CELL",
+      "job_count": 8,
+      "machine_count": 3,
+      "horizon": {
+        "start": "2026-10-19T00:00:00+07:00",
+        "end": "2026-10-20T00:00:00+07:00"
+      },
+      "run_id": "run_bc18e731793e4b569525675a65e85979",
+      "input_hash": "sha256:8bd1a70a1555ca1d01309a12ca418fa7448bba81b07d58a8a4000bc905ae4f96",
+      "status": "COMPLETED",
+      "decision": {
+        "kind": "CHANGE",
+        "selected_plan": "B1",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_NEIGHBORHOODS",
+          "B2_COST_REVIEW_REQUIRED"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "cost_scope": {
+        "included": "RUN_ELECTRICITY_AND_SETUP",
+        "excluded": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "review_scope": "ALL_SINGLE_JOB_MOVES_IN_HORIZON",
+        "excluded_review": {
+          "LABOR_OVERTIME": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-LABOR_OVERTIME"
+          },
+          "IDLE_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-IDLE_ENERGY"
+          },
+          "SETUP_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-SETUP_ENERGY"
+          },
+          "OTHER_COSTS": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-OTHER_COSTS"
+          }
+        }
+      },
+      "search": {
+        "algorithm": "single-job exhaustive grid search with baseline-start alternatives",
+        "grid_minutes": 30,
+        "max_candidates": 5000,
+        "evaluated_candidates": 1056,
+        "rejected_candidates": 627,
+        "valid_candidates": 429,
+        "search_complete": true,
+        "termination": "GRID_EXHAUSTED",
+        "runtime_seconds": 2.235577,
+        "optimality": "NOT_PROVEN_GLOBAL_OPTIMAL"
+      },
+      "comparison": {
+        "saving_vnd": 132918,
+        "saving_pct": 8.949369,
+        "saving_by_component_vnd": {
+          "RUN_ELECTRICITY": 57918,
+          "SETUP": 75000
+        },
+        "changed_assignments": 1,
+        "derived_setup_effects": [
+          {
+            "job_id": "J4",
+            "before_setup_start": "2026-10-19T07:30:00+07:00",
+            "after_setup_start": "2026-10-19T21:30:00+07:00",
+            "before_setup_vnd": 50000,
+            "after_setup_vnd": 25000
+          },
+          {
+            "job_id": "J5",
+            "before_setup_start": "2026-10-19T11:00:00+07:00",
+            "after_setup_start": "2026-10-19T11:30:00+07:00",
+            "before_setup_vnd": 75000,
+            "after_setup_vnd": 25000
+          }
+        ],
+        "plans": {
+          "B1": {
+            "saving_vnd": 132918,
+            "changed_assignments": 1
+          },
+          "B2": {
+            "saving_vnd": 540624,
+            "changed_assignments": 8
+          }
+        }
+      },
+      "plans": {
+        "B0": {
+          "status": "COSTED",
+          "verification": "PASS",
+          "solver_status": null,
+          "assignments": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "start": "2026-10-19T08:00:00+07:00"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "start": "2026-10-19T12:00:00+07:00"
+            },
+            {
+              "job_id": "J3",
+              "machine_id": "M1",
+              "start": "2026-10-19T16:00:00+07:00"
+            },
+            {
+              "job_id": "J4",
+              "machine_id": "M2",
+              "start": "2026-10-19T08:00:00+07:00"
+            },
+            {
+              "job_id": "J5",
+              "machine_id": "M2",
+              "start": "2026-10-19T12:00:00+07:00"
+            },
+            {
+              "job_id": "J6",
+              "machine_id": "M2",
+              "start": "2026-10-19T16:00:00+07:00"
+            },
+            {
+              "job_id": "J7",
+              "machine_id": "M3",
+              "start": "2026-10-19T09:00:00+07:00"
+            },
+            {
+              "job_id": "J8",
+              "machine_id": "M3",
+              "start": "2026-10-19T14:00:00+07:00"
+            }
+          ],
+          "cost_vnd": 1485222,
+          "component_vnd": {
+            "RUN_ELECTRICITY": 1060222,
+            "SETUP": 425000
+          },
+          "by_machine_vnd": {
+            "M1": 471857,
+            "M2": 601930,
+            "M3": 411435
+          },
+          "by_job": {
+            "J1": {
+              "electricity_vnd": 97867,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 97867,
+              "kwh_exact": "44/1"
+            },
+            "J2": {
+              "electricity_vnd": 87984,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 162984,
+              "kwh_exact": "48/1"
+            },
+            "J3": {
+              "electricity_vnd": 136006,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 211006,
+              "kwh_exact": "52/1"
+            },
+            "J4": {
+              "electricity_vnd": 124558,
+              "setup_vnd": 50000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 0,
+              "total_vnd": 174558,
+              "kwh_exact": "56/1"
+            },
+            "J5": {
+              "electricity_vnd": 109980,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 184980,
+              "kwh_exact": "60/1"
+            },
+            "J6": {
+              "electricity_vnd": 167392,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 242392,
+              "kwh_exact": "64/1"
+            },
+            "J7": {
+              "electricity_vnd": 204459,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 204459,
+              "kwh_exact": "68/1"
+            },
+            "J8": {
+              "electricity_vnd": 131976,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 206976,
+              "kwh_exact": "72/1"
+            }
+          },
+          "electricity_by_band_vnd": {
+            "NORMAL": 604890,
+            "PEAK": 455332
+          },
+          "kwh_by_band": {
+            "NORMAL": 330.0,
+            "PEAK": 134.0
+          },
+          "total_kwh": 464.0,
+          "components_reconcile": true,
+          "machines_reconcile": true,
+          "jobs_reconcile": true
+        },
+        "B1": {
+          "status": "COSTED",
+          "verification": "PASS",
+          "solver_status": null,
+          "assignments": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "start": "2026-10-19T08:00:00+07:00"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "start": "2026-10-19T12:00:00+07:00"
+            },
+            {
+              "job_id": "J3",
+              "machine_id": "M1",
+              "start": "2026-10-19T16:00:00+07:00"
+            },
+            {
+              "job_id": "J4",
+              "machine_id": "M2",
+              "start": "2026-10-19T22:00:00+07:00"
+            },
+            {
+              "job_id": "J5",
+              "machine_id": "M2",
+              "start": "2026-10-19T12:00:00+07:00"
+            },
+            {
+              "job_id": "J6",
+              "machine_id": "M2",
+              "start": "2026-10-19T16:00:00+07:00"
+            },
+            {
+              "job_id": "J7",
+              "machine_id": "M3",
+              "start": "2026-10-19T09:00:00+07:00"
+            },
+            {
+              "job_id": "J8",
+              "machine_id": "M3",
+              "start": "2026-10-19T14:00:00+07:00"
+            }
+          ],
+          "cost_vnd": 1352304,
+          "component_vnd": {
+            "RUN_ELECTRICITY": 1002304,
+            "SETUP": 350000
+          },
+          "by_machine_vnd": {
+            "M1": 471857,
+            "M2": 469012,
+            "M3": 411435
+          },
+          "by_job": {
+            "J1": {
+              "electricity_vnd": 97867,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 97867,
+              "kwh_exact": "44/1"
+            },
+            "J2": {
+              "electricity_vnd": 87984,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 162984,
+              "kwh_exact": "48/1"
+            },
+            "J3": {
+              "electricity_vnd": 136006,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 211006,
+              "kwh_exact": "52/1"
+            },
+            "J5": {
+              "electricity_vnd": 109980,
+              "setup_vnd": 25000,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 25000,
+              "total_vnd": 134980,
+              "kwh_exact": "60/1"
+            },
+            "J6": {
+              "electricity_vnd": 167392,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 242392,
+              "kwh_exact": "64/1"
+            },
+            "J4": {
+              "electricity_vnd": 66640,
+              "setup_vnd": 25000,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 25000,
+              "total_vnd": 91640,
+              "kwh_exact": "56/1"
+            },
+            "J7": {
+              "electricity_vnd": 204459,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 204459,
+              "kwh_exact": "68/1"
+            },
+            "J8": {
+              "electricity_vnd": 131976,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 206976,
+              "kwh_exact": "72/1"
+            }
+          },
+          "electricity_by_band_vnd": {
+            "NORMAL": 527904,
+            "PEAK": 407760,
+            "OFF_PEAK": 66640
+          },
+          "kwh_by_band": {
+            "NORMAL": 288.0,
+            "PEAK": 120.0,
+            "OFF_PEAK": 56.0
+          },
+          "total_kwh": 464.0,
+          "components_reconcile": true,
+          "machines_reconcile": true,
+          "jobs_reconcile": true
+        },
+        "B2": {
+          "status": "COSTED",
+          "verification": "PASS",
+          "solver_status": "OPTIMAL",
+          "assignments": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "start": "2026-10-19T00:00:00+07:00"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "start": "2026-10-19T03:00:00+07:00"
+            },
+            {
+              "job_id": "J3",
+              "machine_id": "M1",
+              "start": "2026-10-19T22:00:00+07:00"
+            },
+            {
+              "job_id": "J5",
+              "machine_id": "M2",
+              "start": "2026-10-19T00:30:00+07:00"
+            },
+            {
+              "job_id": "J4",
+              "machine_id": "M2",
+              "start": "2026-10-19T03:30:00+07:00"
+            },
+            {
+              "job_id": "J6",
+              "machine_id": "M2",
+              "start": "2026-10-19T22:00:00+07:00"
+            },
+            {
+              "job_id": "J7",
+              "machine_id": "M3",
+              "start": "2026-10-19T00:00:00+07:00"
+            },
+            {
+              "job_id": "J8",
+              "machine_id": "M3",
+              "start": "2026-10-19T22:00:00+07:00"
+            }
+          ],
+          "cost_vnd": 944598,
+          "component_vnd": {
+            "RUN_ELECTRICITY": 594598,
+            "SETUP": 350000
+          },
+          "by_machine_vnd": {
+            "M1": 336792,
+            "M2": 366206,
+            "M3": 241600
+          },
+          "by_job": {
+            "J1": {
+              "electricity_vnd": 52360,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 52360,
+              "kwh_exact": "44/1"
+            },
+            "J2": {
+              "electricity_vnd": 72552,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 147552,
+              "kwh_exact": "48/1"
+            },
+            "J3": {
+              "electricity_vnd": 61880,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 136880,
+              "kwh_exact": "52/1"
+            },
+            "J5": {
+              "electricity_vnd": 71400,
+              "setup_vnd": 25000,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 25000,
+              "total_vnd": 96400,
+              "kwh_exact": "60/1"
+            },
+            "J4": {
+              "electricity_vnd": 93646,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 168646,
+              "kwh_exact": "56/1"
+            },
+            "J6": {
+              "electricity_vnd": 76160,
+              "setup_vnd": 25000,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 25000,
+              "total_vnd": 101160,
+              "kwh_exact": "64/1"
+            },
+            "J7": {
+              "electricity_vnd": 80920,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 80920,
+              "kwh_exact": "68/1"
+            },
+            "J8": {
+              "electricity_vnd": 85680,
+              "setup_vnd": 75000,
+              "family_setup_vnd": 50000,
+              "mold_change_vnd": 25000,
+              "total_vnd": 160680,
+              "kwh_exact": "72/1"
+            }
+          },
+          "electricity_by_band_vnd": {
+            "OFF_PEAK": 473620,
+            "NORMAL": 120978
+          },
+          "kwh_by_band": {
+            "OFF_PEAK": 398.0,
+            "NORMAL": 66.0
+          },
+          "total_kwh": 464.0,
+          "components_reconcile": true,
+          "machines_reconcile": true,
+          "jobs_reconcile": true
+        }
+      }
+    },
+    "small_2_jobs": {
+      "case": "small_2_jobs",
+      "fixture_path": "backend/fixtures/coordinated_cell.json",
+      "fixture_sha256": "1a8670ae3a7d4d06dd2d618ae29952cf69b6a4ebe349855e6de7feab51469156",
+      "dataset_id": "coordinated-cell-01",
+      "source_type": "SYNTHETIC",
+      "plant_alias": "DEMO_INJECTION_CELL",
+      "job_count": 2,
+      "machine_count": 3,
+      "horizon": {
+        "start": "2026-10-19T00:00:00+07:00",
+        "end": "2026-10-20T00:00:00+07:00"
+      },
+      "run_id": "run_5d12b9522c02477bb9e4879a54e2ff78",
+      "input_hash": "sha256:11d374aeb8678b1c0c54d585db127e8ee6d5d3013c966beae8b073b4a6ee0d4d",
+      "status": "COMPLETED",
+      "decision": {
+        "kind": "CHANGE",
+        "selected_plan": "B2",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_NEIGHBORHOODS",
+          "B2_INCREMENTAL_VALUE_ROBUST"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "cost_scope": {
+        "included": "RUN_ELECTRICITY_AND_SETUP",
+        "excluded": [
+          "LABOR_OVERTIME",
+          "IDLE_ENERGY",
+          "SETUP_ENERGY",
+          "OTHER_COSTS"
+        ],
+        "review_scope": "ALL_CANDIDATE_SCHEDULES_IN_HORIZON",
+        "excluded_review": {
+          "LABOR_OVERTIME": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-LABOR_OVERTIME"
+          },
+          "IDLE_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-IDLE_ENERGY"
+          },
+          "SETUP_ENERGY": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-SETUP_ENERGY"
+          },
+          "OTHER_COSTS": {
+            "status": "BOUNDED",
+            "incremental_min_vnd": 0,
+            "incremental_max_vnd": 0,
+            "source_type": "SYNTHETIC",
+            "reference": "synthetic-no-incremental-cost-assumption-OTHER_COSTS"
+          }
+        }
+      },
+      "search": {
+        "algorithm": "single-job exhaustive grid search with baseline-start alternatives",
+        "grid_minutes": 30,
+        "max_candidates": 5000,
+        "evaluated_candidates": 92,
+        "rejected_candidates": 6,
+        "valid_candidates": 86,
+        "search_complete": true,
+        "termination": "GRID_EXHAUSTED",
+        "runtime_seconds": 0.290833,
+        "optimality": "NOT_PROVEN_GLOBAL_OPTIMAL"
+      },
+      "comparison": {
+        "saving_vnd": 44160,
+        "saving_pct": 32.4897,
+        "saving_by_component_vnd": {
+          "RUN_ELECTRICITY": 44160,
+          "SETUP": 0
+        },
+        "changed_assignments": 1,
+        "derived_setup_effects": [
+          {
+            "job_id": "J1",
+            "before_setup_start": "2026-10-19T09:30:00+07:00",
+            "after_setup_start": "2026-10-19T00:00:00+07:00",
+            "before_setup_vnd": 0,
+            "after_setup_vnd": 0
+          }
+        ],
+        "plans": {
+          "B1": {
+            "saving_vnd": 44160,
+            "changed_assignments": 1
+          },
+          "B2": {
+            "saving_vnd": 88320,
+            "changed_assignments": 2
+          }
+        }
+      },
+      "plans": {
+        "B0": {
+          "status": "COSTED",
+          "verification": "PASS",
+          "solver_status": null,
+          "assignments": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "start": "2026-10-19T09:30:00+07:00"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "start": "2026-10-19T10:30:00+07:00"
+            }
+          ],
+          "cost_vnd": 135920,
+          "component_vnd": {
+            "RUN_ELECTRICITY": 135920,
+            "SETUP": 0
+          },
+          "by_machine_vnd": {
+            "M1": 135920
+          },
+          "by_job": {
+            "J1": {
+              "electricity_vnd": 67960,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 67960,
+              "kwh_exact": "20/1"
+            },
+            "J2": {
+              "electricity_vnd": 67960,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 67960,
+              "kwh_exact": "20/1"
+            }
+          },
+          "electricity_by_band_vnd": {
+            "PEAK": 135920
+          },
+          "kwh_by_band": {
+            "PEAK": 40.0
+          },
+          "total_kwh": 40.0,
+          "components_reconcile": true,
+          "machines_reconcile": true,
+          "jobs_reconcile": true
+        },
+        "B1": {
+          "status": "COSTED",
+          "verification": "PASS",
+          "solver_status": null,
+          "assignments": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "start": "2026-10-19T00:00:00+07:00"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "start": "2026-10-19T10:30:00+07:00"
+            }
+          ],
+          "cost_vnd": 91760,
+          "component_vnd": {
+            "RUN_ELECTRICITY": 91760,
+            "SETUP": 0
+          },
+          "by_machine_vnd": {
+            "M1": 91760
+          },
+          "by_job": {
+            "J1": {
+              "electricity_vnd": 23800,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 23800,
+              "kwh_exact": "20/1"
+            },
+            "J2": {
+              "electricity_vnd": 67960,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 67960,
+              "kwh_exact": "20/1"
+            }
+          },
+          "electricity_by_band_vnd": {
+            "OFF_PEAK": 23800,
+            "PEAK": 67960
+          },
+          "kwh_by_band": {
+            "OFF_PEAK": 20.0,
+            "PEAK": 20.0
+          },
+          "total_kwh": 40.0,
+          "components_reconcile": true,
+          "machines_reconcile": true,
+          "jobs_reconcile": true
+        },
+        "B2": {
+          "status": "COSTED",
+          "verification": "PASS",
+          "solver_status": "OPTIMAL",
+          "assignments": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "start": "2026-10-19T01:30:00+07:00"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "start": "2026-10-19T02:30:00+07:00"
+            }
+          ],
+          "cost_vnd": 47600,
+          "component_vnd": {
+            "RUN_ELECTRICITY": 47600,
+            "SETUP": 0
+          },
+          "by_machine_vnd": {
+            "M1": 47600
+          },
+          "by_job": {
+            "J1": {
+              "electricity_vnd": 23800,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 23800,
+              "kwh_exact": "20/1"
+            },
+            "J2": {
+              "electricity_vnd": 23800,
+              "setup_vnd": 0,
+              "family_setup_vnd": 0,
+              "mold_change_vnd": 0,
+              "total_vnd": 23800,
+              "kwh_exact": "20/1"
+            }
+          },
+          "electricity_by_band_vnd": {
+            "OFF_PEAK": 47600
+          },
+          "kwh_by_band": {
+            "OFF_PEAK": 40.0
+          },
+          "total_kwh": 40.0,
+          "components_reconcile": true,
+          "machines_reconcile": true,
+          "jobs_reconcile": true
+        }
+      }
+    }
+  }
+}

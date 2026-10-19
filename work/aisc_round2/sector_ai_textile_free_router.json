@@ -1,0 +1,73 @@
+{
+  "case": "textile",
+  "source_type": "SYNTHETIC",
+  "fixture": "backend/fixtures/coordinated_cell.json",
+  "fixture_sha256": "1a8670ae3a7d4d06dd2d618ae29952cf69b6a4ebe349855e6de7feab51469156",
+  "model_requested": "openrouter/free",
+  "model_reported": "xingchen-agi/xing4.0-29b-a4b:free",
+  "status": "OK",
+  "http_status": null,
+  "error_category": null,
+  "latency_seconds": 102.56,
+  "finish_reason": "stop",
+  "tokens_used": 4989,
+  "scope_review": {
+    "version": "context-scope-1",
+    "status": "REVIEW_REQUIRED",
+    "indicators": [
+      {
+        "code": "PRECEDENCE",
+        "label": "Thứ tự / nhiều công đoạn",
+        "matched_excerpt": "Một cơ sở dệt may có công đoạn nhuộm trước khi sấy, và việc bố trí côn",
+        "review_reason": "Chưa hỗ trợ tổng quát quan hệ trước–sau giữa nhiều công đoạn.",
+        "status": "NEEDS_ENGINEER_REVIEW"
+      },
+      {
+        "code": "STAFFING",
+        "label": "Nhân lực / ca làm",
+        "matched_excerpt": "khi sấy, và việc bố trí công nhân theo ca. Chú ý dữ liệu ",
+        "review_reason": "Chưa tối ưu phân công nhân lực, công ca hoặc chi phí nhân công.",
+        "status": "NEEDS_ENGINEER_REVIEW"
+      }
+    ],
+    "engine_constraints_added": false,
+    "scope_disclaimer": "Bộ phát hiện chỉ gợi ý điều kiện cần kỹ sư rà soát; không xác nhận tính đầy đủ. Không phát hiện từ khóa KHÔNG có nghĩa là solver hỗ trợ mọi điều kiện. Ngữ cảnh và phản hồi AI không tự thêm điều kiện vào lịch hoặc verifier."
+  },
+  "timestamp_utc": "2026-10-19T14:20:35.041474+00:00",
+  "review_level": "SINGLE_REAL_MODEL_SMOKE_NOT_A_QUALITY_BENCHMARK",
+  "ai_proposal": {
+    "summary": "Người dùng hỏi: với các ràng buộc chưa được bộ giải hiện tại hỗ trợ (như J1 phải hoàn thành nhu phẩm trước khi sấy, ca đêm thiếu công nhân), những thông tin hoặc ràng buộc nào chưa thể áp dụng và chỉ cần tư vấn bước xác minh, không đề xuất lịch đã kiểm chứng. Dữ liệu gốc là fixture giả lập (SYNTHETIC) mô hình hóa một nhà máy dệt may có công đoạn nhuộm-sấy, nhưng solver scope không hỗ trợ nhiều công đoạn trước–sau, cũng như việc điều chỉnh nhân lực/ca làm.",
+    "observations": [
+      {
+        "text": "Câu hỏi yêu cầu tư vấn bước xác minh chứ không đưa ra lịch đã kiểm chứng — nghĩa là người dùng muốn xác nhận xem những ràng buộc nào trong phanển này chưa được bộ giải hỗ trợ, thay vì yêu cầu bộ giải tự động tạo lịch tiết năng lượng.",
+        "source": "USER_MESSAGE",
+        "job_ids": []
+      },
+      {
+        "text": "Dữ liệu snapshot là SYNTHETIC (fixture giả lập), không phải dữ liệu thực tế của nhà máy dệt may — người dùng đã nhấn mạnh ở work_context. Các ràng buộc về 'nhu phẩm trước sấy' và 'ca đêm thiếu công nhân' nằm ngoài solver scope.",
+        "source": "SNAPSHOT",
+        "job_ids": []
+      },
+      {
+        "text": "Solver scope không hỗ trợ: multi-stage precedence/routing (nhuộm trước sấy), staffing and workforce shifts (ca đêm thiếu công nhân), và các ràng buộc khác ngoài run electricity + setup + mold occupancy.",
+        "source": "SNAPSHOT",
+        "job_ids": []
+      }
+    ],
+    "questions": [
+      "Ràng buộc 'J1 phải hoàn thành nhu phẩm trước khi sấy' có ý nghĩa thế nào trong bối cảnh này? Có cần xác định thời gian nhu phẩm (ví dụ: 30 phút) để kiểm tra xem J1 có thể hoàn thành trước thời điểm sấy bắt đầu hay không?",
+      "'Ca đêm thiếu công nhân' có ràng buộc cụ thể nào không? Ví dụ: ca đêm (22:00–06:00) bị giới hắt thời gian sản (ví dụ: không thể hoạt động từ 22:00 đến 06:00) hay chỉ là môễn chi phí nhân lực?",
+      "Mục tiêu của người dùng là gì? Tìm lịch tiết năng lượng nhất (đạt min_net_saving_vnd ≥ 10000 VND) hay chỉ muốn xác nhận xem những ràng buộc trên có được bộ giải hỗ trợ hay không?",
+      "Các job J1, J2 đều cùng family A, cùng mold K1, cùng thời hanh 60 phút, và M1, M2, M3 đều đầy đủ qu trong khung giờ — liệu có cần thêm job mới để test trường hợp không tối ân hay không?",
+      "Thời gian thực của ca đêm có bị giới hắt bởi máy không hay chỉ là môễn chi phí? Nếu bị giới hắt, cần biết thời điểm nào trong ca đêm bị ảnh hưởng."
+    ],
+    "next_steps": [
+      "Bước 1: Xác định thời gian nhu phẩm cho J1 (ví dụ: 30 phút) và kiểm tra xem J1 có thể hoàn thành trước thời điểm sấy bắt khung giờ (giả sử sấy bắt đầu lúc 09:30 hoặc 10:30). Nếu không thể, ràng buộc 'nhu phẩm trước sấy' không thể được áp dụng bằng bộ giải hiện tại — cần kỹ sư xác nhận thời gian nhu phẩm thực tế.",
+      "Bước 2: Kiểm tra xem ca đêm (22:00–06:00) có bị giới hạn thời gian hoạt động của máy hay chỉ là môễn chi phí. Nếu bị giới hạn, cần biết thời điểm nào trong ca đêm bị ảnh hưởng để xác định xem có thể dịch chuyển J1 sang ca sáng hay không.",
+      "Bước 3: Đảm bảo rằng với 2 job (J1, J2) trên 3 máy (M1, M2, M3), lịch tiết năng lượng nhất có thể đạt được (min_net_saving_vnd ≥ 10000 VND) mà không vi phạm ràng buộc chưa được hỗ trợ. Kiểm tra xem việc dịch chuyển J1 sang M2 hoặc M3 có giúp giảm chi phí điện (do ca đêm) mà vẫn thỏc mãn thời hanh 60 phút.",
+      "Bước 4: Đánh giá xem việc duy chỉ M1 đang hoạt động (cả J1 và J2) có gây lã máy M2, M3 bị idle không — nếu ca đêm bị giới hắt, việc chỉ dùng M1 có thể là lựa chọn tiết năng nhất trong phạm vi solver scope.",
+      "Bước 5: Yêu cầu người dùng xác nhận thời gian nhu phẩm thực tế và mức độ giới hắt ca đêm để có thể đưa ra bước xác minh cụ thể."
+    ]
+  },
+  "contract_valid": true
+}

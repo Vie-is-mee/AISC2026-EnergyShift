@@ -810,3 +810,20 @@ Bằng chứng UI: [cloud_rehearsal.json](evaluation/cloud_rehearsal.json), ch�
 `EXPLICIT_TEST_DOUBLE`. Không có thay đổi dependency hoặc biến môi trường.
 
 PR: [#22 - Luồng nhập liệu tuần tự và phản hồi duyệt CSV](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/22).
+
+## 19/10/2026 - Đồng bộ thay đổi ngữ cảnh cơ sở và phạm vi ngành
+
+Đưa các thay đổi local lên GitHub: ngữ cảnh cơ sở cho cả luồng mô tả và CSV,
+hash yêu cầu gắn với ngữ cảnh, lưu/khôi phục phiên phù hợp và cảnh báo sáu nhóm
+điều kiện chưa được mô hình hóa. Ngữ cảnh giúp AI hiểu thuật ngữ, không trở
+thành dữ liệu hoặc ràng buộc solver. Không phát hiện từ khóa không chứng minh
+quy trình đã được hỗ trợ đầy đủ.
+
+Kèm roadmap đa ngành, script thử nghiệm và các bằng chứng giả lập vòng 2.
+Báo cáo model thật cũ được giữ nguyên giới hạn: có lỗi provider và chất lượng
+ngữ nghĩa chưa đạt, không dùng để chứng minh prompt mới hoặc vận hành thực tế.
+Lượt đồng bộ này không gọi lại model thật, không thay đổi các file `.env`.
+
+Cập nhật harness DOM cho hai test API client và đưa bộ test ngữ cảnh vào CI.
+Kiểm tra local: 206 tests Python và 45 tests Node đạt; diễn tập trình duyệt dùng
+model giả được ghi nhãn riêng, không tính là bằng chứng gọi API thật.

@@ -1,0 +1,58 @@
+{
+  "case": "plastic",
+  "source_type": "SYNTHETIC",
+  "fixture": "backend/fixtures/coordinated_cell.json",
+  "fixture_sha256": "1a8670ae3a7d4d06dd2d618ae29952cf69b6a4ebe349855e6de7feab51469156",
+  "model_requested": "openrouter/free",
+  "model_reported": "nvidia/nemotron-3-super-120b-a12b:free",
+  "status": "OK",
+  "http_status": null,
+  "error_category": null,
+  "latency_seconds": 32.994,
+  "finish_reason": "stop",
+  "tokens_used": 4968,
+  "scope_review": {
+    "version": "context-scope-1",
+    "status": "NOT_ASSESSED",
+    "indicators": [],
+    "engine_constraints_added": false,
+    "scope_disclaimer": "Bộ phát hiện chỉ gợi ý điều kiện cần kỹ sư rà soát; không xác nhận tính đầy đủ. Không phát hiện từ khóa KHÔNG có nghĩa là solver hỗ trợ mọi điều kiện. Ngữ cảnh và phản hồi AI không tự thêm điều kiện vào lịch hoặc verifier."
+  },
+  "timestamp_utc": "2026-10-19T14:18:30.085137+00:00",
+  "review_level": "SINGLE_REAL_MODEL_SMOKE_NOT_A_QUALITY_BENCHMARK",
+  "ai_proposal": {
+    "summary": "Người dùng thông báo máy M1 sẽ bảo trì từ 13:00 đến 15:00 ngày 19/10/2026 và muốn biết cần xác minh gì trước khi đề xuất điều chỉnh công việc J1, đồng thời nhấn mạnh không được giả định chi phí mới chưa đo. Trong snapshot hiện có, máy M1 có sẵn toàn ngày, công việc J1 và J2 hiện được lên lịch trên M1 lúc 09:30‑10:30 và 10:30‑11:30 (theo current_schedule). Cần kiểm tra xem thời gian bảo trì này có trùng với lịch hiện tại hay không, và nếu có thì phải cập nhật khả năng có sẵn của máy, xem xét lại việc phân công việc, giữ nguyên ràng buộc về thời gian phát hành/hạn cuối, giữ nguyên chế độ chiếm giữ khuôn và chi phí thay đổi khuôn theo khai báo.",
+    "observations": [
+      {
+        "text": "Người dùng nói: 'Máy M1 dự kiến bảo trì từ 13:00 đến 15:00 ngày 19/10/2026. Tôi muốn hỏi cần xác minh gì trước khi đề xuất điều chỉnh J1, không được giả định chi phí mới chưa đo.'",
+        "source": "USER_MESSAGE",
+        "job_ids": [
+          "J1"
+        ]
+      },
+      {
+        "text": "Snapshot cho thấy current_schedule có J1 trên M1 bắt đầu 2026-10-19T09:30:00+07:00 và J2 trên M1 bắt đầu 2026-10-19T10:30:00+07:00 (mỗi việc được giả định chạy 60 phút dựa trên eligible duration).",
+        "source": "SNAPSHOT",
+        "job_ids": [
+          "J1",
+          "J2"
+        ]
+      }
+    ],
+    "questions": [
+      "Thời gian bảo trì của M1 là 13:00‑15:00 ngày 19/10/2026 có phải là theo múi giờ Asia/Ho_Chi_Minh (UTC+7) và cần được biểu diễn dưới dạng ISO 8601 (ví dụ: 2026-10-19T13:00:00+07:00 đến 2026-10-19T15:00:00+07:00) không?",
+      "Sau khi thêm khoảng thời gian bảo trì vào lịch máy M1, liệu có cần cập nhật trường 'available' của M1 trong snapshot (trừ đi khung 13:00‑15:00) và kiểm tra xem J1 hoặc J2 hiện tại có bị ảnh hưởng không?",
+      "Nếu J1 hoặc J2 bị ảnh hưởng, có cần xem xét việc di chuyển chúng sang máy M2 hoặc M3 (kiểm tra eligibility, thời gian release/due và chi phí thay đổi khuôn) không?",
+      "Nếu việc di chuyển dẫn đến thay đổi họ (family) hoặc khuôn (mold) trên máy, có cần áp dụng chi phí và thời gian thay đổi khuôn đã khai báo trong trường 'setup.mold_change_by_machine' và 'setup.transitions' không?",
+      "Ngoài chi phí điện theo thời gian sử dụng (tariff) và chi phí thay đổi khuôn, có bất kỳ ràng buộc hoặc chi phí nào khác (ví dụ: nhân lực, năng lượngIdle) cần được xác nhận là không được tính vào mô hình này không?"
+    ],
+    "next_steps": [
+      "Con người xác nhận định dạng và múi giờ chính xác của khoảng thời gian bảo trì M1 và cập nhật trường 'available' của máy trong dữ liệu đầu vào.",
+      "Con người kiểm tra xem việc bảo trì có làm trùng với lịch hiện tại của J1 và J2 không; nếu có, xác định哪些 công việc cần được lên lịch lại.",
+      "Con người xem xét các máy thay đổi (M2, M3) mà J1/J2 có thể được chuyển sang, kiểm tra eligibility, thời gian release/due và tính toán lại chi phí điện và chi phí thay đổi khuôn.",
+      "Con người áp dụng các chi phí thay đổi khuôn và thời gian từ trường 'setup' nếu việc lên lịch mới gây ra thay đổi họ hoặc khuôn trên máy.",
+      "Con người xác nhận lại rằng mô hình chỉ tính chi phí điện chạy và chi phí thay đổi khuôn; bất kỳ chi phí nào khác (lương thêm, năng lượng idle, v.v.) sẽ được loại trừ và cần được xem xét riêng bởi nhân lực kỹ thuật."
+    ]
+  },
+  "contract_valid": true
+}
