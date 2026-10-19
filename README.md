@@ -10,6 +10,11 @@ Trong Điều chuyển đơn hàng, mô tả phát sinh và chọn **Nhờ AI xe
 gọi model thật qua backend. Cần cấu hình key/model ở Render hoặc `.env` local;
 nút Phân tích kế hoạch vẫn chạy engine độc lập. AI chưa tự sửa dữ liệu/chọn lịch.
 
+Đã thêm [bước 2: AI ghép cột CSV và cổng người dùng rà soát](docs/AI_CSV_WORKFLOW.md).
+Mở Nhập bảng từ Excel / CSV, gửi bảng cho AI, sửa mapping/ô dữ liệu và chọn gợi ý
+hồ sơ khi phù hợp. Chỉ bảng qua kiểm tra backend và duyệt mới được đưa vào bản
+chuẩn bị; vẫn cần chủ động phân tích. Có [CSV giả lập để thử](docs/templates/ai_import_demo.csv).
+
 ## Xem demo trên Internet
 
 Đã có `vercel.json`, `render.yaml`, `.env.vercel.example` và `.env.render.example`.

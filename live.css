@@ -1,4 +1,11 @@
 .assistant-panel { margin-bottom: 18px; }
+.ai-csv-panel { margin: 14px 0; }
+#aiCSVPanel textarea { min-height: 72px; font: inherit; }
+#aiCSVPanel h4 { margin: 14px 0 6px; }
+.ai-csv-review-table td { min-width: 150px; vertical-align: top; }
+.ai-csv-review-table input { width: 100%; min-width: 125px; }
+.ai-csv-review-table small { display: block; max-width: 240px; overflow-wrap: anywhere; }
+#aiCSVTrace { overflow-wrap: anywhere; }
 #assistantPanel textarea { width: 100%; max-width: 100%; min-height: 96px; font: inherit; }
 #assistantPanel .desk-check { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; }
 #assistantPanel .desk-check input { flex-shrink: 0; margin-top: 4px; }

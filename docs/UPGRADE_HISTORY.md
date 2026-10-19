@@ -737,3 +737,38 @@ vô hiệu bản duyệt AI khi lịch thay đổi và logic bản nháp/rà so�
 thêm kéo chuột thật và phím Alt+Right gọi đúng đường vô hiệu hóa.
 
 PR: [#20 - Trợ lý AI đọc yêu cầu và cổng kỹ sư rà soát](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/20).
+
+## 19/10/2026 - Trợ lý AI bước 2: chuẩn bị CSV có người duyệt
+
+Điểm yếu: người dùng còn tự ghép mọi cột và tự tìm thông tin thiếu khi đưa bảng
+kế hoạch thô vào hệ thống. Bước 1 chỉ hiểu mô tả, chưa đưa ra bản chuẩn bị dữ liệu.
+
+Thêm chế độ CSV trong dịch vụ trợ lý, dùng chung worker/quota/capability với bước
+1. Parser giữ nguyên nguồn và chặn lỗi trước khi gọi model. AI đề xuất đủ cột,
+cảnh báo có tọa độ và câu hỏi theo JSON Schema; không được trả số liệu tự điền.
+Backend tạo bản xem trước với ô gốc, giá trị nhập và gợi ý tra hồ sơ có reference.
+Kỹ sư sửa mapping, chọn/nhập dữ kiện và duyệt đúng hash nguồn/hồ sơ/yêu cầu.
+
+Sau duyệt, backend dựng và kiểm tra snapshot, giữ số dòng, đưa chi phí ngoài mô
+hình về UNKNOWN. UI chuyển vào bản chuẩn bị hiện có; không tự chạy solver hoặc
+phê duyệt lịch. File gốc, cột ngoài mô hình, quyết định và thay đổi đi theo bản
+sao/báo cáo. Sửa nguồn/hồ sơ/bảng vô hiệu áp dụng cũ; preview đến muộn bị bỏ.
+
+Không triển khai điền khuyết thống kê, xóa ngoại lệ, đoán thời lượng/công suất,
+đọc XLSX hoặc biến ghi chú thành ràng buộc. Tài liệu và CSV mẫu:
+[AI_CSV_WORKFLOW.md](AI_CSV_WORKFLOW.md).
+
+Sửa lỗi nhập kế hoạch ít lô từ hồ sơ đầy đủ: các quy tắc chuyển đổi thuộc nhóm
+sản phẩm không được chọn từng làm data gate từ chối snapshot. Snapshot nay chỉ
+chứa quy tắc còn liên quan; danh mục gốc được giữ nguyên và quy tắc loại khỏi
+phạm vi tính được ghi trong review. Tham chiếu sai vẫn bị chặn, verifier giữ nguyên.
+
+Kiểm chứng: 201 tests Python và 39 tests Node đạt. Edge desktop/mobile, luồng
+static → FastAPI hai origin, hover/Gantt và thao tác kéo lịch đạt, không lỗi JS.
+Lượt CSV live dùng `openrouter/free`, provider trả
+`nvidia/nemotron-3-super-120b-a12b:free` (2.999 token, khoảng 39,8 giây).
+Đã sửa mapping thủ công, chọn dữ kiện hồ sơ, thử sản lượng sai bị chặn rồi duyệt
+và phân tích thành công. Báo cáo giữ nguyên nguồn BOM/CRLF và hash snapshot khớp.
+Evidence: [ai_csv_live_smoke.json](evaluation/ai_csv_live_smoke.json).
+Mapping ban đầu của model chưa khớp hoàn toàn: đây là bằng chứng luồng gọi API
+và cổng rà soát hoạt động, không phải bằng chứng độ chính xác AI hoặc dữ liệu xưởng.

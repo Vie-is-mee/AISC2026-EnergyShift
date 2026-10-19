@@ -174,12 +174,16 @@ try:
     wait('JSON.parse(document.getElementById("dataset").value).jobs.length === 8')
     from input_browser_checks import run_checks
     run_checks(js, click, wait, check, run, command, OUT)
+    if os.environ.get('ENERGYSHIFT_CSV_QA') == '1':
+        from ai_csv_browser_checks import run_checks as csv_checks
+        csv_checks(js,click,wait,check,run,command,OUT,ROOT)
     failures = [e for e in events if e.get('method') == 'Runtime.exceptionThrown']
     assert not failures, failures
     summary = {'browser':'headless Microsoft Edge via CDP','all_checks_pass':True,'base_url':args.base_url,'javascript_exceptions':len(failures),
+               'csv_check_mode':'EXPLICIT_TEST_DOUBLE' if os.environ.get('ENERGYSHIFT_CSV_MOCK_QA')=='1' else 'LIVE_PROVIDER' if os.environ.get('ENERGYSHIFT_CSV_QA')=='1' else 'NOT_RUN',
                'scope':'selected-plan consistency; hourly axes/table, verifier evidence, readable memo, scope-safe synthetic measurement check, private queued team run/history, and input regression',
                'screenshots':['work/ui-qa/workspace-dark.png','work/ui-qa/input-desktop.png','work/ui-qa/input-mobile.png'],
-               'source_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['index.html','app.js','workspace.css','input-desk.js','input-model.js','assistant.js','backend/assistant.py','backend/openrouter.py','backend/b2.py','backend/neighborhoods.py','backend/team.py','backend/app.py','backend/reconciliation.py']},
+               'source_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['index.html','app.js','workspace.css','input-desk.js','input-model.js','assistant.js','ai-csv-import.js','backend/assistant.py','backend/assistant_csv.py','backend/openrouter.py','backend/b2.py','backend/neighborhoods.py','backend/team.py','backend/app.py','backend/reconciliation.py']},
                'limitations':'Local browser and synthetic inputs; no certification of factory operation or live cloud.'}
     (ROOT / 'docs/evaluation/b2_ui_qa.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(summary),flush=True)

@@ -3,6 +3,19 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const M = require('../input-model.js');
 const fixture = () => JSON.parse(fs.readFileSync(require('node:path').join(__dirname, '../backend/fixtures/editable_cell.json'), 'utf8'));
+
+test('a smaller plan scopes unused family transitions but preserves the full reusable profile and initial-state rules',()=>{
+  const base=fixture(),before=M.copy(base),rows=M.rowsFrom(base).slice(0,1);
+  const result=M.compile(base,rows);
+  const families=new Set([result.jobs[0].family,...Object.values(base.setup.initial_family_by_machine)]);
+  assert.ok(result.setup.transitions.every(t=>families.has(t.from_family) && families.has(t.to_family)));
+  assert.ok(result.setup.transitions.length<base.setup.transitions.length);assert.deepEqual(base,before);
+  base.setup.initial_family_by_machine.M3='B';
+  const mounted=M.compile(base,rows);
+  assert.ok(mounted.setup.transitions.some(t=>t.from_family==='B'));
+  base.setup.transitions.push({...base.setup.transitions[0],to_family:'UNDECLARED_TYPO'});
+  assert.ok(M.compile(base,rows).setup.transitions.some(t=>t.to_family==='UNDECLARED_TYPO'),'Do not hide invalid profile references from the backend gate');
+});
 test('roundtrip preserves production facts, setup, tariff, power uncertainty and all eligible machines', () => {
   const base = fixture(); base.jobs[0].eligible.M1.power_uncertainty_pct = .03;
   const result = M.compile(base, M.rowsFrom(base), { reconfirmCosts: true });

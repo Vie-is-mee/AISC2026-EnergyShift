@@ -20,7 +20,9 @@ window.InputDesk = (() => {
     templateDirty = false,
     workshopDirty = false,
     selectedTemplate = "",
-    fileTableText = null;
+    fileTableText = null,
+    fileLoading = false,
+    fileError = false;
   const msg = (text) => {
     el("deskStatus").textContent = text;
   };
@@ -817,6 +819,8 @@ window.InputDesk = (() => {
   el("tableFile").onchange = async (e) => {
     const f = e.target.files[0];
     if (!f) return;
+    fileLoading = true;
+    fileError = false;
     try {
       if (!/\.(csv|tsv)$/i.test(f.name))
         throw Error("Chỉ nhận CSV/TSV. Với Excel, sao chép bảng rồi dán.");
@@ -830,11 +834,15 @@ window.InputDesk = (() => {
       parsed = null;
       msg("Đã đọc bảng. Bấm Xem trước & ghép cột.");
     } catch (e) {
+      fileError = true;
       issue([e.message]);
+    } finally {
+      fileLoading = false;
     }
     e.target.value = "";
   };
   el("tablePaste").oninput = () => {
+    fileError = false;
     fileTableText = null;
     parsed = null;
     el("importPreview").hidden = true;
@@ -936,6 +944,28 @@ window.InputDesk = (() => {
     /* Wait for canonical data. */
   }
   return {
+    csvContext() {
+      if (fileLoading) throw Error("Đang đọc file; chờ hoàn tất trước khi gửi AI.");
+      if (fileError) throw Error("File mới chưa đọc hợp lệ. Chọn lại file hoặc sửa vùng dán trước khi dùng AI.");
+      if (!base || external) throw Error("Mở hồ sơ hoặc đọc lại đầu vào hiện tại trước khi dùng AI cho CSV.");
+      if (templateDirty || workshopDirty) throw Error("Cập nhật thiết lập/định mức đang sửa trước khi gửi CSV cho AI.");
+      return {snapshot:M.copy(base), version:JSON.stringify({base,rows,serial}), raw_text:fileTableText ?? el("tablePaste").value};
+    },
+    acceptCSVReview(record, expectedVersion) {
+      const context = this.csvContext();
+      if (context.version !== expectedVersion || record.csv_source?.raw_text !== context.raw_text)
+        throw Error("Hồ sơ, bảng hoặc file nguồn đã đổi; không áp dụng bản duyệt cũ.");
+      const result = record.review?.result;
+      if (record.kind !== "CSV" || record.status !== "ACCEPTED" || !result?.prepared_input_hash)
+        throw Error("Cần bản duyệt CSV đã qua backend trước khi đưa vào bảng.");
+      parsed = null;
+      el("importPreview").hidden = true;
+      rows = result.rows.map(r => ({...r,start:r.start.replace(" ","T").replace(/\+07:00$/,""),release:r.release.replace(" ","T").replace(/\+07:00$/,""),due:r.due.replace(" ","T").replace(/\+07:00$/,"")}));
+      importSource = {raw_text:record.csv_source.raw_text,headers:record.csv_source.headers,rows:record.csv_source.rows,mapping:result.mapping,retained_unmodeled_columns:result.retained_unmodeled_columns,
+        ai_review:{id:record.id,input_hash:record.input_hash,request_hash:record.request_hash,raw_hash:record.csv_source.raw_hash,prepared_input_hash:result.prepared_input_hash,api:record.api,reviewed_summary:record.review.reviewed_summary,at:record.review.at,identity_verified:false,scope:record.review.scope,reviewed_rows:result.rows,changes:result.changes,questions:record.proposal.questions,questions_acknowledged:record.review.questions_acknowledged,scoped_out_reference_transitions:result.scoped_out_reference_transitions}};
+      stamp();showRows();issue([]);
+      msg("Đã đưa CSV được rà soát vào bảng chuẩn bị. Chưa tính lịch; bấm Phân tích kế hoạch để kiểm định và tính chi phí. Chi phí ngoài mô hình cần rà soát lại.");
+    },
     async prepareForAnalysis() {
       if (!dirty) return true;
       try {

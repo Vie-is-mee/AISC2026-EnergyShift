@@ -39,26 +39,35 @@ class RehearsalServer(ThreadingHTTPServer):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--assistant-live', action='store_true', help='Explicitly make one model call using only synthetic planning data')
+    parser.add_argument('--csv-live', action='store_true', help='Explicitly make one CSV mapping model call, then human-review and analyze synthetic rows')
+    parser.add_argument('--csv-mock', action='store_true', help='Deterministic CSV browser regression with an explicit QA-only model double; no API call')
     parser.add_argument('--env-file', type=Path, help='Backend-only dotenv path; never printed or copied into the static build')
     parser.add_argument('--assistant-model', choices=['openrouter/free','cohere/north-mini-code:free'], help='Explicit free-model test override only; never changes .env')
     parser.add_argument('--planning-tabs', action='store_true', help='Also rehearse inline planning and real drag interactions')
     args = parser.parse_args()
+    if args.csv_mock and (args.csv_live or args.assistant_live): parser.error('Do not combine mock and live model runs')
     # Do not attach to or stop services belonging to other processes.
     for port in [8766, 8767]:
         with socket.socket() as probe:
             probe.bind(('127.0.0.1', port))
     env = dict(os.environ, ENERGYSHIFT_ALLOWED_ORIGINS='http://127.0.0.1:8766')
-    if args.assistant_live:
+    for flag in ('ENERGYSHIFT_ASSISTANT_QA','ENERGYSHIFT_CSV_QA','ENERGYSHIFT_CSV_MOCK_QA'): env.pop(flag,None)
+    if args.assistant_live or args.csv_live:
         sys.path.insert(0, str(ROOT))
         from backend.openrouter import load_config
         env.update(load_config(args.env_file))
         if args.assistant_model:
             env['OPENROUTER_MODEL'] = args.assistant_model
-        env['ENERGYSHIFT_ASSISTANT_QA'] = '1'
+        if args.assistant_live: env['ENERGYSHIFT_ASSISTANT_QA'] = '1'
+        if args.csv_live: env['ENERGYSHIFT_CSV_QA'] = '1'
+    if args.csv_mock:
+        env['ENERGYSHIFT_CSV_QA'] = '1'
+        env['ENERGYSHIFT_CSV_MOCK_QA'] = '1'
     # Isolate demo history from other running services and earlier QA runs.
     database = tempfile.TemporaryDirectory(prefix='energyshift-rehearsal-db-')
     env['ENERGYSHIFT_TEAM_DB'] = str(Path(database.name)/'demo.sqlite3')
-    backend = subprocess.Popen([sys.executable, '-m', 'uvicorn', 'backend.app:app', '--host', '127.0.0.1', '--port', '8767'], cwd=ROOT, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+    backend_module='ops.csv_mock_server:app' if args.csv_mock else 'backend.app:app'
+    backend = subprocess.Popen([sys.executable, '-m', 'uvicorn', backend_module, '--host', '127.0.0.1', '--port', '8767'], cwd=ROOT, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     server = None
     try:
         for _ in range(100):

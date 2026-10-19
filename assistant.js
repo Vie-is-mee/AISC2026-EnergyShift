@@ -178,5 +178,5 @@ window.AssistantIntake = (() => {
       if (current?.review && base === $("dataset").value) download("EnergyShift_AI_review.json", JSON.stringify({...current,scope:"INTENT_ONLY_NO_DATA_OR_SCHEDULE_CHANGE"},null,2), "application/json");
     };
   });
-  return {invalidate};
+  return {invalidate, ensureSession:ensure, request};
 })();
