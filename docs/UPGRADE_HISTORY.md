@@ -5,6 +5,8 @@ Ngày ghi theo Asia/Ho_Chi_Minh. Chỉ đánh dấu đã làm khi có code và k
 
 ## 19/10/2026 — Ưu tiên 1: thống nhất kết luận và các màn hình
 
+PR [#13](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/13), CI đạt trước merge.
+
 - Phát hiện UI đề xuất B1 nhưng biểu đồ mặc định B2, mô tả cắt đỉnh trong khi
   B2 có thể tăng đỉnh công suất. Chọn một nguồn phương án từ decision.selected_plan
   cho Gantt so sánh, biểu đồ, legend, phụ tải và mặc định bảng ràng buộc.
@@ -15,6 +17,21 @@ Ngày ghi theo Asia/Ho_Chi_Minh. Chỉ đánh dấu đã làm khi có code và k
   Giữ stylesheet/bố cục chuẩn. Thay input xóa cả mô tả và nhãn kết quả cũ.
 - Kiểm tra contract B0/B1/B2 bằng Node, thêm vào CI; chạy lại 155 Python tests
   và hồi quy Edge/two-origin. Không có số đo nhà máy hoặc lời hứa tiết kiệm mới.
+
+## 19/10/2026 — Ưu tiên 2: hoàn thiện thông tin hỗ trợ quyết định
+
+- Điểm yếu: biểu đồ không có trục/tooltip; PASS không có bằng chứng chi tiết;
+  trạng thái nội bộ khó hiểu; tờ trình là JSON kỹ thuật.
+- Thêm trục thời gian/đơn vị, điểm có tooltip và keyboard focus, bảng theo giờ
+  và xuất CSV. Kiểm tra bảo toàn kWh/tiền ở khoảng giờ cuối không đủ 60 phút.
+- Hiện năm nhóm ràng buộc cùng bảng từng lô (setup, kết thúc, hạn giao, dư hạn)
+  và khoảng giữ khuôn từ verifier. Không thay chứng nhận hiện trường.
+- Chuyển mã trạng thái rủi ro thành lời giải thích và chỉ dẫn bổ sung dữ liệu.
+  Tờ trình mặc định dễ đọc, có chi phí, khoảng lợi ích, lô thay đổi, giới hạn và
+  dấu vết; JSON giữ trong chi tiết/tải về. Bảng Gantt sáu cột đúng dữ liệu và
+  thu gọn chi tiết để ưu tiên timeline; giữ bố cục/stylesheet chuẩn.
+- Node kiểm tra lựa chọn phương án, tích phân kWh/tiền; Edge kiểm tra bảng giờ,
+  ràng buộc và các luồng input hiện có. Không gọi model API.
 
 ## 19/10/2026 — B2 phối hợp nhiều lô trên UI/UX chuẩn
 

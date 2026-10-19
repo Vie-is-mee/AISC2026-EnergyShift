@@ -87,11 +87,16 @@ function table(id, rows) {
 function clearResult() {
   revision++;
   currentReport = null;
-  put("peakComparisonNote", "Chưa có kết quả cho đầu vào hiện tại. Chưa thể kết luận thay đổi đỉnh tải.");
+  put(
+    "peakComparisonNote",
+    "Chưa có kết quả cho đầu vào hiện tại. Chưa thể kết luận thay đổi đỉnh tải.",
+  );
   put("loadComparisonTitle", "Phụ tải và tiền điện của lịch đề xuất");
   put("chartSelectedLabel", "Chưa có lịch đề xuất");
   closeModal();
   [
+    "hourlyDetails",
+    "validationEvidence",
     "plansGrid",
     "costBreakdownContent",
     "touDistContent",
@@ -128,6 +133,10 @@ function clearResult() {
   put("sensitivityNote", "Chưa có kết quả cho đầu vào hiện tại.");
   put("validationConfirmNotice", "Chưa kiểm tra đầu vào hiện tại.");
   put("confirmationProgress", "Chưa kiểm tra");
+  put(
+    "scheduleConflictReport",
+    "Chưa có lịch đã được kiểm tra cho đầu vào hiện tại.",
+  );
   put("scheduleListCount", "0");
   put("status", "Chưa có kết quả tính toán.");
   put("ganttChangeFeedback", "Chưa có lịch đã kiểm chứng.");
@@ -463,14 +472,14 @@ function renderGantt() {
     jobs.map((j) => [
       j.job_id,
       j.machine_id,
-      j.start,
-      j.end,
-      j.setup_start,
-      code,
-      "PASS",
+      timeLabel(j.start),
+      timeLabel(j.end),
+      `${j.setup_minutes} phút từ ${timeLabel(j.setup_start)}`,
+      `${code} · PASS`,
     ]),
   );
   put("scheduleListCount", `${jobs.length} lô · ${code}`);
+  put("scheduleConflictReport", `${code}: verifier ${currentReport.plans[code].verification.status}. Sửa dữ liệu ở Điều chuyển đơn hàng rồi phân tích lại để cập nhật lịch và chi phí.`);
   put(
     "scheduleEditStatus",
     "Sửa bảng tại Điều chuyển đơn hàng rồi phân tích lại để cập nhật cả lịch và chi phí.",
@@ -482,128 +491,9 @@ function renderGantt() {
   $("ganttChangeFeedback").hidden = false;
   put("ganttNextDayPreview", "Chỉ hiển thị lịch trong chân trời đã khai báo.");
 }
-function renderValidation() {
-  if (!currentReport) return;
-  const code = ($("validationPlanSelect")?.value || "b2").toUpperCase(),
-    plan = currentReport.plans[code];
-  $("validationList").replaceChildren(
-    node("h3", `${code}: ${plan.verification.status}`),
-    node(
-      "p",
-      "Verifier kiểm tra độc lập: đủ công việc, máy phù hợp, lịch máy, chuẩn bị, hạn giao và giữ khuôn vật lý.",
-    ),
-    node(
-      "p",
-      `B2: ${currentReport.plans.B2.solver_status}; giữ máy/thứ tự B0 hoặc B1, không chứng minh tối ưu toàn nhà máy.`,
-    ),
-  );
-  put(
-    "confirmationProgress",
-    `${code}: ${plan.verification.status} · 3 lịch đã kiểm tra`,
-  );
-  put(
-    "validationConfirmNotice",
-    "PASS áp dụng cho ràng buộc đã khai báo; chưa thay thế kiểm tra hiện trường.",
-  );
-}
-function renderRisk() {
-  const r = currentReport,
-    risks = r.coordinated_economics;
-  table(
-    "sensitivityTbody",
-    ["B1", "B2"].map((code) => {
-      const risk = risks[code],
-        b = risk.net_saving_bounds_exact_vnd;
-      return [
-        code,
-        risk.status,
-        b ? money(exact(b[0])) : "Chưa xác định",
-        b ? money(exact(b[1])) : "Chưa xác định",
-        risk.all_declared_values_qualify
-          ? "Đạt mọi giá trị trong khoảng"
-          : "Chưa đạt / chưa đủ dữ liệu",
-      ];
-    }),
-  );
-  put(
-    "sensitivityNote",
-    `Khoảng độc lập theo công suất và chi phí loại trừ, không phải khoảng tin cậy thống kê. Lợi ích tăng thêm B2 so với B1: ${risks.incremental_B2_over_B1.net_incremental_bounds_exact_vnd?.map((v) => money(exact(v))).join(" → ") || "Chưa xác định"}. Phạm vi xác nhận: ${r.cost_scope.review_scope}.`,
-  );
-}
 function switchChartMetric(value) {
   activeMetric = value;
   renderChart();
-}
-function renderChart() {
-  if (!currentReport) return;
-  const data = currentReport.input_snapshot,
-    start = Date.parse(data.horizon.start),
-    end = Date.parse(data.horizon.end),
-    hours = Math.ceil((end - start) / 3600000),
-    series = [...new Set(["B0", referencePlan()])].map((code) => ({
-      code,
-      values: Array.from({ length: hours }, (_, i) => {
-        const a = start + i * 3600000,
-          b = Math.min(end, a + 3600000);
-        return (
-          currentReport.plans[code].cost.ledger
-            .filter((r) => r.component === "RUN_ELECTRICITY")
-            .reduce(
-              (sum, r) =>
-                sum +
-                (Math.max(
-                  0,
-                  Math.min(b, Date.parse(r.end)) -
-                    Math.max(a, Date.parse(r.start)),
-                ) /
-                  3600000) *
-                  r.avg_kw *
-                  (activeMetric === "cost" ? r.vnd_per_kwh : 1),
-              0,
-            ) / (activeMetric === "power" ? (b - a) / 3600000 : 1)
-        );
-      }),
-    })),
-    max = Math.max(1, ...series.flatMap((s) => s.values)),
-    svg = $("elecLineChartSvg"),
-    ns = "http://www.w3.org/2000/svg";
-  svg.replaceChildren();
-  svg.setAttribute("viewBox", "0 0 900 300");
-  series.forEach((s, index) => {
-    const line = document.createElementNS(ns, "polyline");
-    line.setAttribute(
-      "points",
-      s.values
-        .map(
-          (v, i) =>
-            `${40 + ((i + 0.5) * 820) / hours},${260 - (v / max) * 220}`,
-        )
-        .join(" "),
-    );
-    line.setAttribute("fill", "none");
-    line.setAttribute("stroke", index ? "#22d3ee" : "#a78bfa");
-    line.setAttribute("stroke-width", "3");
-    svg.append(line);
-  });
-  const caption = document.createElementNS(ns, "text");
-  caption.setAttribute("x", "40");
-  caption.setAttribute("y", "290");
-  caption.setAttribute("fill", "currentColor");
-  caption.textContent = `B0 tím · ${referencePlan()} xanh | ${hours} giờ | ${activeMetric === "power" ? "kW trung bình mỗi giờ" : "điện năng theo giá từng giờ (đ)"} | mô hình`;
-  svg.append(caption);
-  put("hudHourVal", "Theo lịch");
-  put("hudTariffVal", "Theo đầu vào");
-  put("hudB0Val", `${peak(currentReport.plans.B0).toFixed(2)} kW đỉnh`);
-  put(
-    "hudB2Val",
-    `${peak(currentReport.plans[referencePlan()]).toFixed(2)} kW đỉnh`,
-  );
-  put(
-    "hudSavingVal",
-    `${(peak(currentReport.plans[referencePlan()]) - peak(currentReport.plans.B0)).toFixed(2)} kW so B0`,
-  );
-  $("btnMetricCost")?.classList.toggle("active", activeMetric === "cost");
-  $("btnMetricPower")?.classList.toggle("active", activeMetric === "power");
 }
 function download(name, content, type) {
   const url = URL.createObjectURL(new Blob([content], { type })),
@@ -626,23 +516,6 @@ function closeModal() {
   document.body.classList.remove("modal-open");
   lastFocus?.focus();
   lastFocus = null;
-}
-function showDecisionMemo() {
-  if (!currentReport) {
-    toast("Hãy phân tích kế hoạch trước.");
-    return;
-  }
-  const button = node("button", "Tải báo cáo JSON", "btn-action-primary"),
-    pre = node("pre", JSON.stringify(currentReport, null, 2));
-  pre.style.whiteSpace = "pre-wrap";
-  button.onclick = () =>
-    download(
-      "EnergyShift_report.json",
-      JSON.stringify(currentReport, null, 2),
-      "application/json",
-    );
-  $("memoContent").replaceChildren(button, pre);
-  openModal("memoModal");
 }
 function openScheduleEditor() {
   switchMainTab("tab-dispatch");
@@ -734,6 +607,442 @@ async function loadFixture(id = "editable-cell") {
     if (request === fixtureRequest) fixtureLoading = false;
   }
 }
+function hourlySeries(report, metric = "power") {
+  const start = Date.parse(report.input_snapshot.horizon.start),
+    end = Date.parse(report.input_snapshot.horizon.end);
+  const codes = [...new Set(["B0", report.decision.selected_plan])];
+  return codes.map((code) => ({
+    code,
+    values: Array.from(
+      { length: Math.ceil((end - start) / 3600000) },
+      (_, i) => {
+        const left = start + i * 3600000,
+          right = Math.min(end, left + 3600000);
+        const value = report.plans[code].cost.ledger
+          .filter((row) => row.component === "RUN_ELECTRICITY")
+          .reduce(
+            (sum, row) =>
+              sum +
+              (Math.max(
+                0,
+                Math.min(right, Date.parse(row.end)) -
+                  Math.max(left, Date.parse(row.start)),
+              ) /
+                3600000) *
+                row.avg_kw *
+                (metric === "cost" ? row.vnd_per_kwh : 1),
+            0,
+          );
+        return {
+          start: new Date(left).toISOString(),
+          end: new Date(right).toISOString(),
+          value:
+            metric === "power" ? value / ((right - left) / 3600000) : value,
+        };
+      },
+    ),
+  }));
+}
+function timeLabel(value) {
+  return new Date(value).toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+function dataTable(headers, rows) {
+  const wrap = node("div", null, "table-responsive"),
+    t = node("table", null, "industrial-table"),
+    head = node("thead"),
+    tr = node("tr"),
+    body = node("tbody");
+  headers.forEach((h) => tr.append(node("th", h)));
+  head.append(tr);
+  rows.forEach((values) => {
+    const row = node("tr");
+    values.forEach((v) => row.append(node("td", v)));
+    body.append(row);
+  });
+  t.append(head, body);
+  wrap.append(t);
+  return wrap;
+}
+function renderChart() {
+  if (!currentReport) return;
+  const series = hourlySeries(currentReport, activeMetric),
+    hours = series[0].values.length,
+    max = Math.max(1, ...series.flatMap((s) => s.values.map((v) => v.value))),
+    svg = $("elecLineChartSvg"),
+    ns = "http://www.w3.org/2000/svg",
+    unit = activeMetric === "power" ? "kW trung bình" : "đ / khoảng giờ";
+  svg.replaceChildren();
+  svg.setAttribute("viewBox", "0 0 960 360");
+  svg.setAttribute("role", "img");
+  svg.setAttribute(
+    "aria-label",
+    `So sánh B0 với ${referencePlan()}, đơn vị ${unit}. Bảng số liệu chi tiết ở bên dưới.`,
+  );
+  const add = (tag, attrs, text) => {
+    const e = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, String(v)));
+    if (text != null) e.textContent = text;
+    svg.append(e);
+    return e;
+  };
+  add("text", { x: 64, y: 18, fill: "currentColor", "font-size": 12 }, unit);
+  for (let i = 0; i <= 4; i++) {
+    const y = 290 - i * 62;
+    add("line", {
+      x1: 64,
+      x2: 920,
+      y1: y,
+      y2: y,
+      stroke: "currentColor",
+      opacity: 0.16,
+    });
+    add(
+      "text",
+      {
+        x: 57,
+        y: y + 4,
+        fill: "currentColor",
+        "text-anchor": "end",
+        "font-size": 11,
+      },
+      ((max * i) / 4).toLocaleString("vi-VN", { maximumFractionDigits: 1 }),
+    );
+  }
+  for (let i = 0; i < hours; i += Math.max(1, Math.ceil(hours / 6))) {
+    const x = 64 + ((i + 0.5) * 856) / hours;
+    add(
+      "text",
+      {
+        x,
+        y: 317,
+        fill: "currentColor",
+        "text-anchor": "middle",
+        "font-size": 11,
+      },
+      timeLabel(series[0].values[i].start),
+    );
+  }
+  series.forEach((s, index) => {
+    const color = index ? "#22d3ee" : "#a78bfa";
+    add("polyline", {
+      points: s.values
+        .map(
+          (v, i) =>
+            `${64 + ((i + 0.5) * 856) / hours},${290 - (v.value / max) * 248}`,
+        )
+        .join(" "),
+      fill: "none",
+      stroke: color,
+      "stroke-width": 3,
+    });
+    s.values.forEach((v, i) => {
+      const label = `${s.code} · ${timeLabel(v.start)} → ${timeLabel(v.end)}: ${v.value.toLocaleString("vi-VN", { maximumFractionDigits: 2 })} ${unit}`,
+        circle = add("circle", {
+          cx: 64 + ((i + 0.5) * 856) / hours,
+          cy: 290 - (v.value / max) * 248,
+          r: 4,
+          fill: color,
+          tabindex: 0,
+          role: "img",
+          "aria-label": label,
+        });
+      const title = document.createElementNS(ns, "title");
+      title.textContent = label;
+      circle.append(title);
+      circle.onfocus = circle.onmouseenter = () => {
+        put("chartTooltip", label);
+        Object.assign($("chartTooltip").style, {
+          display: "block",
+          opacity: 1,
+          left: "70px",
+          top: "12px",
+        });
+      };
+      circle.onblur = circle.onmouseleave = () => {
+        $("chartTooltip").style.display = "none";
+      };
+    });
+  });
+  add(
+    "text",
+    { x: 64, y: 347, fill: "currentColor", "font-size": 11 },
+    `B0 tím${series.length > 1 ? ` · ${referencePlan()} xanh` : " · giữ lịch B0"}. Tính theo lịch; chưa gồm điện nền/chờ/setup.`,
+  );
+  const details = $("hourlyDetails");
+  details.replaceChildren(
+    node("summary", "Xem bảng số liệu theo giờ và tải CSV"),
+    dataTable(
+      ["Khoảng giờ", ...series.map((s) => `${s.code} (${unit})`)],
+      series[0].values.map((v, i) => [
+        `${timeLabel(v.start)} → ${timeLabel(v.end)}`,
+        ...series.map((s) =>
+          s.values[i].value.toLocaleString("vi-VN", {
+            maximumFractionDigits: 3,
+          }),
+        ),
+      ]),
+    ),
+  );
+  const button = node("button", "Tải CSV theo giờ", "manual-btn");
+  button.onclick = () =>
+    download(
+      "EnergyShift_hourly.csv",
+      [
+        "start,end," + series.map((s) => s.code).join(","),
+        ...series[0].values.map((v, i) =>
+          [v.start, v.end, ...series.map((s) => s.values[i].value)].join(","),
+        ),
+      ].join("\r\n"),
+      "text/csv",
+    );
+  details.append(button);
+  put("hudHourVal", "Theo lịch");
+  put("hudTariffVal", "Theo đầu vào");
+  put("hudB0Val", `${peak(currentReport.plans.B0).toFixed(2)} kW đỉnh`);
+  put(
+    "hudB2Val",
+    `${peak(currentReport.plans[referencePlan()]).toFixed(2)} kW đỉnh`,
+  );
+  put(
+    "hudSavingVal",
+    `${(peak(currentReport.plans[referencePlan()]) - peak(currentReport.plans.B0)).toFixed(2)} kW so B0`,
+  );
+  $("btnMetricCost").classList.toggle("active", activeMetric === "cost");
+  $("btnMetricPower").classList.toggle("active", activeMetric === "power");
+}
+function renderValidation() {
+  if (!currentReport) return;
+  const code = $("validationPlanSelect").value.toUpperCase(),
+    v = currentReport.plans[code].verification;
+  const rules = [
+    ["Đủ công việc", ["JOB_CONSERVATION", "UNKNOWN_JOB"]],
+    ["Máy phù hợp", ["UNKNOWN_MACHINE", "INELIGIBLE_MACHINE"]],
+    [
+      "Lịch máy và chuẩn bị",
+      ["MACHINE_UNAVAILABLE", "MACHINE_OVERLAP", "INSUFFICIENT_SETUP"],
+    ],
+    [
+      "Release, hạn giao và chân trời",
+      [
+        "BEFORE_RELEASE",
+        "LATE_DUE",
+        "OUTSIDE_HORIZON",
+        "TIME_OVERFLOW",
+        "OFFSET_MISMATCH",
+      ],
+    ],
+    ["Khuôn vật lý", ["MOLD_OVERLAP"]],
+  ];
+  $("validationList").replaceChildren(
+    ...rules.map(([label, codes]) => {
+      const issues = v.issues.filter((i) => codes.includes(i.code)),
+        card = node("article", null, "analytics-card");
+      card.append(
+        node("h3", label),
+        node(
+          "p",
+          issues.length
+            ? "Không đạt"
+            : v.status === "PASS"
+              ? "Đạt trong mô hình đã khai báo"
+              : "Chưa đủ kết luận",
+        ),
+      );
+      issues.forEach((i) =>
+        card.append(node("p", `${i.job_id || i.mold_id || ""}: ${i.code}`)),
+      );
+      return card;
+    }),
+  );
+  $("validationEvidence").replaceChildren(
+    node("h3", `${code}: thời gian chuẩn bị và dư hạn giao`),
+    dataTable(
+      [
+        "Lô",
+        "Máy",
+        "Chuẩn bị từ",
+        "Chạy từ",
+        "Kết thúc",
+        "Hạn giao",
+        "Dư hạn (phút)",
+      ],
+      v.jobs.map((j) => [
+        j.job_id,
+        j.machine_id,
+        timeLabel(j.setup_start),
+        timeLabel(j.start),
+        timeLabel(j.end),
+        timeLabel(j.due),
+        Math.floor((Date.parse(j.due) - Date.parse(j.end)) / 60000),
+      ]),
+    ),
+    node("h3", "Các khoảng giữ khuôn vật lý"),
+    dataTable(
+      ["Khuôn", "Máy", "Giữ từ", "Giữ đến"],
+      (v.mold_reservations || []).map((r) => [
+        r.mold_id,
+        r.machine_id,
+        timeLabel(r.start),
+        timeLabel(r.end),
+      ]),
+    ),
+  );
+  put(
+    "confirmationProgress",
+    `${code}: ${v.status} · ${v.jobs.length} lô được dựng lại`,
+  );
+  put(
+    "validationConfirmNotice",
+    "Các dòng chi tiết lấy từ verifier backend. PASS chỉ áp dụng cho dữ liệu và ràng buộc đã khai báo; chưa thay thế kiểm tra hiện trường.",
+  );
+}
+function riskLabel(risk) {
+  return (
+    {
+      BOUNDED: "Đã khai báo khoảng chi phí",
+      UNKNOWN_SCOPE: "Chưa xác nhận chi phí dịch nhiều lô",
+      UNKNOWN_COSTS: "Còn chi phí chưa xác định",
+    }[risk.status] || "Chưa đủ dữ liệu"
+  );
+}
+function renderRisk() {
+  const r = currentReport,
+    risks = r.coordinated_economics;
+  table(
+    "sensitivityTbody",
+    ["B1", "B2"].map((code) => {
+      const risk = risks[code],
+        bounds = risk.net_saving_bounds_exact_vnd;
+      return [
+        code,
+        riskLabel(risk),
+        bounds ? money(Math.floor(exact(bounds[0]))) : "Chưa xác định",
+        bounds ? money(Math.ceil(exact(bounds[1]))) : "Chưa xác định",
+        risk.all_declared_values_qualify
+          ? "Đạt ngưỡng ở cả biên bất lợi"
+          : risk.no_declared_values_qualify
+            ? "Không đạt ngưỡng trong khoảng"
+            : "Cần bổ sung bằng chứng",
+      ];
+    }),
+  );
+  const bounds = risks.incremental_B2_over_B1.net_incremental_bounds_exact_vnd;
+  $("sensitivityNote").replaceChildren(
+    node(
+      "p",
+      `Lợi ích tăng thêm B2 so với B1: ${bounds ? bounds.map((v, i) => money(i ? Math.ceil(exact(v)) : Math.floor(exact(v)))).join(" → ") : "Chưa xác định"}. Đây là biên theo giả định công suất/chi phí, không phải khoảng tin cậy thống kê.`,
+    ),
+  );
+  for (const code of ["B1", "B2"]) {
+    const risk = risks[code];
+    if (!risk.all_declared_values_qualify) {
+      const text =
+        risk.status === "UNKNOWN_SCOPE"
+          ? "Rà soát chi phí cho mọi phương án B0/B1/B2, gồm nhân công, điện chờ/chuẩn bị và chi phí khác."
+          : risk.status === "UNKNOWN_COSTS"
+            ? `Bổ sung khoảng chi phí: ${(risk.unknown_components || []).map((x) => ({ LABOR_OVERTIME: "làm thêm giờ", IDLE_ENERGY: "điện chờ", SETUP_ENERGY: "điện chuẩn bị", OTHER_COSTS: "chi phí khác" })[x] || x).join(", ")}.`
+            : "Kiểm tra ngưỡng lợi ích và đo lại các định mức có sai số lớn; không tự hạ ngưỡng để lấy kết quả đẹp.";
+      $("sensitivityNote").append(node("p", `${code}: ${text}`));
+    }
+  }
+  const edit = node("button", "Mở dữ liệu và rà soát chi phí", "manual-btn");
+  edit.onclick = () => {
+    switchMainTab("tab-dispatch");
+    $("openSettings").click();
+    $("confirmCosts").scrollIntoView({ block: "center" });
+  };
+  $("sensitivityNote").append(edit);
+}
+function showDecisionMemo() {
+  if (!currentReport) {
+    toast("Hãy phân tích kế hoạch trước.");
+    return;
+  }
+  const r = currentReport,
+    code = referencePlan(),
+    risk = r.coordinated_economics[code],
+    selected = r.plans[code],
+    labels = {
+      CHANGE: "Đề xuất đổi lịch",
+      USE_SIMPLE_RULE: "Ưu tiên quy tắc đơn giản",
+      KEEP_CURRENT: "Giữ lịch hiện tại",
+      MEASURE_FIRST: "Bổ sung bằng chứng trước khi đổi",
+    },
+    box = $("memoContent");
+  const button = node("button", "Tải báo cáo JSON", "btn-action-primary");
+  button.onclick = () =>
+    download(
+      "EnergyShift_report.json",
+      JSON.stringify(r, null, 2),
+      "application/json",
+    );
+  box.replaceChildren(
+    node("h2", labels[r.decision.kind]),
+    node(
+      "p",
+      `Phương án ${code} · nguồn ${r.source_type} · ${r.input_snapshot.metadata.plant_alias}`,
+    ),
+    dataTable(
+      ["Chỉ tiêu", "Giá trị"],
+      [
+        ["B0: điện + chuyển đổi", money(r.plans.B0.cost.total_vnd)],
+        [`${code}: điện + chuyển đổi`, money(selected.cost.total_vnd)],
+        [
+          "Chênh lệch nominal",
+          money(r.plans.B0.cost.total_vnd - selected.cost.total_vnd),
+        ],
+        [
+          "Lợi ích sau biên công suất/chi phí",
+          risk?.net_saving_bounds_exact_vnd
+            ? risk.net_saving_bounds_exact_vnd
+                .map((v, i) =>
+                  money(i ? Math.ceil(exact(v)) : Math.floor(exact(v))),
+                )
+                .join(" → ")
+            : code === "B0"
+              ? "Giữ B0; chưa khuyến nghị phương án khác"
+              : "Chưa đủ dữ liệu",
+        ],
+        ["Kiểm tra lịch", selected.verification.status],
+        ["Số lô đổi lịch", selected.changes?.length || 0],
+      ],
+    ),
+    node("h3", "Công việc cần thực hiện"),
+    node(
+      "p",
+      code === "B0"
+        ? "Giữ lịch đang có. Xem Độ nhạy & Rủi ro để biết thông tin cần bổ sung."
+        : "Đối chiếu các lô dưới đây với nhân sự, vật tư và hiện trường; cần phê duyệt của người phụ trách trước khi thực hiện.",
+    ),
+    dataTable(
+      ["Lô", "Máy cũ → mới", "Giờ cũ → mới"],
+      (selected.changes || []).map((c) => [
+        c.job_id,
+        `${c.from.machine_id} → ${c.to.machine_id}`,
+        `${timeLabel(c.from.start)} → ${timeLabel(c.to.start)}`,
+      ]),
+    ),
+    node(
+      "p",
+      "Giới hạn: chỉ điện chạy và chuyển đổi đã khai báo. Chưa xác thực nguồn số liệu, chưa bảo đảm công suất TBA hoặc mọi điều kiện thực tế. Tối ưu B2 chỉ trong miền tìm kiếm được công bố.",
+    ),
+    node("p", `Mã lượt: ${r.run_id} · dấu vết đầu vào: ${r.input_hash}`),
+    button,
+  );
+  const details = node("details"),
+    pre = node("pre", JSON.stringify(r, null, 2));
+  pre.style.whiteSpace = "pre-wrap";
+  details.append(node("summary", "Chi tiết kỹ thuật và ledger"), pre);
+  box.append(details);
+  openModal("memoModal");
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     applyTheme(localStorage.getItem("energyshift_theme") || "dark");

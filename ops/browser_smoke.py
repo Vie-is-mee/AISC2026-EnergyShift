@@ -59,7 +59,7 @@ def wait(expression, timeout=90):
         if js(expression):
             return
         time.sleep(.2)
-    raise AssertionError('Timed out: ' + expression)
+    raise AssertionError('Timed out: ' + expression + ' runtime errors: ' + json.dumps([e for e in events if e.get('method')=='Runtime.exceptionThrown']))
 
 
 def click(identifier):
@@ -105,6 +105,8 @@ try:
     check('currentReport.status === "COMPLETED" && currentReport.plans.B2.verification.status === "PASS"', 'real_backend_B2_independently_verified')
     check('referencePlan() === currentReport.decision.selected_plan && document.getElementById("chartSelectedLabel").textContent.includes(referencePlan())', 'selected_plan_consistent_across_views')
     check('document.querySelectorAll("#plansGrid .plan-card").length === 3', 'three_real_plan_cards')
+    check('document.querySelectorAll("#hourlyDetails tbody tr").length===24 && document.getElementById("elecLineChartSvg").textContent.includes("kW")', 'hourly_axes_and_accessible_table')
+    check('document.querySelectorAll("#validationList article").length===5 && document.querySelectorAll("#validationEvidence tbody tr").length>=8', 'constraint_cards_have_job_and_mold_evidence')
     check('document.querySelectorAll(".rail-item").length === 6', 'approved_six_section_navigation_retained')
     js('switchMainTab("tab-gantt")')
     check('document.getElementById("tab-gantt").classList.contains("active") && !document.getElementById("tab-overview").classList.contains("active") && document.querySelectorAll(".gantt-job-pill").length === 16', 'actual_gantt_and_navigation')
