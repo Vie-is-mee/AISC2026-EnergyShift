@@ -772,3 +772,5 @@ và phân tích thành công. Báo cáo giữ nguyên nguồn BOM/CRLF và hash 
 Evidence: [ai_csv_live_smoke.json](evaluation/ai_csv_live_smoke.json).
 Mapping ban đầu của model chưa khớp hoàn toàn: đây là bằng chứng luồng gọi API
 và cổng rà soát hoạt động, không phải bằng chứng độ chính xác AI hoặc dữ liệu xưởng.
+
+PR: [#21 - AI đọc CSV và kỹ sư duyệt dữ liệu](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/21).
