@@ -23,7 +23,8 @@ python -m uvicorn backend.app:app --host 127.0.0.1 --port 8765
 Mở **http://127.0.0.1:8765/**. Sau khi cài dependency, giao diện/engine/fixture
 không cần Internet hoặc key OpenRouter. Dùng hồ sơ xưởng đã lưu, sửa bảng kế hoạch
 hoặc dán từ Excel / mở CSV, rồi bấm Phân tích kế hoạch (tự kiểm tra/áp dụng). JSON giữ ở mục
-nâng cao. Sửa input làm mất hiệu lực kết quả cũ. B2 hiện CHƯA CHẠY.
+nâng cao. Sửa input làm mất hiệu lực kết quả cũ. B2 đã chạy CP-SAT trong miền
+máy/thứ tự B0/B1: [phạm vi và bằng chứng B2](docs/B2_COORDINATED_SEARCH.md).
 
 Kiểm thử: `python -m pip install -r requirements-dev.txt`, rồi
 `python -m unittest discover -s backend/tests -v`, `node --check app.js` và
@@ -53,7 +54,7 @@ từ job/máy/thời gian/biểu giá/setup. Lịch FAIL hoặc UNKNOWN không �
 chi phí. Dữ liệu mẫu hoàn toàn SYNTHETIC; phạm vi tính chỉ gồm điện chạy job
 và setup. `--analyze` tạo B1 single-move, kiểm tra LOW/BASE/HIGH trên lịch cố
 định và trả CHANGE / KEEP_CURRENT / MEASURE_FIRST theo ngưỡng cấu hình.
-B2 chưa chạy; frontend đã nối engine qua API local. Sau khi cài dependency, CLI và tests
+B2 chạy qua API mặc định; CLI thêm `--analyze --b2`. Sau khi cài dependency, CLI và tests
 không yêu cầu mạng.
 
 Policy demo-3 dùng bounds công suất độc lập và review chi phí EXCLUDED để

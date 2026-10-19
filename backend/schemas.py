@@ -151,7 +151,7 @@ class ExcludedCostReview(Model):
 class CostScope(Model):
     included: Literal["RUN_ELECTRICITY_AND_SETUP"]
     excluded: list[Literal["LABOR_OVERTIME", "IDLE_ENERGY", "SETUP_ENERGY", "OTHER_COSTS"]]
-    review_scope: Literal["ALL_SINGLE_JOB_MOVES_IN_HORIZON"]
+    review_scope: Literal["ALL_SINGLE_JOB_MOVES_IN_HORIZON", "ALL_CANDIDATE_SCHEDULES_IN_HORIZON"]
     excluded_review: dict[str, ExcludedCostReview]
 
 
