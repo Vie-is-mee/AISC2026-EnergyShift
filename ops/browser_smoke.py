@@ -103,6 +103,7 @@ try:
     check('currentReport === null && !document.getElementById("plansGrid").children.length', 'initial_has_no_fake_result')
     run()
     check('currentReport.status === "COMPLETED" && currentReport.plans.B2.verification.status === "PASS"', 'real_backend_B2_independently_verified')
+    check('referencePlan() === currentReport.decision.selected_plan && document.getElementById("chartSelectedLabel").textContent.includes(referencePlan())', 'selected_plan_consistent_across_views')
     check('document.querySelectorAll("#plansGrid .plan-card").length === 3', 'three_real_plan_cards')
     check('document.querySelectorAll(".rail-item").length === 6', 'approved_six_section_navigation_retained')
     js('switchMainTab("tab-gantt")')
