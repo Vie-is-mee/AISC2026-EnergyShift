@@ -969,31 +969,34 @@
                     <div>
                       <h3>Lô sản xuất trong phương án</h3>
                       <p>
-                        Danh sách và thanh trên lịch mô phỏng cùng dùng một dữ
-                        liệu. Chọn Sửa để điều chỉnh từng lô.
+                        Xem nhanh trên Gantt; mở bảng chi tiết khi cần kiểm tra
+                        từng lô.
                       </p>
                     </div>
                     <span class="manual-counter" id="scheduleListCount">—</span>
                   </div>
-                  <div
-                    aria-label="Danh sách lô chạy, cuộn ngang khi cần"
-                    class="table-responsive"
-                    tabindex="0"
-                  >
-                    <table class="schedule-jobs-table">
-                      <thead>
-                        <tr>
-                          <th>LÔ SẢN XUẤT</th>
-                          <th>MÁY</th>
-                          <th>BẮT ĐẦU</th>
-                          <th>KẾT THÚC</th>
-                          <th>SETUP</th>
-                          <th>THAO TÁC</th>
-                        </tr>
-                      </thead>
-                      <tbody id="scheduleJobRows"></tbody>
-                    </table>
-                  </div>
+                  <details>
+                    <summary>Mở danh sách lô và thời gian chi tiết</summary>
+                    <div
+                      aria-label="Danh sách lô chạy, cuộn ngang khi cần"
+                      class="table-responsive"
+                      tabindex="0"
+                    >
+                      <table class="schedule-jobs-table">
+                        <thead>
+                          <tr>
+                            <th>LÔ SẢN XUẤT</th>
+                            <th>MÁY</th>
+                            <th>BẮT ĐẦU</th>
+                            <th>KẾT THÚC</th>
+                            <th>SETUP</th>
+                            <th>PHƯƠNG ÁN / KIỂM TRA</th>
+                          </tr>
+                        </thead>
+                        <tbody id="scheduleJobRows"></tbody>
+                      </table>
+                    </div>
+                  </details>
                 </div>
                 <div
                   aria-live="polite"
@@ -1322,6 +1325,7 @@
                 ></svg>
                 <div class="chart-floating-tooltip" id="chartTooltip"></div>
               </div>
+              <details id="hourlyDetails"></details>
               <!-- Transformer Safety Sub-card -->
               <div class="sub-card-container">
                 <div class="transformer-monitor-card" id="cardTransformer">
@@ -1419,6 +1423,7 @@
               <div class="validation-cards-grid" id="validationList">
                 <!-- Rendered by app.js -->
               </div>
+              <div class="section-container" id="validationEvidence"></div>
             </section>
           </div>
           <!-- ===================================================================

@@ -10,8 +10,8 @@
     "work/ui-qa/input-mobile.png"
   ],
   "source_sha256": {
-    "index.html": "ef3e5f4e9e83eca5496dcda7f1deacdd715e84046461190feb37c793c69deada",
-    "app.js": "23e6f1c36efaec0db8abc8483bca5d84bde1e2fafe1aa0dbbf3e667ba0564dd1",
+    "index.html": "641bf9c50ca4358644c1cdc160859ee27980db2e142a487626fdde8dcfb97d36",
+    "app.js": "d2334960adeeb144484fa4090d43ba0a572e1282566651372b1ff5147ef29340",
     "workspace.css": "6d3509def38c7b33aca1eba98e01a5fb119c78045f6e6cf3a616d67681b3d2ce",
     "input-desk.js": "01d04a3ab47b4080e6acc62482d95938088ce1b8051cc1453e01e7c16813f71d",
     "backend/b2.py": "835190fa31b76c1e1499a15122923954174e3800dfaea92e6c682d34b1ca17d1"
@@ -21,9 +21,9 @@
   "live_cloud_deployed": false,
   "built_artifact_sha256": {
     "api-client.js": "8522aa8d7de6f901800dbc2e4564e77879d2c22a63e321813a9b05ac1ee33b8a",
-    "app.js": "23e6f1c36efaec0db8abc8483bca5d84bde1e2fafe1aa0dbbf3e667ba0564dd1",
+    "app.js": "d2334960adeeb144484fa4090d43ba0a572e1282566651372b1ff5147ef29340",
     "deployment-config.js": "43360a942063ee2e38ead0a9c886144c40e9999067b7a0d0ecfbd4d01fc4d6bd",
-    "index.html": "ef3e5f4e9e83eca5496dcda7f1deacdd715e84046461190feb37c793c69deada",
+    "index.html": "641bf9c50ca4358644c1cdc160859ee27980db2e142a487626fdde8dcfb97d36",
     "input-desk.js": "01d04a3ab47b4080e6acc62482d95938088ce1b8051cc1453e01e7c16813f71d",
     "input-model.js": "c0f4bf1a4d33021d19df85f3b690d609f970eb1dc288620c334a9d39cc2d6a16",
     "live.css": "24cf4787797ab3140b85335451b508786c22b0b1920f909758ce24ef86c247ba",
