@@ -85,6 +85,11 @@ function table(id, rows) {
     );
 }
 function clearResult() {
+  humanReviews.clear();
+  scheduleDraft = null;
+  scheduleEditorState = null;
+  if ($("scheduleEditForm")) $("scheduleEditForm").hidden = true;
+  if ($("chartTooltip")) $("chartTooltip").style.display = "none";
   if ($("measurementConfirmed")) $("measurementConfirmed").checked = false;
   put("measurementResult", "Chưa có đối chiếu cho đầu vào hiện tại.");
   revision++;
@@ -167,6 +172,9 @@ function setDataset(data) {
   );
   labels[0].textContent = `${data.metadata.plant_alias} · ${data.metadata.source_type}`;
   labels[1].textContent = `${data.jobs.length} lô / ${data.machines.length} máy`;
+  scheduleDraft = structuredClone(data);
+  activeGanttPlan = "b0";
+  renderGantt();
 }
 function errors(items) {
   $("errors").replaceChildren(
@@ -207,6 +215,8 @@ function peak(plan) {
   return max;
 }
 function renderReport(report) {
+  scheduleDraft = null;
+  scheduleEditorState = null;
   activeGanttPlan = "compare";
   if (report.input_preparation === undefined) {
     const evidence = window.InputDesk?.evidence();
@@ -380,133 +390,23 @@ function renderReport(report) {
     ),
   );
 }
-function selectGanttPlan(value) {
+async function selectGanttPlan(value) {
+  if (scheduleEditorState) {
+    toast("Lưu hoặc đóng chỉnh sửa trước khi đổi phương án.");
+    return;
+  }
+  if (!currentReport && value !== "b0") {
+    if (pending || preparing || fixtureLoading) {
+      toast("Đang tính lịch. Chờ hoàn thành rồi chọn phương án.");
+      return;
+    }
+    toast("Đang tính B0/B1/B2 từ bản nháp hiện tại…");
+    await revalidateDashboard();
+    switchMainTab("tab-gantt");
+    if (!currentReport) return;
+  }
   activeGanttPlan = value;
   renderGantt();
-}
-function renderGantt() {
-  if (!currentReport) return;
-  document
-    .querySelectorAll("[data-plan]")
-    .forEach((e) =>
-      e.classList.toggle("active", e.dataset.plan === activeGanttPlan),
-    );
-  const data = currentReport.input_snapshot,
-    start = Date.parse(data.horizon.start),
-    span = Date.parse(data.horizon.end) - start,
-    codes =
-      activeGanttPlan === "compare"
-        ? [...new Set(["B0", referencePlan()])]
-        : [activeGanttPlan.toUpperCase()];
-  document.querySelector(".gantt-hours-track").replaceChildren(
-    ...Array.from({ length: 13 }, (_, i) =>
-      node(
-        "span",
-        new Date(start + (span * i) / 12).toLocaleTimeString("vi-VN", {
-          timeZone: "Asia/Ho_Chi_Minh",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        "hour-mark",
-      ),
-    ),
-  );
-  $("ganttLanes").replaceChildren(
-    ...data.machines.map((machine) => {
-      const row = node("div", null, "gantt-lane-row"),
-        track = node("div", null, "gantt-lane-track");
-      row.append(node("div", machine.id, "gantt-lane-machine-meta"), track);
-      for (const code of codes) {
-        const sub = node("div", null, "gantt-subtrack");
-        Object.assign(sub.style, { position: "relative", height: "38px" });
-        const bg = node("div", null, "evn-band-stripes-bg");
-        data.tariff.windows.forEach((w) => {
-          const stripe = node(
-            "div",
-            null,
-            "evn-stripe stripe-" +
-              { OFF_PEAK: "offpeak", NORMAL: "normal", PEAK: "peak" }[w.band],
-          );
-          Object.assign(stripe.style, {
-            position: "absolute",
-            left: ((Date.parse(w.start) - start) * 100) / span + "%",
-            width:
-              ((Date.parse(w.end) - Date.parse(w.start)) * 100) / span + "%",
-          });
-          bg.append(stripe);
-        });
-        sub.append(bg);
-        currentReport.plans[code].verification.jobs
-          .filter((j) => j.machine_id === machine.id)
-          .forEach((job) => {
-            if (job.setup_minutes) {
-              const setup = node("div", null, "gantt-setup-wedge");
-              Object.assign(setup.style, {
-                position: "absolute",
-                left:
-                  ((Date.parse(job.setup_start) - start) * 100) / span + "%",
-                width:
-                  ((Date.parse(job.start) - Date.parse(job.setup_start)) *
-                    100) /
-                    span +
-                  "%",
-                height: "28px",
-              });
-              setup.title = `Chuẩn bị ${job.job_id}: ${job.setup_minutes} phút`;
-              sub.append(setup);
-            }
-            const pill = node(
-              "button",
-              `${code} · ${job.job_id}`,
-              `gantt-job-pill job-pill-${code.toLowerCase()}`,
-            );
-            Object.assign(pill.style, {
-              left: ((Date.parse(job.start) - start) * 100) / span + "%",
-              width:
-                ((Date.parse(job.end) - Date.parse(job.start)) * 100) / span +
-                "%",
-            });
-            pill.title = `${job.job_id}: chuẩn bị ${job.setup_start}; chạy ${job.start} → ${job.end}`;
-            pill.onclick = () => {
-              put("modalJobTitle", `${code} · ${job.job_id}`);
-              put("modalJobBody", JSON.stringify(job, null, 2));
-              openModal("jobDetailModal");
-            };
-            sub.append(pill);
-          });
-        track.append(sub);
-      }
-      return row;
-    }),
-  );
-  const code = codes.at(-1),
-    jobs = currentReport.plans[code].verification.jobs;
-  table(
-    "scheduleJobRows",
-    jobs.map((j) => [
-      j.job_id,
-      j.machine_id,
-      timeLabel(j.start),
-      timeLabel(j.end),
-      `${j.setup_minutes} phút từ ${timeLabel(j.setup_start)}`,
-      `${code} · PASS`,
-    ]),
-  );
-  put("scheduleListCount", `${jobs.length} lô · ${code}`);
-  put(
-    "scheduleConflictReport",
-    `${code}: verifier ${currentReport.plans[code].verification.status}. Sửa dữ liệu ở Điều chuyển đơn hàng rồi phân tích lại để cập nhật lịch và chi phí.`,
-  );
-  put(
-    "scheduleEditStatus",
-    "Sửa bảng tại Điều chuyển đơn hàng rồi phân tích lại để cập nhật cả lịch và chi phí.",
-  );
-  put(
-    "ganttChangeFeedback",
-    `Chân trời ${data.horizon.start} → ${data.horizon.end}. Nhấn lô để xem thời gian chuẩn bị.`,
-  );
-  $("ganttChangeFeedback").hidden = false;
-  put("ganttNextDayPreview", "Chỉ hiển thị lịch trong chân trời đã khai báo.");
 }
 function switchChartMetric(value) {
   activeMetric = value;
@@ -534,27 +434,662 @@ function closeModal() {
   lastFocus?.focus();
   lastFocus = null;
 }
-function openScheduleEditor() {
-  switchMainTab("tab-dispatch");
-  toast("Sửa lô trong bảng kế hoạch, sau đó phân tích lại.");
+// Drafts share the canonical input model. Only the backend can certify a schedule.
+let scheduleDraft = null;
+let scheduleEditorState = null;
+const humanReviews = new Map();
+function localMinute(value) {
+  return new Date(Date.parse(value) + 7 * 3600000).toISOString().slice(0, 16);
+}
+function inputTimestamp(value) {
+  if (!value || !Number.isFinite(Date.parse(value + "+07:00")))
+    throw Error("Nhập đầy đủ ngày và giờ.");
+  return value + ":00+07:00";
+}
+function scheduleInput(code) {
+  const data = structuredClone(
+    currentReport?.input_snapshot ||
+      scheduleDraft ||
+      JSON.parse($("dataset").value),
+  );
+  if (currentReport) {
+    const plan = currentReport.plans[code];
+    if (!plan?.schedule?.length)
+      throw Error("Phương án chưa có lịch để chỉnh sửa.");
+    data.current_schedule = structuredClone(plan.schedule);
+  }
+  return data;
+}
+function bindScheduleDrag(pill, job, code, track, data) {
+  let dragged = false;
+  pill.dataset.jobId = job.job_id;
+  pill.dataset.planCode = code;
+  pill.style.touchAction = "pan-y";
+  pill.setAttribute("aria-label", `${code} · ${job.job_id}. Kéo ngang để dời giờ; Alt và phím trái/phải để dời 30 phút.`);
+  const shiftedData = (minutes) => {
+    const candidate = scheduleInput(code);
+    const assignment = candidate.current_schedule.find(a => a.job_id === job.job_id);
+    assignment.start = localMinute(new Date(Date.parse(assignment.start) + minutes * 60000).toISOString()) + ":00+07:00";
+    return candidate;
+  };
+  const boundDelta = minutes => {
+    const lower = Math.ceil((Date.parse(data.horizon.start) - Date.parse(job.start) + job.setup_minutes * 60000) / 1800000) * 30;
+    const upper = Math.floor((Date.parse(data.horizon.end) - Date.parse(job.end)) / 1800000) * 30;
+    return lower <= upper ? Math.max(lower, Math.min(upper, minutes)) : 0;
+  };
+  pill.onclick = () => {
+    if (dragged) { dragged = false; return; }
+    openScheduleEditor(job.job_id, false, code);
+  };
+  pill.onkeydown = event => {
+    if (!event.altKey || !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+    event.preventDefault();
+    if (scheduleEditorState) { toast("Lưu hoặc đóng chỉnh sửa trước khi dời lô."); return; }
+    const minutes = boundDelta(event.key === "ArrowLeft" ? -30 : 30);
+    if (!minutes) return;
+    commitScheduleDraft(shiftedData(minutes));
+    document.querySelector(`[data-job-id="${job.job_id}"]`)?.focus();
+  };
+  pill.onpointerdown = event => {
+    if (event.button !== 0 || !event.isPrimary) return;
+    if (scheduleEditorState) { toast("Lưu hoặc đóng chỉnh sửa trước khi kéo lô."); return; }
+    const originX = event.clientX, width = track.getBoundingClientRect().width;
+    if (!width) return;
+    const spanMinutes = (Date.parse(data.horizon.end) - Date.parse(data.horizon.start)) / 60000;
+    let minutes = 0;
+    dragged = false;
+    pill.setPointerCapture(event.pointerId);
+    const move = next => {
+      if (next.pointerId !== event.pointerId) return;
+      if (Math.abs(next.clientX - originX) < 5 && !dragged) return;
+      dragged = true;
+      minutes = boundDelta(Math.round((next.clientX - originX) / width * spanMinutes / 30) * 30);
+      pill.classList.add("job-dragging");
+      pill.style.transform = `translateX(${minutes / spanMinutes * width}px)`;
+      put("ganttChangeFeedback", `${job.job_id}: ${localMinute(new Date(Date.parse(job.start) + minutes * 60000).toISOString()).replace("T", " ")} · thả chuột để lưu bản nháp (${minutes >= 0 ? "+" : ""}${minutes} phút).`);
+    };
+    const finish = next => {
+      if (next.pointerId !== event.pointerId) return;
+      pill.removeEventListener("pointermove", move);
+      pill.removeEventListener("pointerup", finish);
+      pill.removeEventListener("pointercancel", cancel);
+      if (pill.hasPointerCapture(event.pointerId)) pill.releasePointerCapture(event.pointerId);
+      pill.classList.remove("job-dragging"); pill.style.transform = "";
+      if (dragged && minutes) commitScheduleDraft(shiftedData(minutes));
+      else if (dragged) renderGantt();
+    };
+    const cancel = next => {
+      if (next.pointerId !== event.pointerId) return;
+      minutes = 0; dragged = false;
+      finish(next);
+      renderGantt();
+    };
+    pill.addEventListener("pointermove", move);
+    pill.addEventListener("pointerup", finish);
+    pill.addEventListener("pointercancel", cancel);
+  };
+}
+function previewJobs(data) {
+  const rows = [];
+  for (const machine of data.machines) {
+    let family = data.setup.initial_family_by_machine[machine.id];
+    let mold = data.setup.initial_mold_by_machine[machine.id];
+    for (const a of data.current_schedule
+      .filter((a) => a.machine_id === machine.id)
+      .sort((a, b) => Date.parse(a.start) - Date.parse(b.start))) {
+      const job = data.jobs.find((j) => j.id === a.job_id);
+      const process = job?.eligible[machine.id];
+      if (!process) continue;
+      const transition = data.setup.transitions.find(
+        (t) =>
+          t.machine_id === machine.id &&
+          t.from_family === family &&
+          t.to_family === job.family,
+      );
+      const setup =
+        (transition?.minutes || 0) +
+        (mold !== job.mold_id
+          ? data.setup.mold_change_by_machine[machine.id].minutes
+          : 0);
+      rows.push({
+        job_id: job.id,
+        machine_id: machine.id,
+        start: a.start,
+        end: new Date(
+          Date.parse(a.start) + process.duration_min * 60000,
+        ).toISOString(),
+        setup_start: new Date(
+          Date.parse(a.start) - setup * 60000,
+        ).toISOString(),
+        setup_minutes: setup,
+      });
+      family = job.family;
+      mold = job.mold_id;
+    }
+  }
+  return rows;
+}
+function draftWarnings(data, jobs) {
+  const warnings = [];
+  for (const job of jobs) {
+    if (
+      Date.parse(job.setup_start) < Date.parse(data.horizon.start) ||
+      Date.parse(job.end) > Date.parse(data.horizon.end)
+    )
+      warnings.push(job.job_id + ": ngoài chân trời lập lịch.");
+    const source = data.jobs.find((j) => j.id === job.job_id);
+    if (
+      Date.parse(job.start) < Date.parse(source.release) ||
+      Date.parse(job.end) > Date.parse(source.due)
+    )
+      warnings.push(job.job_id + ": ngoài thời gian cho phép hoặc quá hạn.");
+    for (const other of jobs) {
+      if (other.job_id >= job.job_id || other.machine_id !== job.machine_id)
+        continue;
+      if (
+        Date.parse(job.setup_start) < Date.parse(other.end) &&
+        Date.parse(other.setup_start) < Date.parse(job.end)
+      )
+        warnings.push(
+          job.job_id + " / " + other.job_id + ": trùng máy kể cả setup.",
+        );
+    }
+  }
+  return warnings;
+}
+function renderGantt() {
+  let data,
+    draft = !currentReport,
+    codes,
+    previews = null;
+  if (scheduleEditorState) {
+    try {
+      data = readScheduleEditor(false);
+      draft = true;
+    } catch {
+      data = scheduleEditorState.data;
+    }
+    draft = true;
+  } else data = currentReport?.input_snapshot || scheduleDraft;
+  if (!data) return;
+  codes = draft
+    ? ["B0"]
+    : activeGanttPlan === "compare"
+      ? [...new Set(["B0", referencePlan()])]
+      : [activeGanttPlan.toUpperCase()];
+  if (draft) previews = previewJobs(data);
+  document.querySelectorAll("[data-plan]").forEach((e) => {
+    e.classList.toggle(
+      "active",
+      e.dataset.plan === (draft ? "b0" : activeGanttPlan),
+    );
+    e.disabled = pending || preparing;
+  });
+  const start = Date.parse(data.horizon.start),
+    span = Date.parse(data.horizon.end) - start;
+  const percent = (value) =>
+    Math.max(0, Math.min(100, ((Date.parse(value) - start) * 100) / span));
+  document
+    .querySelector(".gantt-hours-track")
+    .replaceChildren(
+      ...Array.from({ length: 13 }, (_, i) =>
+        node(
+          "span",
+          timeLabel(new Date(start + (span * i) / 12).toISOString()),
+          "hour-mark",
+        ),
+      ),
+    );
+  $("ganttLanes").replaceChildren(
+    ...data.machines.map((machine) => {
+      const row = node("div", null, "gantt-lane-row"),
+        track = node("div", null, "gantt-lane-track");
+      row.append(node("div", machine.id, "gantt-lane-machine-meta"), track);
+      for (const code of codes) {
+        const jobs = (
+          draft ? previews : currentReport.plans[code].verification.jobs
+        ).filter((j) => j.machine_id === machine.id);
+        const sub = node("div", null, "gantt-subtrack");
+        const layers = [];
+        sub.style.position = "relative";
+        data.tariff.windows.forEach((w) => {
+          const stripe = node(
+            "div",
+            null,
+            "evn-stripe stripe-" +
+              { OFF_PEAK: "offpeak", NORMAL: "normal", PEAK: "peak" }[w.band],
+          );
+          Object.assign(stripe.style, {
+            position: "absolute",
+            left: percent(w.start) + "%",
+            width: percent(w.end) - percent(w.start) + "%",
+            height: "100%",
+          });
+          sub.append(stripe);
+        });
+        [...jobs]
+          .sort((a, b) => Date.parse(a.setup_start) - Date.parse(b.setup_start))
+          .forEach((job) => {
+            let layer = layers.findIndex(
+              (end) => end <= Date.parse(job.setup_start),
+            );
+            if (layer < 0) layer = layers.length;
+            layers[layer] = Date.parse(job.end);
+            if (job.setup_minutes) {
+              const wedge = node("div", null, "gantt-setup-wedge");
+              Object.assign(wedge.style, {
+                position: "absolute",
+                top: layer * 36 + 4 + "px",
+                left: percent(job.setup_start) + "%",
+                width: percent(job.start) - percent(job.setup_start) + "%",
+                height: "28px",
+              });
+              wedge.title =
+                job.job_id + ": setup " + job.setup_minutes + " phút";
+              sub.append(wedge);
+            }
+            const pill = node(
+              "button",
+              (draft ? "Nháp" : code) + " · " + job.job_id,
+              "gantt-job-pill job-pill-" +
+                code.toLowerCase() +
+                (draft ? " draft-job" : ""),
+            );
+            pill.type = "button";
+            Object.assign(pill.style, {
+              top: layer * 36 + 4 + "px",
+              left: percent(job.start) + "%",
+              width:
+                Math.max(0.25, percent(job.end) - percent(job.start)) + "%",
+            });
+            const conflict =
+              draft &&
+              jobs.some(
+                (other) =>
+                  other !== job &&
+                  Date.parse(job.setup_start) < Date.parse(other.end) &&
+                  Date.parse(other.setup_start) < Date.parse(job.end),
+              );
+            if (conflict) {
+              pill.classList.add("draft-conflict");
+              pill.textContent += " !";
+            }
+            pill.title =
+              job.job_id +
+              ": " +
+              timeLabel(job.start) +
+              " → " +
+              timeLabel(job.end) +
+              (conflict
+                ? " · Trùng máy kể cả setup"
+                : draft
+                  ? " · Chưa kiểm định"
+                  : " · Nhấn để chỉnh bản nháp");
+            bindScheduleDrag(pill, job, code, sub, data);
+            sub.append(pill);
+          });
+        sub.style.height = Math.max(38, layers.length * 36 + 4) + "px";
+        track.append(sub);
+      }
+      return row;
+    }),
+  );
+  const code = codes.at(-1),
+    jobs = draft ? previews : currentReport.plans[code].verification.jobs;
+  $("scheduleJobRows").replaceChildren(
+    ...jobs.map((j) => {
+      const row = node("tr");
+      [
+        j.job_id,
+        j.machine_id,
+        timeLabel(j.start),
+        timeLabel(j.end),
+        j.setup_minutes + " phút",
+      ].forEach((text) => row.append(node("td", text)));
+      const cell = node("td"),
+        button = node("button", "Sửa", "manual-btn");
+      button.type = "button";
+      button.onclick = () => openScheduleEditor(j.job_id, false, code);
+      cell.append(button);
+      row.append(cell);
+      return row;
+    }),
+  );
+  put(
+    "scheduleListCount",
+    jobs.length + " lô · " + (draft ? "Bản nháp B0" : code),
+  );
+  const warnings = draft ? draftWarnings(data, jobs) : [];
+  put(
+    "scheduleConflictReport",
+    draft
+      ? (warnings.length
+          ? warnings.join("\n")
+          : "Chưa phát hiện trùng máy trong xem trước.") +
+          "\nĐây là chẩn đoán sơ bộ. Bấm Tính lại để kiểm định đầy đủ máy, khuôn, thời hạn và chi phí."
+      : code +
+          ": verifier " +
+          currentReport.plans[code].verification.status +
+          ". Chọn Sửa để tạo bản nháp từ phương án này.",
+  );
+  put(
+    "scheduleEditStatus",
+    draft
+      ? "BẢN NHÁP · chưa kiểm định / chưa tính chi phí"
+      : "Đang xem " + code + " · dữ liệu đã phân tích",
+  );
+  put(
+    "manualScheduleNotice",
+    scheduleEditorState
+      ? "Đang xem trước thay đổi chưa lưu. Lưu bản nháp sẽ xóa kết quả và xác nhận cũ."
+      : draft
+        ? "Lưu thay đổi vào B0 rồi bấm Tính lại. B1/B2 sẽ được tạo lại từ đầu vào mới."
+        : "Chỉnh một phương án sẽ tạo đầu vào B0 mới để phân tích; kết quả cũ sẽ mất hiệu lực khi lưu.",
+  );
+  put(
+    "ganttChangeFeedback",
+    scheduleEditorState
+      ? "Xem trước chưa lưu · nét đứt"
+      : draft
+        ? "Bản nháp đang chờ tính lại."
+        : "Lịch trong chân trời " +
+          data.horizon.start +
+          " → " +
+          data.horizon.end,
+  );
+  $("ganttChangeFeedback").hidden = false;
+  const nextDay = jobs.filter(
+    (j) =>
+      localMinute(j.start).slice(0, 10) !== localMinute(j.end).slice(0, 10),
+  );
+  put(
+    "ganttNextDayPreview",
+    nextDay.length
+      ? "Qua ngày: " +
+          nextDay
+            .map(
+              (j) => j.job_id + " đến " + localMinute(j.end).replace("T", " "),
+            )
+            .join(" · ")
+      : "Không có lô chạy qua ngày trong lịch đang xem.",
+  );
+  $("ganttNextDayPreview").hidden = nextDay.length === 0;
+  $("recalculateScheduleBtn").disabled =
+    pending || preparing || !!scheduleEditorState;
+  $("exportScheduleBtn").disabled = !!scheduleEditorState;
+}
+function openScheduleEditor(jobId = null, isNew = false, planCode = null) {
+  if (scheduleEditorState && !isNew && !jobId) return;
+  try {
+    const code =
+      planCode ||
+      (activeGanttPlan === "compare"
+        ? referencePlan()
+        : activeGanttPlan.toUpperCase());
+    const data = scheduleInput(code),
+      assignment = isNew
+        ? null
+        : data.current_schedule.find(
+            (a) => a.job_id === (jobId || data.jobs[0]?.id),
+          );
+    const job = assignment
+      ? data.jobs.find((j) => j.id === assignment.job_id)
+      : null;
+    if (!isNew && !job) throw Error("Chọn lô cần sửa.");
+    if (isNew && data.jobs.length >= 8)
+      throw Error("Demo hỗ trợ tối đa 8 lô. Xóa lô trước khi thêm.");
+    scheduleEditorState = { data, jobId: job?.id || null, source: code };
+    const fill = (id, value) => ($(id).value = value);
+    const options = (id, values, value) => {
+      $(id).replaceChildren(
+        ...values.map((v) => {
+          const o = node("option", v);
+          o.value = v;
+          return o;
+        }),
+      );
+      $(id).value = value || values[0];
+    };
+    fill("editJobName", job?.id || "");
+    $("editJobName").readOnly = !!job;
+    options(
+      "editJobMachine",
+      job ? Object.keys(job.eligible) : data.machines.map((m) => m.id),
+      assignment?.machine_id,
+    );
+    const process = job?.eligible[$("editJobMachine").value];
+    fill("editJobStart", localMinute(assignment?.start || data.horizon.start));
+    fill("editJobDuration", process?.duration_min || 60);
+    fill("editJobQuantity", job?.quantity || 1);
+    $("editJobQuantity").readOnly = !!job;
+    fill("editJobPower", process?.avg_kw ?? 0);
+    options(
+      "editJobFamily",
+      [...new Set(data.jobs.map((j) => j.family))],
+      job?.family,
+    );
+    options(
+      "editJobMold",
+      data.molds.map((m) => m.id),
+      job?.mold_id,
+    );
+    fill("editJobRelease", localMinute(job?.release || data.horizon.start));
+    fill("editJobDue", localMinute(job?.due || data.horizon.end));
+    fill("editJobReference", process?.lot_confirmation.reference || "");
+    $("editProcessingConfirmed").checked = !!job;
+    $("deleteScheduleJobBtn").hidden = !job;
+    put(
+      "scheduleEditorTitle",
+      job
+        ? "Chỉnh bản nháp · " + code + " · " + job.id
+        : "Thêm lô vào bản nháp B0",
+    );
+    put("scheduleEditorError", "");
+    $("scheduleEditForm").hidden = false;
+    switchMainTab("tab-gantt");
+    renderGantt();
+    $("editJobName").focus();
+    $("scheduleEditForm").scrollIntoView({
+      block: "nearest",
+      behavior: "smooth",
+    });
+  } catch (e) {
+    toast(e.message);
+  }
+}
+function readScheduleEditor(strict = true) {
+  if (!scheduleEditorState) throw Error("Chưa mở bản nháp.");
+  const data = structuredClone(scheduleEditorState.data),
+    existing = data.jobs.find((j) => j.id === scheduleEditorState.jobId);
+  const id = $("editJobName").value.trim(),
+    machine = $("editJobMachine").value,
+    duration = Number($("editJobDuration").value),
+    quantity = Number($("editJobQuantity").value),
+    power = Number($("editJobPower").value),
+    reference = $("editJobReference").value.trim();
+  if (
+    !/^[A-Za-z0-9_-]+$/.test(id) ||
+    (!existing && data.jobs.some((j) => j.id === id))
+  )
+    throw Error("Mã lô phải duy nhất, dùng chữ, số, _ hoặc -.");
+  if (
+    !Number.isInteger(duration) ||
+    duration < 1 ||
+    !Number.isInteger(quantity) ||
+    quantity < 1 ||
+    !Number.isFinite(power) ||
+    power < 0
+  )
+    throw Error("Kiểm tra sản lượng, thời lượng và công suất.");
+  if (strict && (!$("editProcessingConfirmed").checked || !reference))
+    throw Error("Xác nhận định mức và ghi nguồn trước khi lưu.");
+  const original = existing?.eligible[machine];
+  const changed = !original || duration !== original.duration_min;
+  const process = {
+    ...(original || {}),
+    duration_min: duration,
+    avg_kw: power,
+    power_source:
+      data.metadata.source_type === "SYNTHETIC"
+        ? "SYNTHETIC"
+        : original && power === original.avg_kw
+          ? original.power_source
+          : "ESTIMATED",
+    lot_confirmation: changed
+      ? {
+          quantity,
+          duration_min: duration,
+          source_type:
+            data.metadata.source_type === "SYNTHETIC"
+              ? "SYNTHETIC"
+              : "ESTIMATED",
+          reference: reference || "UNCONFIRMED_DRAFT",
+        }
+      : {
+          ...original.lot_confirmation,
+          reference: reference || original.lot_confirmation.reference,
+        },
+  };
+  const job = {
+    ...(existing || {}),
+    id,
+    quantity,
+    family: $("editJobFamily").value,
+    mold_id: $("editJobMold").value,
+    release: inputTimestamp($("editJobRelease").value),
+    due: inputTimestamp($("editJobDue").value),
+    eligible: { ...(existing?.eligible || {}), [machine]: process },
+  };
+  if (Date.parse(job.due) <= Date.parse(job.release))
+    throw Error("Hạn hoàn thành phải sau thời điểm được bắt đầu.");
+  if (existing)
+    data.jobs[data.jobs.findIndex((j) => j.id === existing.id)] = job;
+  else data.jobs.push(job);
+  const assignment = {
+    job_id: id,
+    machine_id: machine,
+    start: inputTimestamp($("editJobStart").value),
+  };
+  const index = data.current_schedule.findIndex((a) => a.job_id === id);
+  if (index < 0) data.current_schedule.push(assignment);
+  else data.current_schedule[index] = assignment;
+  return data;
+}
+function previewScheduleEditor() {
+  try {
+    readScheduleEditor(false);
+    put(
+      "schedulePreviewHint",
+      "Xem trước đang cập nhật · chưa lưu / chưa kiểm định.",
+    );
+    put("scheduleEditorError", "");
+    renderGantt();
+  } catch (e) {
+    put("schedulePreviewHint", e.message);
+  }
+}
+function commitScheduleDraft(data) {
+  for (const review of Object.values(data.cost_scope.excluded_review)) {
+    Object.assign(review, {
+      status: "UNKNOWN",
+      incremental_min_vnd: null,
+      incremental_max_vnd: null,
+      source_type:
+        data.metadata.source_type === "SYNTHETIC" ? "SYNTHETIC" : "ESTIMATED",
+      reference: "Cần rà soát lại chi phí sau khi chỉnh lịch.",
+    });
+  }
+  setDataset(data);
+  try {
+    localStorage.setItem(
+      "energyshift.inline-schedule-draft.v1",
+      JSON.stringify({ saved_at: new Date().toISOString(), data }),
+    );
+  } catch {
+    /* Storage is optional. */
+  }
+  put("schedulePreviewHint", "");
+  toast("Đã lưu bản nháp. Tính lại để cập nhật kiểm định và chi phí.");
+}
+function saveScheduleJob(event) {
+  event.preventDefault();
+  try {
+    commitScheduleDraft(readScheduleEditor());
+  } catch (e) {
+    put("scheduleEditorError", e.message);
+  }
 }
 function closeScheduleEditor() {
-  if ($("scheduleEditForm")) $("scheduleEditForm").hidden = true;
+  scheduleEditorState = null;
+  $("scheduleEditForm").hidden = true;
+  renderGantt();
 }
 function deleteScheduleJob() {
-  openScheduleEditor();
+  if (!scheduleEditorState?.jobId) return;
+  const data = structuredClone(scheduleEditorState.data),
+    id = scheduleEditorState.jobId;
+  if (data.jobs.length <= 1) {
+    put("scheduleEditorError", "Kế hoạch phải có ít nhất một lô.");
+    return;
+  }
+  data.jobs = data.jobs.filter((j) => j.id !== id);
+  data.current_schedule = data.current_schedule.filter((a) => a.job_id !== id);
+  const families = new Set([
+    ...data.jobs.map((job) => job.family),
+    ...Object.values(data.setup.initial_family_by_machine),
+  ]);
+  data.setup.transitions = data.setup.transitions.filter(
+    (transition) => families.has(transition.from_family) && families.has(transition.to_family),
+  );
+  commitScheduleDraft(data);
 }
 function resetManualSchedule() {
   if (sample) setDataset(structuredClone(sample));
-  switchMainTab("tab-dispatch");
 }
+async function restoreScheduleDraft() {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem("energyshift.inline-schedule-draft.v1") || "null",
+    );
+    if (!saved?.data) throw Error("Chưa có bản nháp đã lưu.");
+    const token = revision;
+    const response = await apiFetch("/api/demo/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(saved.data),
+    });
+    const result = await response.json();
+    if (!response.ok) throw Error("Bản nháp không hợp lệ. Kiểm tra dữ liệu trước khi khôi phục.");
+    if (token !== revision) throw Error("Đầu vào đã đổi. Bấm khôi phục lại nếu vẫn muốn dùng bản nháp.");
+    setDataset(result.snapshot);
+    toast("Đã khôi phục bản nháp. Cần tính lại.");
+  } catch (e) {
+    toast(e.message);
+  }
+}
+function clearManualConfirmations() {
+  if (!currentReport) return;
+  humanReviews.delete(
+    currentReport.input_hash + ":" + $("validationPlanSelect").value,
+  );
+  renderValidation();
+}
+
 function dismissScheduleConflictToast() {
   if ($("scheduleConflictToast")) $("scheduleConflictToast").hidden = true;
 }
-function clearManualConfirmations() {
-  toast("Các kiểm tra được tính tự động từ lịch.");
-}
 function exportScheduleCSV() {
+  if (!currentReport && scheduleDraft) {
+    download(
+      "DRAFT_B0.csv",
+      "job_id,machine_id,start\n" +
+        scheduleDraft.current_schedule
+          .map((a) => [a.job_id, a.machine_id, a.start].join(","))
+          .join("\n"),
+      "text/csv",
+    );
+    return;
+  }
   if (!currentReport) return;
   const code =
     activeGanttPlan === "compare" ? "B2" : activeGanttPlan.toUpperCase();
@@ -568,6 +1103,10 @@ function exportScheduleCSV() {
   );
 }
 async function revalidateDashboard() {
+  if (scheduleEditorState) {
+    toast("Lưu hoặc đóng chỉnh sửa trước khi tính lại.");
+    return;
+  }
   if (pending || preparing || fixtureLoading) return;
   preparing = true;
   try {
@@ -580,6 +1119,7 @@ async function revalidateDashboard() {
   const token = revision;
   pending = true;
   $("analyze").disabled = true;
+  $("recalculateScheduleBtn").disabled = true;
   put("analyze", "Đang kiểm tra và tối ưu…");
   try {
     let report;
@@ -619,6 +1159,8 @@ async function revalidateDashboard() {
   } finally {
     pending = false;
     $("analyze").disabled = false;
+    $("recalculateScheduleBtn").disabled = false;
+    document.querySelectorAll("[data-plan]").forEach(button => { button.disabled = false; });
     put("analyze", "Phân tích kế hoạch");
   }
 }
@@ -725,6 +1267,30 @@ function renderChart() {
     svg.append(e);
     return e;
   };
+  const horizonStart = Date.parse(currentReport.input_snapshot.horizon.start),
+    horizonSpan =
+      Date.parse(currentReport.input_snapshot.horizon.end) - horizonStart;
+  currentReport.input_snapshot.tariff.windows.forEach((w) => {
+    const left = Math.max(
+      64,
+      64 + ((Date.parse(w.start) - horizonStart) * 856) / horizonSpan,
+    );
+    const right = Math.min(
+      920,
+      64 + ((Date.parse(w.end) - horizonStart) * 856) / horizonSpan,
+    );
+    if (right > left)
+      add("rect", {
+        x: left,
+        y: 42,
+        width: right - left,
+        height: 248,
+        fill: { PEAK: "#ef4444", NORMAL: "#64748b", OFF_PEAK: "#10b981" }[
+          w.band
+        ],
+        opacity: 0.07,
+      });
+  });
   add("text", { x: 64, y: 18, fill: "currentColor", "font-size": 12 }, unit);
   for (let i = 0; i <= 4; i++) {
     const y = 290 - i * 62;
@@ -763,31 +1329,144 @@ function renderChart() {
     );
   }
   const tooltip = $("chartTooltip");
-  const hideTooltip = () => { tooltip.style.display = "none"; };
-  const showHour = (i) => {
-    const interval = series[0].values[i];
-    tooltip.textContent = `${timeLabel(interval.start)} → ${timeLabel(interval.end)}\n` +
-      series.map(s => `${s.code}: ${s.values[i].value.toLocaleString("vi-VN", { maximumFractionDigits: 2 })} ${unit}`).join("\n");
-    Object.assign(tooltip.style, {
-      display: "block", opacity: 1, left: "12px", top: "12px",
-      whiteSpace: "pre-line", minWidth: "0", maxWidth: "calc(100% - 24px)",
+  const cursor = add("line", {
+    y1: 42,
+    y2: 290,
+    stroke: "currentColor",
+    "stroke-width": 1,
+    "stroke-dasharray": "4 4",
+    "data-chart-cursor": "true",
+  });
+  cursor.style.display = "none";
+  const highlights = series.map((s, index) => {
+    const circle = add("circle", {
+      r: 5,
+      fill: index ? "#10b981" : "#2563eb",
+      stroke: "var(--bg-surface)",
+      "stroke-width": 2,
+      "pointer-events": "none",
     });
+    circle.style.display = "none";
+    return circle;
+  });
+  const hideTooltip = () => {
+    tooltip.style.display = "none";
+    cursor.style.display = "none";
+    highlights.forEach((circle) => (circle.style.display = "none"));
+  };
+  const showHour = (i) => {
+    const interval = series[0].values[i],
+      x = 64 + ((i + 0.5) * 856) / hours;
+    cursor.setAttribute("x1", x);
+    cursor.setAttribute("x2", x);
+    cursor.style.display = "block";
+    highlights.forEach((circle, index) => {
+      circle.setAttribute("cx", x);
+      circle.setAttribute(
+        "cy",
+        290 - (series[index].values[i].value / max) * 248,
+      );
+      circle.style.display = "block";
+      svg.append(circle);
+    });
+    const tariffs = currentReport.input_snapshot.tariff.windows.filter(
+      (w) =>
+        Date.parse(w.start) < Date.parse(interval.end) &&
+        Date.parse(w.end) > Date.parse(interval.start),
+    );
+    const tariffText = [
+      ...new Set(
+        tariffs.map(
+          (w) =>
+            ({
+              PEAK: "Cao điểm",
+              OFF_PEAK: "Thấp điểm",
+              NORMAL: "Bình thường",
+            })[w.band] +
+            " · " +
+            money(w.vnd_per_kwh) +
+            "/kWh",
+        ),
+      ),
+    ].join(" / ");
+    const title = node(
+      "strong",
+      timeLabel(interval.start) + " → " + timeLabel(interval.end),
+    );
+    tooltip.replaceChildren(
+      title,
+      node("div", "Biểu giá: " + tariffText, "hover-tariff"),
+    );
+    series.forEach((s, index) =>
+      tooltip.append(
+        node(
+          "div",
+          s.code +
+            ": " +
+            s.values[i].value.toLocaleString("vi-VN", {
+              maximumFractionDigits: 2,
+            }) +
+            " " +
+            unit,
+          index ? "hover-selected" : "hover-baseline",
+        ),
+      ),
+    );
+    if (series.length > 1) {
+      const delta = series[1].values[i].value - series[0].values[i].value;
+      tooltip.append(
+        node(
+          "div",
+          "Chênh lệch " +
+            series[1].code +
+            " − B0: " +
+            (delta > 0 ? "+" : "") +
+            delta.toLocaleString("vi-VN", { maximumFractionDigits: 2 }) +
+            " " +
+            unit,
+          "hover-delta",
+        ),
+      );
+    }
+    Object.assign(tooltip.style, {
+      display: "block",
+      opacity: 1,
+      whiteSpace: "normal",
+      minWidth: "180px",
+      maxWidth: "min(300px, calc(100% - 24px))",
+    });
+    const matrix = svg.getScreenCTM(),
+      container = tooltip.parentElement.getBoundingClientRect();
+    const anchor = matrix
+      ? new DOMPoint(x, 42).matrixTransform(matrix)
+      : { x: container.left + 12, y: container.top + 12 };
+    const left = Math.max(
+      8,
+      Math.min(
+        container.width - tooltip.offsetWidth - 8,
+        anchor.x - container.left + 14,
+      ),
+    );
+    tooltip.style.left = left + "px";
+    tooltip.style.top = Math.max(8, anchor.y - container.top + 10) + "px";
     tooltip.dataset.hourIndex = String(i);
   };
   svg.onpointermove = (event) => {
     // SVG letterboxing changes with viewport size: invert its actual screen transform.
     const matrix = svg.getScreenCTM();
     if (!matrix) return;
-    const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
+    const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(
+      matrix.inverse(),
+    );
     if (point.x < 64 || point.x > 920 || point.y < 42 || point.y > 290) {
       hideTooltip();
       return;
     }
-    showHour(Math.min(hours - 1, Math.floor((point.x - 64) * hours / 856)));
+    showHour(Math.min(hours - 1, Math.floor(((point.x - 64) * hours) / 856)));
   };
   svg.onpointerleave = svg.onpointercancel = hideTooltip;
   series.forEach((s, index) => {
-    const color = index ? "#22d3ee" : "#a78bfa";
+    const color = index ? "#10b981" : "#2563eb";
     add("polyline", {
       points: s.values
         .map(
@@ -820,7 +1499,7 @@ function renderChart() {
   add(
     "text",
     { x: 64, y: 347, fill: "currentColor", "font-size": 11 },
-    `B0 tím${series.length > 1 ? ` · ${referencePlan()} xanh` : " · giữ lịch B0"}. Tính theo lịch; chưa gồm điện nền/chờ/setup.`,
+    `B0 xanh dương${series.length > 1 ? ` · ${referencePlan()} xanh` : " · giữ lịch B0"}. Tính theo lịch; chưa gồm điện nền/chờ/setup.`,
   );
   const details = $("hourlyDetails");
   details.replaceChildren(
@@ -887,8 +1566,23 @@ function renderValidation() {
     ],
     ["Khuôn vật lý", ["MOLD_OVERLAP"]],
   ];
+  const reviewKey = currentReport.input_hash + ":" + code.toLowerCase();
+  const reviews = humanReviews.get(reviewKey) || {};
+  humanReviews.set(reviewKey, reviews);
+  const covered = new Set(rules.flatMap(([, codes]) => codes));
+  const extra = v.issues.filter((issue) => !covered.has(issue.code));
+  if (extra.length)
+    rules.push([
+      "Các kiểm tra bổ sung",
+      [...new Set(extra.map((issue) => issue.code))],
+    ]);
+  const updateReviewProgress = () =>
+    put(
+      "confirmationProgress",
+      `${code}: tự động ${v.status} · rà soát thủ công ${Object.values(reviews).filter(Boolean).length}/${rules.length}`,
+    );
   $("validationList").replaceChildren(
-    ...rules.map(([label, codes]) => {
+    ...rules.map(([label, codes], index) => {
       const issues = v.issues.filter((i) => codes.includes(i.code)),
         card = node("article", null, "analytics-card");
       card.append(
@@ -905,10 +1599,41 @@ function renderValidation() {
       issues.forEach((i) =>
         card.append(node("p", `${i.job_id || i.mold_id || ""}: ${i.code}`)),
       );
+      const automatic = node(
+        "span",
+        issues.length
+          ? "Tự động: FAIL"
+          : v.status === "PASS"
+            ? "Tự động: PASS"
+            : "Tự động: chưa đủ kết luận",
+        "status-chip " +
+          (issues.length
+            ? "chip-fail"
+            : v.status === "PASS"
+              ? "chip-pass"
+              : "chip-warn"),
+      );
+      card.prepend(automatic);
+      const labelElement = node("label", null, "gate-confirm-checkbox"),
+        checkbox = node("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = !!reviews[index];
+      labelElement.append(
+        checkbox,
+        node("span", "Tôi đã rà soát điều kiện này tại hiện trường."),
+      );
+      checkbox.onchange = () => {
+        reviews[index] = checkbox.checked;
+        card.classList.toggle("gate-user-checked", checkbox.checked);
+        updateReviewProgress();
+      };
+      card.classList.toggle("gate-user-checked", checkbox.checked);
+      card.append(labelElement);
       return card;
     }),
   );
   $("validationEvidence").replaceChildren(
+    node("summary", "Xem bằng chứng setup, hạn giao và khuôn"),
     node("h3", `${code}: thời gian chuẩn bị và dư hạn giao`),
     dataTable(
       [
@@ -941,13 +1666,10 @@ function renderValidation() {
       ]),
     ),
   );
-  put(
-    "confirmationProgress",
-    `${code}: ${v.status} · ${v.jobs.length} lô được dựng lại`,
-  );
+  updateReviewProgress();
   put(
     "validationConfirmNotice",
-    "Các dòng chi tiết lấy từ verifier backend. PASS chỉ áp dụng cho dữ liệu và ràng buộc đã khai báo; chưa thay thế kiểm tra hiện trường.",
+    "PASS/FAIL do backend tính. Ô chọn chỉ ghi nhận rà soát thủ công, không thay đổi kết quả tự động. Xác nhận được xóa khi đầu vào thay đổi; chỉ lưu trong phiên hiện tại.",
   );
 }
 function riskLabel(risk) {
@@ -1562,6 +2284,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     clearManualConfirmations,
     dismissScheduleConflictToast,
     exportScheduleCSV,
+    restoreScheduleDraft,
   };
   document.querySelectorAll("[data-action]").forEach((e) =>
     e.addEventListener("click", () => {
@@ -1610,6 +2333,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     }),
   );
   $("analyze").onclick = revalidateDashboard;
+  $("scheduleEditForm").addEventListener("submit", saveScheduleJob);
+  $("scheduleEditForm").addEventListener("input", (event) => {
+    if (["editJobDuration", "editJobQuantity"].includes(event.target.id))
+      $("editProcessingConfirmed").checked = false;
+    previewScheduleEditor();
+  });
+  $("editJobMachine").addEventListener("change", () => {
+    const p = scheduleEditorState?.data.jobs.find(
+      (j) => j.id === scheduleEditorState.jobId,
+    )?.eligible[$("editJobMachine").value];
+    if (p) {
+      $("editJobDuration").value = p.duration_min;
+      $("editJobPower").value = p.avg_kw;
+      $("editJobReference").value = p.lot_confirmation.reference;
+      $("editProcessingConfirmed").checked = true;
+    }
+    previewScheduleEditor();
+  });
   $("dataset").addEventListener("input", () => {
     clearResult();
     InputDesk.externalEdit();
