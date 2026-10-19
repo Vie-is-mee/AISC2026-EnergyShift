@@ -26,6 +26,31 @@ window.InputDesk = (() => {
   const msg = (text) => {
     el("deskStatus").textContent = text;
   };
+  function goToStep(id) {
+    window.Workspace?.show("tab-dispatch");
+    const section = el(id);
+    section?.scrollIntoView({ block: "start", behavior: "smooth" });
+    section?.querySelector("h3")?.focus({ preventScroll: true });
+  }
+  function inputMethod(mode) {
+    el("importSettings").hidden = mode === "table";
+    el("csvFileSource").hidden = mode !== "file";
+    el("csvPasteSource").hidden = mode !== "paste";
+    el("inputMethodHint").textContent = mode === "table"
+      ? "Sửa bảng ở bước 3 bên dưới. Không cần gửi file hoặc gọi AI."
+      : mode === "paste" ? "Dán cả dòng tiêu đề từ Excel, rồi nhờ AI ghép cột hoặc chọn ghép thủ công."
+      : "Chọn CSV UTF-8 hoặc TSV. Nếu chỉ muốn xem demo, chọn Sửa bảng trực tiếp để dùng bảng mẫu.";
+  }
+  function sourceTools() {
+    el("csvPreparationTools").hidden = fileLoading || fileError || !(fileTableText ?? el("tablePaste").value).trim();
+  }
+  function received(label) {
+    const receipt = el("planReceipt");
+    receipt.hidden = false;
+    receipt.textContent = `Đã nhận ${rows.length} lô ${label}. Bảng bên dưới đã cập nhật. Chưa chạy tính toán; rà soát rồi tiếp tục bước 4.`;
+    goToStep("inputPlanStep");
+    if (typeof toast === "function") toast(`Đã đưa ${rows.length} lô vào bảng kế hoạch.`);
+  }
   const issue = (items) => {
     const box = el("deskIssues");
     box.replaceChildren();
@@ -86,6 +111,7 @@ window.InputDesk = (() => {
     return s;
   }
   function stamp() {
+    el("planReceipt").hidden = true;
     serial++;
     trace = null;
     dirty = true;
@@ -115,8 +141,10 @@ window.InputDesk = (() => {
   }
   function summary() {
     if (!base) return;
+    const date = value => new Date(value).toLocaleString("vi-VN", {timeZone:"Asia/Ho_Chi_Minh",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false});
     el("profileSummary").textContent =
-      `${base.metadata.plant_alias} · ${base.metadata.source_type} · ${base.machines.length} máy · ${base.molds.length} khuôn · ${base.jobs.length} định mức · ${base.horizon.start} → ${base.horizon.end}`;
+      `Đang dùng: ${base.metadata.source_type === "SYNTHETIC" ? "hồ sơ minh họa" : base.metadata.plant_alias} · ${base.machines.length} máy · ${base.jobs.length} định mức · ${date(base.horizon.start)} → ${date(base.horizon.end)}`;
+    el("profileSummary").title = `${base.metadata.plant_alias} · ${base.metadata.source_type} · ${base.horizon.start} → ${base.horizon.end}`;
     el("readinessSummary").textContent =
       "Nguồn: " +
       base.metadata.source_type +
@@ -369,6 +397,7 @@ window.InputDesk = (() => {
     });
   }
   function load(data) {
+    el("planReceipt").hidden = true;
     base = M.copy(data);
     rows = M.rowsFrom(base);
     external = false;
@@ -492,6 +521,18 @@ window.InputDesk = (() => {
       }
     });
   }
+  document.querySelectorAll('input[name="inputMethod"]').forEach(choice => {
+    choice.addEventListener("change", () => { if (choice.checked) inputMethod(choice.value); });
+  });
+  el("openImport").onclick = () => goToStep("inputImportStep");
+  el("openSettings").onclick = () => {
+    window.Workspace?.show("tab-dispatch");
+    el("advancedInput").open = true;
+    el("workshopSettings").open = true;
+    el("workshopSettings").scrollIntoView({ block: "start", behavior: "smooth" });
+  };
+  el("goToAnalysis").onclick = () => goToStep("inputAnalyzeStep");
+  el("showPlanDetails").onchange = e => el("inputDesk").classList.toggle("show-plan-details", e.target.checked);
   action("fromJson", async () => {
     const gate = await validate(JSON.parse(el("dataset").value));
     load(gate.snapshot);
@@ -821,6 +862,8 @@ window.InputDesk = (() => {
     if (!f) return;
     fileLoading = true;
     fileError = false;
+    sourceTools();
+    el("inputSourceStatus").textContent = "Đang đọc file…";
     try {
       if (!/\.(csv|tsv)$/i.test(f.name))
         throw Error("Chỉ nhận CSV/TSV. Với Excel, sao chép bảng rồi dán.");
@@ -832,18 +875,23 @@ window.InputDesk = (() => {
       el("tablePaste").value = fileTableText;
       el("importPreview").hidden = true;
       parsed = null;
-      msg("Đã đọc bảng. Bấm Xem trước & ghép cột.");
+      el("inputSourceStatus").textContent = `Đã đọc “${f.name}”. Tiếp theo: đồng ý gửi dữ liệu và bấm Nhờ AI ghép cột, hoặc mở Ghép cột thủ công.`;
+      msg("Đã đọc bảng. Nhờ AI ghép cột hoặc chọn ghép thủ công ở bước 2.");
     } catch (e) {
       fileError = true;
+      el("inputSourceStatus").textContent = e.message;
       issue([e.message]);
     } finally {
       fileLoading = false;
+      sourceTools();
     }
     e.target.value = "";
   };
   el("tablePaste").oninput = () => {
+    el("inputSourceStatus").textContent = el("tablePaste").value.trim() ? "Đã có bảng dán. Nhờ AI ghép cột hoặc chọn ghép thủ công." : "Chưa có bảng nhập.";
     fileError = false;
     fileTableText = null;
+    sourceTools();
     parsed = null;
     el("importPreview").hidden = true;
   };
@@ -921,6 +969,7 @@ window.InputDesk = (() => {
     msg(
       "Đã đưa bảng vào bản chuẩn bị và nhớ ghép cột. Chưa áp dụng; dữ liệu gốc được lưu kèm bản sao/báo cáo.",
     );
+    received("từ bảng nhập thủ công");
   });
   el("confirmCosts").onchange = () => {
     serial++;
@@ -965,6 +1014,7 @@ window.InputDesk = (() => {
         ai_review:{id:record.id,input_hash:record.input_hash,request_hash:record.request_hash,raw_hash:record.csv_source.raw_hash,prepared_input_hash:result.prepared_input_hash,api:record.api,reviewed_summary:record.review.reviewed_summary,at:record.review.at,identity_verified:false,scope:record.review.scope,reviewed_rows:result.rows,changes:result.changes,questions:record.proposal.questions,questions_acknowledged:record.review.questions_acknowledged,scoped_out_reference_transitions:result.scoped_out_reference_transitions}};
       stamp();showRows();issue([]);
       msg("Đã đưa CSV được rà soát vào bảng chuẩn bị. Chưa tính lịch; bấm Phân tích kế hoạch để kiểm định và tính chi phí. Chi phí ngoài mô hình cần rà soát lại.");
+      received("từ CSV đã duyệt");
     },
     async prepareForAnalysis() {
       if (!dirty) return true;

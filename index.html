@@ -19,7 +19,7 @@
     <script defer="" src="/assistant.js"></script>
     <script defer="" src="/ai-csv-import.js"></script>
   </head>
-  <body>
+  <body data-view="tab-dispatch">
     <a class="skip-link" href="#workspaceMain">Chuyển đến nội dung chính</a>
     <div
       aria-atomic="true"
@@ -286,6 +286,24 @@
           <nav aria-label="Điều hướng các phân hệ" class="rail-nav">
             <button
               class="rail-item active"
+              data-action="switchMainTab('tab-dispatch')"
+              data-tab="tab-dispatch"
+            >
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewbox="0 0 24 24"
+              >
+                <path
+                  d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+                ></path>
+                <rect height="4" rx="1" ry="1" width="8" x="8" y="2"></rect>
+              </svg>
+              <span>Điều Chuyển Đơn Hàng</span>
+            </button>
+<button
+              class="rail-item"
               data-action="switchMainTab('tab-overview')"
               data-tab="tab-overview"
             >
@@ -367,24 +385,7 @@
               </svg>
               <span>Độ Nhạy &amp; Rủi Ro</span>
             </button>
-            <button
-              class="rail-item"
-              data-action="switchMainTab('tab-dispatch')"
-              data-tab="tab-dispatch"
-            >
-              <svg
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                viewbox="0 0 24 24"
-              >
-                <path
-                  d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
-                ></path>
-                <rect height="4" rx="1" ry="1" width="8" x="8" y="2"></rect>
-              </svg>
-              <span>Điều Chuyển Đơn Hàng</span>
-            </button>
+
           </nav>
           <div class="rail-footer">
             <div class="system-meta-card">
@@ -410,7 +411,7 @@
           <!-- ===================================================================
            TAB 1: OVERVIEW & THREE-TIER COMPARISON (B0 vs B1 vs B2)
            =================================================================== -->
-          <div class="tab-pane active" id="tab-overview">
+          <div class="tab-pane" id="tab-overview">
             <div
               class="manual-context-note overview-manual-warning"
               hidden=""
@@ -1347,7 +1348,7 @@
           <!-- ===================================================================
            TAB 6: DETAILED JOB DISPATCHING & TRUST MATRIX
            =================================================================== -->
-          <div class="tab-pane" id="tab-dispatch">
+          <div class="tab-pane active" id="tab-dispatch">
             <section
               aria-labelledby="inputTitle"
               class="live-panel"
@@ -1359,7 +1360,153 @@
                   <h2 id="inputTitle">Chuẩn bị kế hoạch sản xuất</h2>
                 </div>
               </div>
-              <section class="analytics-card assistant-panel" id="assistantPanel" aria-labelledby="assistantTitle">
+
+
+              <div
+                aria-label="Trợ lý chuẩn bị kế hoạch"
+                class="desk desk-simple"
+                id="inputDesk"
+              >
+
+
+
+
+
+
+
+<p class="input-intro">Bắt đầu từ hồ sơ xưởng, đưa lệnh sản xuất vào bảng rồi kiểm tra và tính phương án. Bạn luôn là người duyệt dữ liệu.</p><ol class="input-guide" aria-label="Các bước chuẩn bị"><li><b>1</b> Hồ sơ xưởng</li><li><b>2</b> Nhập lệnh</li><li><b>3</b> Rà soát bảng</li><li><b>4</b> Phân tích</li></ol><section class="input-step" id="inputProfileStep" aria-labelledby="inputProfileStepTitle"><div class="input-step-heading"><span class="input-step-number">1</span><div><h3 id="inputProfileStepTitle" tabindex="-1">Chọn hồ sơ xưởng</h3><p class="live-muted">Hồ sơ cung cấp máy, định mức và biểu giá. Lần đầu dùng có thể bắt đầu bằng dữ liệu mẫu.</p></div></div><div class="input-source-bar">
+                  <div class="profile-picker">
+                    <label
+                      >Hồ sơ xưởng<select id="profileList">
+                        <option value="">Chọn hồ sơ…</option>
+                      </select></label
+                    ><button id="loadProfile" type="button">Mở hồ sơ</button
+                    ><button id="loadFixture" type="button">
+                      Dùng dữ liệu mẫu
+                    </button>
+                  </div>
+                  <button id="openImport" type="button">
+                    Tiếp tục nhập lệnh →</button
+                  >
+                </div><p class="live-muted" id="profileSummary"></p><p class="live-muted" id="memoryStatus" role="status"></p></section><section class="input-step" id="inputImportStep" aria-labelledby="inputImportStepTitle"><div class="input-step-heading"><span class="input-step-number">2</span><div><h3 id="inputImportStepTitle" tabindex="-1">Nhập lệnh sản xuất</h3><p class="live-muted">Chọn một cách nhập. Với CSV/Excel, AI hỗ trợ ghép cột; bạn kiểm tra trước khi nhận vào bảng.</p></div></div><fieldset class="input-methods"><legend>Bạn muốn đưa lệnh vào bằng cách nào?</legend><label><input type="radio" name="inputMethod" value="file" checked> Tải CSV / TSV</label><label><input type="radio" name="inputMethod" value="paste"> Dán từ Excel</label><label><input type="radio" name="inputMethod" value="table"> Sửa bảng trực tiếp</label></fieldset><p id="inputMethodHint" class="live-muted" role="status">Chọn file bên dưới. Nếu muốn xem demo ngay, dùng dữ liệu mẫu ở bước 1 rồi chọn Sửa bảng trực tiếp.</p><div id="importSettings">
+
+                  <p class="live-muted">
+                    Sao chép vùng bảng có dòng tiêu đề từ Excel rồi dán vào đây.
+                    Hoặc mở CSV UTF-8/TSV; chưa đọc trực tiếp .xlsx. Ngày giờ:
+                    YYYY-MM-DD HH:mm. Có xem trước và ghép cột; không tự bỏ
+                    dòng/cột.
+                  </p>
+                  <div id="csvFileSource"><label class="live-upload"
+                    >Chọn file CSV / TSV<input
+                      accept=".csv,.tsv,text/csv,text/tab-separated-values"
+                      id="tableFile"
+                      type="file"
+                  /></label>
+                  </div><div id="csvPasteSource" hidden><label for="tablePaste">Dán bảng có dòng tiêu đề</label
+                  ><textarea
+                    id="tablePaste"
+                    placeholder="Mã lô	Định mức	Số lượng	Máy	Bắt đầu	Sẵn sàng từ	Hạn xong"
+                    rows="5"
+                    spellcheck="false"
+                  ></textarea></div>
+                  <p id="inputSourceStatus" class="input-feedback" role="status">Chưa chọn file hoặc dán bảng.</p>
+                  <div id="csvPreparationTools" hidden><section class="analytics-card ai-csv-panel" id="aiCSVPanel" aria-labelledby="aiCSVTitle">
+                    <p class="live-eyebrow">HỖ TRỢ NHẬP BẢNG</p>
+                    <h3 id="aiCSVTitle">Nhờ AI đọc bảng và đề xuất ghép cột</h3>
+                    <p>Giữ nguyên file gốc. AI đề xuất ý nghĩa cột, chỉ ra điểm nghi vấn và hỏi lại; bạn sửa, chọn giá trị từ hồ sơ hoặc tự nhập trước khi duyệt. Không tự xóa dòng, đoán số liệu hay chạy lịch.</p>
+                    <p class="live-muted">AI: tối đa 32 KiB, 8 dòng dữ liệu, 32 cột. Có thể ghép cột thủ công trong mục tùy chọn bên dưới. Cột ngoài mô hình được giữ kèm nhưng chưa được tính.</p>
+                    <details class="input-optional"><summary>Thêm ghi chú cho AI (tùy chọn)</summary><label for="aiCSVNotes">Ghi chú giúp AI hiểu bảng (không bắt buộc)</label>
+                    <textarea id="aiCSVNotes" rows="2" maxlength="1000" placeholder="Ví dụ: SL là số lượng; cột ghi chú chứa yêu cầu giao hàng cần kiểm tra thêm."></textarea></details>
+                    <label class="desk-check"><input type="checkbox" id="aiCSVConsent" />Tôi đồng ý gửi toàn bộ bảng CSV/TSV và hồ sơ tham chiếu cần thiết tới model qua OpenRouter.</label>
+                    <ol class="live-sr" aria-label="Luồng nhập CSV bằng AI"><li id="aiCSVStepSource" aria-current="step">1. File gốc</li><li id="aiCSVStepModel">2. AI đọc bảng</li><li id="aiCSVStepReview">3. Bạn rà soát</li><li id="aiCSVStepDone">4. Đưa vào bản chuẩn bị</li></ol>
+                    <div class="live-actions"><button class="live-primary" type="button" id="aiCSVStart">Nhờ AI ghép cột</button><button type="button" id="aiCSVCancel" hidden disabled>Dừng / bỏ đề xuất</button><button type="button" id="aiCSVReload" hidden disabled>Kiểm tra lại lượt</button></div>
+                    <p class="input-feedback" id="aiCSVStatus" role="status" aria-live="polite">Chưa gửi bảng tới AI.</p>
+                    <div id="aiCSVResult" hidden>
+                      <h4>Cách hiểu và điểm cần xem lại</h4><p id="aiCSVSummary"></p><ul id="aiCSVIssues"></ul><ul id="aiCSVQuestions"></ul>
+                      <h4>Ghép cột (bạn có thể sửa)</h4><div class="live-table-wrap"><table><thead><tr><th>Cột gốc</th><th>Trường sử dụng</th><th>Lý do AI đề xuất</th></tr></thead><tbody id="aiCSVMapping"></tbody></table></div>
+                      <button type="button" id="aiCSVPreview">Cập nhật bản xem trước</button>
+                      <p id="aiCSVPreviewNote" class="live-muted"></p>
+                      <div class="live-table-wrap"><table class="ai-csv-review-table"><thead id="aiCSVReviewHead"></thead><tbody id="aiCSVReviewRows"></tbody></table></div>
+                      <label class="desk-check"><input type="checkbox" id="aiCSVExtras" />Tôi đã xem cột ngoài mô hình; giữ kèm nguồn, chưa coi là ràng buộc đã kiểm tra.</label>
+                      <label class="desk-check"><input type="checkbox" id="aiCSVQuestionsAck" />Tôi đã xem câu hỏi/cảnh báo. Duyệt nhập bảng chưa phê duyệt các điều kiện ngoài mô hình.</label>
+                      <label for="aiCSVReviewNote">Ghi chú rà soát</label><textarea id="aiCSVReviewNote" rows="2" maxlength="1600"></textarea>
+                      <label class="desk-check"><input type="checkbox" id="aiCSVAck" />Tôi đã kiểm tra ghép cột và từng dòng, gồm các ô sửa hoặc lấy từ hồ sơ. Chỉ đưa vào bản chuẩn bị, chưa duyệt lịch chạy.</label>
+                      <p id="aiCSVReviewHelp" class="live-muted"></p><p id="aiCSVReviewStatus" class="input-feedback" role="status" aria-live="polite" hidden></p><div class="live-actions"><button class="live-primary" type="button" id="aiCSVAccept" disabled>Duyệt và đưa vào bảng</button><button type="button" id="aiCSVReject" disabled>Từ chối đề xuất</button><button type="button" id="aiCSVApply" hidden disabled>Đưa bản đã duyệt vào bảng</button><button type="button" id="aiCSVExport" hidden disabled>Tải bản ghi CSV</button></div>
+                    </div>
+                    <details><summary>File gốc và dấu vết API</summary><p id="aiCSVTrace">Chưa có lượt API.</p><button type="button" id="aiCSVDownloadSource">Tải nguyên văn bảng nguồn</button></details>
+                  </section>
+                  <details class="input-optional" id="manualImport"><summary>Ghép cột thủ công (không gọi AI)</summary><button id="previewImport" type="button">
+                    Xem trước &amp; ghép cột
+                  </button>
+                  <div hidden="" id="importPreview">
+                    <div class="desk-controls" id="mappingFields"></div>
+                    <div class="live-table-wrap">
+                      <table>
+                        <thead id="importHead"></thead>
+                        <tbody id="importBody"></tbody>
+                      </table>
+                    </div>
+                    <label class="desk-check"
+                      ><input id="keepExtras" type="checkbox" />Tôi đã xem các
+                      cột không ghép: lưu kèm bản nhập, không dùng chúng trong
+                      tính toán. Ràng buộc sản xuất bổ sung cần đưa vào mô hình
+                      trước khi áp dụng.</label
+                    >
+                    <button id="acceptImport" type="button">
+                      Đưa bảng này vào kế hoạch
+                    </button>
+                  </div>
+                </details></div></div></section><section class="input-step" id="inputPlanStep" aria-labelledby="inputPlanStepTitle"><div class="input-step-heading"><span class="input-step-number">3</span><div><h3 id="inputPlanStepTitle" tabindex="-1">Rà soát bảng kế hoạch</h3><p class="live-muted">Đây là bảng sẽ đưa vào tính toán. Kiểm tra mã lô, sản lượng, máy và thời điểm chạy.</p></div></div><div id="planReceipt" class="input-receipt" role="status" tabindex="-1" hidden></div><div class="plan-editor">
+                  <div class="plan-heading">
+                    <div>
+                      <h4>Bảng lệnh sẽ dùng để tính</h4>
+                      <p class="live-muted">
+                        Giờ Việt Nam (+07:00). Số lượng theo định mức đã lưu.
+                      </p>
+                    </div>
+                    <label class="desk-check"
+                      ><input id="showPlanDetails" type="checkbox" />Hiện định
+                      mức &amp; hạn hoàn thành</label
+                    >
+                  </div>
+                  <div class="desk-controls">
+                    <button id="addPlanRow" type="button">＋ Thêm lô</button
+                    ><button id="downloadPlan" type="button">
+                      Tải bảng mẫu
+                    </button>
+                  </div>
+                  <div class="live-table-wrap">
+                    <table class="desk-plan">
+                      <thead>
+                        <tr>
+                          <th data-field="job_id">Lô sản xuất</th>
+                          <th data-field="template_id">Định mức</th>
+                          <th data-field="quantity">Sản lượng</th>
+                          <th data-field="machine_id">Máy hiện tại</th>
+                          <th data-field="start">Bắt đầu chạy</th>
+                          <th data-field="release">Sẵn sàng từ</th>
+                          <th data-field="due">Hạn xong</th>
+                          <th data-field="actions"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="planInputRows"></tbody>
+                    </table>
+                  </div>
+                </div><button id="goToAnalysis" type="button">Tiếp tục đến bước 4 →</button></section><section class="input-step" id="inputAnalyzeStep" aria-labelledby="inputAnalyzeStepTitle"><div class="input-step-heading"><span class="input-step-number">4</span><div><h3 id="inputAnalyzeStepTitle" tabindex="-1">Kiểm tra và phân tích</h3><p class="live-muted">Bấm một lần để kiểm tra dữ liệu và tính B0/B1/B2. Kết quả sẽ mở trong Quyết định & So sánh.</p></div></div><details id="costSettings">
+                      <summary>Rà soát chi phí phát sinh</summary>
+                      <div class="live-muted" id="readinessSummary"></div>
+                      <label class="desk-check"
+                        ><input id="confirmCosts" type="checkbox" /> Tôi xác
+                        nhận các khoảng chi phí trong hồ sơ áp dụng cho mọi
+                        phương án B0/B1/B2 của kế hoạch này.</label
+                      >
+                      <p class="live-muted">
+                        Mặc định chi phí ngoài mô hình chuyển sang UNKNOWN khi
+                        chuẩn bị kế hoạch; engine có thể yêu cầu đo/xác nhận
+                        trước. Không mặc định chi phí bằng 0.
+                      </p>
+                      <div class="live-table-wrap" id="costReviewSummary"></div>
+                    </details><details class="input-optional" id="intentHelp"><summary>Hỏi AI về tình huống sản xuất (không bắt buộc)</summary><section class="analytics-card assistant-panel" id="assistantPanel" aria-labelledby="assistantTitle">
                 <p class="live-eyebrow">TRỢ LÝ AI · BƯỚC 1</p>
                 <h3 id="assistantTitle">Bạn cần xử lý thay đổi gì trong kế hoạch?</h3>
                 <p>AI đọc yêu cầu cùng kế hoạch đang nhập, nêu cách hiểu và hỏi thông tin còn thiếu. Bạn rà soát trước khi tiếp tục; bước này chưa sửa dữ liệu hoặc chọn lịch thay bạn.</p>
@@ -1396,172 +1543,31 @@
                     <button type="button" id="aiExport" disabled>Tải bản ghi rà soát</button>
                   </div>
                 </div>
-                <details><summary>Dấu vết gọi model và phạm vi bước này</summary><p id="aiTrace">Chưa có lượt API.</p><p>Không tự sửa kế hoạch, không chạy B1/B2 từ lời AI và không tự phê duyệt. Chuẩn hóa CSV, duyệt ràng buộc và điều phối kịch bản là các bước nâng cấp sau. Bản ghi thuộc phiên demo, chưa xác thực danh tính; ổ đĩa miễn phí có thể mất khi redeploy.</p></details>
-              </section>
-              <details class="analytics-card" id="teamPanel">
-                <summary>Nhóm demo: hàng đợi và lịch sử riêng</summary>
-                <p>
-                  Chế độ thử nghiệm cho nhiều phiên trình duyệt. Mỗi phiên giữ
-                  khóa truy cập riêng trong sessionStorage; chưa phải tài khoản
-                  và phân quyền doanh nghiệp. Dữ liệu máy chủ miễn phí có thể
-                  mất khi redeploy; hãy tải báo cáo cần giữ.
-                </p>
-                <label
-                  ><input id="teamMode" type="checkbox" /> Gửi phân tích qua
-                  hàng đợi nhóm demo (tối đa 4 lượt toàn máy chủ, 2 lượt mỗi
-                  phiên)</label
+                <details><summary>Dấu vết gọi model và phạm vi bước này</summary><p id="aiTrace">Chưa có lượt API.</p><p>Không tự sửa kế hoạch, không chạy B1/B2 từ lời AI và không tự phê duyệt. CSV có luồng nhập và duyệt riêng ở bước 2 bên trên; duyệt ràng buộc và điều phối kịch bản là các bước nâng cấp sau. Bản ghi thuộc phiên demo, chưa xác thực danh tính; ổ đĩa miễn phí có thể mất khi redeploy.</p></details>
+              </section></details><ul
+                class="live-errors"
+                hidden=""
+                id="deskIssues"
+                role="alert"
+              ></ul><p class="live-muted" id="deskStatus" role="status"></p><div class="live-errors" hidden="" id="errors" role="alert"></div><div class="live-actions analyze-bar">
+                <button
+                  class="live-primary"
+                  disabled=""
+                  id="analyze"
+                  type="button"
                 >
-                <div class="live-actions">
-                  <button id="teamRefresh" type="button">
-                    Tạo phiên / làm mới lịch sử</button
-                  ><button disabled="" id="cancelTeamJob" type="button">
-                    Hủy lượt đang chờ</button
-                  ><button id="teamForget" type="button">
-                    Xóa phiên và lịch sử
-                  </button>
-                </div>
-                <p id="teamStatus" role="status">Chưa bật hàng đợi.</p>
-                <div id="teamHistory"></div>
-              </details>
-              <div
-                aria-label="Trợ lý chuẩn bị kế hoạch"
-                class="desk desk-simple"
-                id="inputDesk"
-              >
-                <div class="input-guide">
-                  <span><b>1</b> Chọn hồ sơ hoặc dữ liệu mẫu</span
-                  ><span><b>2</b> Kiểm tra bảng kế hoạch</span
-                  ><span><b>3</b> Bấm Phân tích kế hoạch</span>
-                </div>
-                <div class="input-source-bar">
-                  <div class="profile-picker">
-                    <label
-                      >Hồ sơ xưởng<select id="profileList">
-                        <option value="">Chọn hồ sơ…</option>
-                      </select></label
-                    ><button id="loadProfile" type="button">Mở hồ sơ</button
-                    ><button id="loadFixture" type="button">
-                      Dùng dữ liệu mẫu
-                    </button>
-                  </div>
-                  <button id="openImport" type="button">
-                    Nhập từ Excel / CSV</button
-                  ><button class="quiet-button" id="openSettings" type="button">
-                    Thiết lập xưởng
-                  </button>
-                </div>
-                <p class="live-muted" id="memoryStatus" role="status"></p>
-                <div class="plan-editor">
-                  <div class="plan-heading">
-                    <div>
-                      <h3>Bảng kế hoạch</h3>
-                      <p class="live-muted">
-                        Giờ Việt Nam (+07:00). Số lượng theo định mức đã lưu.
-                      </p>
-                    </div>
-                    <label class="desk-check"
-                      ><input id="showPlanDetails" type="checkbox" />Hiện định
-                      mức &amp; hạn hoàn thành</label
-                    >
-                  </div>
-                  <div class="desk-controls">
-                    <button id="addPlanRow" type="button">＋ Thêm lô</button
-                    ><button id="downloadPlan" type="button">
-                      Tải bảng mẫu
-                    </button>
-                  </div>
-                  <div class="live-table-wrap">
-                    <table class="desk-plan">
-                      <thead>
-                        <tr>
-                          <th data-field="job_id">Lô sản xuất</th>
-                          <th data-field="template_id">Định mức</th>
-                          <th data-field="quantity">Sản lượng</th>
-                          <th data-field="machine_id">Máy hiện tại</th>
-                          <th data-field="start">Bắt đầu chạy</th>
-                          <th data-field="release">Sẵn sàng từ</th>
-                          <th data-field="due">Hạn xong</th>
-                          <th data-field="actions"></th>
-                        </tr>
-                      </thead>
-                      <tbody id="planInputRows"></tbody>
-                    </table>
-                  </div>
-                </div>
-                <details id="importSettings">
-                  <summary>Nhập bảng từ Excel / CSV</summary>
-                  <p class="live-muted">
-                    Sao chép vùng bảng có dòng tiêu đề từ Excel rồi dán vào đây.
-                    Hoặc mở CSV UTF-8/TSV; chưa đọc trực tiếp .xlsx. Ngày giờ:
-                    YYYY-MM-DD HH:mm. Có xem trước và ghép cột; không tự bỏ
-                    dòng/cột.
-                  </p>
-                  <label class="live-upload"
-                    >Mở bảng<input
-                      accept=".csv,.tsv,text/csv,text/tab-separated-values"
-                      id="tableFile"
-                      type="file"
-                  /></label>
-                  <label for="tablePaste">Bảng kế hoạch</label
-                  ><textarea
-                    id="tablePaste"
-                    placeholder="Mã lô	Định mức	Số lượng	Máy	Bắt đầu	Sẵn sàng từ	Hạn xong"
-                    rows="5"
-                    spellcheck="false"
-                  ></textarea>
-                  <section class="analytics-card ai-csv-panel" id="aiCSVPanel" aria-labelledby="aiCSVTitle">
-                    <p class="live-eyebrow">TRỢ LÝ AI · BƯỚC 2</p>
-                    <h3 id="aiCSVTitle">Nhờ AI đọc bảng và đề xuất ghép cột</h3>
-                    <p>Giữ nguyên file gốc. AI đề xuất ý nghĩa cột, chỉ ra điểm nghi vấn và hỏi lại; bạn sửa, chọn giá trị từ hồ sơ hoặc tự nhập trước khi duyệt. Không tự xóa dòng, đoán số liệu hay chạy lịch.</p>
-                    <p class="live-muted">AI: tối đa 32 KiB, 8 dòng dữ liệu, 32 cột. Luồng thủ công bên dưới vẫn dùng riêng. Cột ngoài mô hình được giữ kèm nhưng chưa được tính.</p>
-                    <label for="aiCSVNotes">Ghi chú giúp AI hiểu bảng (không bắt buộc)</label>
-                    <textarea id="aiCSVNotes" rows="2" maxlength="1000" placeholder="Ví dụ: SL là số lượng; cột ghi chú chứa yêu cầu giao hàng cần kiểm tra thêm."></textarea>
-                    <label class="desk-check"><input type="checkbox" id="aiCSVConsent" />Tôi đồng ý gửi toàn bộ bảng CSV/TSV và hồ sơ tham chiếu cần thiết tới model qua OpenRouter.</label>
-                    <ol class="assistant-flow" aria-label="Luồng nhập CSV bằng AI"><li id="aiCSVStepSource" aria-current="step">1. File gốc</li><li id="aiCSVStepModel">2. AI đọc bảng</li><li id="aiCSVStepReview">3. Bạn rà soát</li><li id="aiCSVStepDone">4. Đưa vào bản chuẩn bị</li></ol>
-                    <div class="live-actions"><button type="button" id="aiCSVStart">Nhờ AI ghép cột</button><button type="button" id="aiCSVCancel" disabled>Dừng / bỏ đề xuất</button><button type="button" id="aiCSVReload" disabled>Kiểm tra lại lượt</button></div>
-                    <p id="aiCSVStatus" role="status" aria-live="polite">Chưa gửi bảng tới AI.</p>
-                    <div id="aiCSVResult" hidden>
-                      <h4>Cách hiểu và điểm cần xem lại</h4><p id="aiCSVSummary"></p><ul id="aiCSVIssues"></ul><ul id="aiCSVQuestions"></ul>
-                      <h4>Ghép cột (bạn có thể sửa)</h4><div class="live-table-wrap"><table><thead><tr><th>Cột gốc</th><th>Trường sử dụng</th><th>Lý do AI đề xuất</th></tr></thead><tbody id="aiCSVMapping"></tbody></table></div>
-                      <button type="button" id="aiCSVPreview">Cập nhật bản xem trước</button>
-                      <p id="aiCSVPreviewNote" class="live-muted"></p>
-                      <div class="live-table-wrap"><table class="ai-csv-review-table"><thead id="aiCSVReviewHead"></thead><tbody id="aiCSVReviewRows"></tbody></table></div>
-                      <label class="desk-check"><input type="checkbox" id="aiCSVExtras" />Tôi đã xem cột ngoài mô hình; giữ kèm nguồn, chưa coi là ràng buộc đã kiểm tra.</label>
-                      <label class="desk-check"><input type="checkbox" id="aiCSVQuestionsAck" />Tôi đã xem câu hỏi/cảnh báo. Duyệt nhập bảng chưa phê duyệt các điều kiện ngoài mô hình.</label>
-                      <label for="aiCSVReviewNote">Ghi chú rà soát</label><textarea id="aiCSVReviewNote" rows="2" maxlength="1600"></textarea>
-                      <label class="desk-check"><input type="checkbox" id="aiCSVAck" />Tôi đã kiểm tra ghép cột và từng dòng, gồm các ô sửa hoặc lấy từ hồ sơ. Chỉ đưa vào bản chuẩn bị, chưa duyệt lịch chạy.</label>
-                      <div class="live-actions"><button type="button" id="aiCSVAccept" disabled>Duyệt và đưa vào bảng</button><button type="button" id="aiCSVReject" disabled>Từ chối đề xuất</button><button type="button" id="aiCSVApply" disabled>Đưa bản đã duyệt vào bảng</button><button type="button" id="aiCSVExport" disabled>Tải bản ghi CSV</button></div>
-                    </div>
-                    <details><summary>File gốc và dấu vết API</summary><p id="aiCSVTrace">Chưa có lượt API.</p><button type="button" id="aiCSVDownloadSource">Tải nguyên văn bảng nguồn</button></details>
-                  </section>
-                  <button id="previewImport" type="button">
-                    Xem trước &amp; ghép cột
-                  </button>
-                  <div hidden="" id="importPreview">
-                    <div class="desk-controls" id="mappingFields"></div>
-                    <div class="live-table-wrap">
-                      <table>
-                        <thead id="importHead"></thead>
-                        <tbody id="importBody"></tbody>
-                      </table>
-                    </div>
-                    <label class="desk-check"
-                      ><input id="keepExtras" type="checkbox" />Tôi đã xem các
-                      cột không ghép: lưu kèm bản nhập, không dùng chúng trong
-                      tính toán. Ràng buộc sản xuất bổ sung cần đưa vào mô hình
-                      trước khi áp dụng.</label
-                    >
-                    <button id="acceptImport" type="button">
-                      Đưa bảng này vào kế hoạch
-                    </button>
-                  </div>
-                </details>
-                <details class="advanced-input" id="advancedInput">
+                  Phân tích kế hoạch</button
+                ><span aria-live="polite" id="status" role="status"
+                  >Chưa có kết quả tính toán.</span
+                >
+              </div></section><details class="advanced-input" id="advancedInput">
                   <summary>
                     Thiết lập nâng cao
                     <small>Hồ sơ xưởng, định mức, chi phí và JSON</small>
                   </summary>
-                  <div class="advanced-body">
+                  <div class="advanced-body"><button class="quiet-button" id="openSettings" type="button">
+                    Thiết lập xưởng
+                  </button>
                     <details id="profileSettings">
                       <summary>Lưu, khôi phục &amp; quản lý hồ sơ</summary>
                       <p class="live-muted">
@@ -1598,7 +1604,7 @@
                           Xóa bản nháp
                         </button>
                       </div>
-                      <p class="live-muted" id="profileSummary"></p>
+
                     </details>
                     <details id="workshopSettings">
                       <summary>
@@ -1744,21 +1750,7 @@
                         dời, kiểm tra lại trước khi áp dụng.
                       </p>
                     </details>
-                    <details id="costSettings">
-                      <summary>Rà soát chi phí phát sinh</summary>
-                      <div class="live-muted" id="readinessSummary"></div>
-                      <label class="desk-check"
-                        ><input id="confirmCosts" type="checkbox" /> Tôi xác
-                        nhận các khoảng chi phí trong hồ sơ áp dụng cho mọi
-                        phương án B0/B1/B2 của kế hoạch này.</label
-                      >
-                      <p class="live-muted">
-                        Mặc định chi phí ngoài mô hình chuyển sang UNKNOWN khi
-                        chuẩn bị kế hoạch; engine có thể yêu cầu đo/xác nhận
-                        trước. Không mặc định chi phí bằng 0.
-                      </p>
-                      <div class="live-table-wrap" id="costReviewSummary"></div>
-                    </details>
+
                     <div class="live-presets">
                       <button id="unknownCost" type="button">
                         Thử: chưa biết overtime</button
@@ -1809,35 +1801,43 @@
                     </div>
                     <p class="live-muted" id="deskApplied"></p>
                   </div>
-                </details>
-              </div>
-              <ul
-                class="live-errors"
-                hidden=""
-                id="deskIssues"
-                role="alert"
-              ></ul>
-              <p class="live-muted" id="deskStatus" role="status"></p>
-              <div class="live-errors" hidden="" id="errors" role="alert"></div>
-              <div class="live-actions analyze-bar">
-                <button
-                  class="live-primary"
-                  disabled=""
-                  id="analyze"
-                  type="button"
+                </details><details class="analytics-card" id="teamPanel">
+                <summary>Nhóm demo: hàng đợi và lịch sử riêng</summary>
+                <p>
+                  Chế độ thử nghiệm cho nhiều phiên trình duyệt. Mỗi phiên giữ
+                  khóa truy cập riêng trong sessionStorage; chưa phải tài khoản
+                  và phân quyền doanh nghiệp. Dữ liệu máy chủ miễn phí có thể
+                  mất khi redeploy; hãy tải báo cáo cần giữ.
+                </p>
+                <label
+                  ><input id="teamMode" type="checkbox" /> Gửi phân tích qua
+                  hàng đợi nhóm demo (tối đa 4 lượt toàn máy chủ, 2 lượt mỗi
+                  phiên)</label
                 >
-                  Phân tích kế hoạch</button
-                ><span aria-live="polite" id="status" role="status"
-                  >Chưa có kết quả tính toán.</span
-                >
-              </div>
+                <div class="live-actions">
+                  <button id="teamRefresh" type="button">
+                    Tạo phiên / làm mới lịch sử</button
+                  ><button disabled="" id="cancelTeamJob" type="button">
+                    Hủy lượt đang chờ</button
+                  ><button id="teamForget" type="button">
+                    Xóa phiên và lịch sử
+                  </button>
+                </div>
+                <p id="teamStatus" role="status">Chưa bật hàng đợi.</p>
+                <div id="teamHistory"></div>
+              </details>
+</div>
+
+
+
+
             </section>
           </div>
         </main>
       </div>
-      <nav aria-label="Điều hướng nhanh" class="mobile-quick-nav">
+      <nav aria-label="Điều hướng nhanh" class="mobile-quick-nav"><button class="quick-nav-item active" data-action="switchMainTab('tab-dispatch')" data-tab="tab-dispatch" type="button"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 4H5v18h14V4h-3M8 2h8v4H8zM8 11h8M8 16h8"/></svg><span>Nhập liệu</span></button>
         <button
-          class="quick-nav-item active"
+          class="quick-nav-item"
           data-action="switchMainTab('tab-overview')"
           data-tab="tab-overview"
           type="button"

@@ -13,7 +13,7 @@ function element(tag='div'){
   };
 }
 function setup(){
-  let ready, pendingPreview=null, pendingSubmit=null, version='v1', raw='original csv';
+  let ready, pendingPreview=null, pendingSubmit=null, pendingReview=null, version='v1', raw='original csv';
   const elements=new Map(),calls=[],applied=[];
   const get=id=>{if(!elements.has(id))elements.set(id,element());return elements.get(id);};
   const proposal={summary:'Column suggestions',columns:[...M.fields,'UNMODELED'].map((field,i)=>({column_index:i,field,rationale:'header'})),issues:[],questions:['Review extra note?']};
@@ -22,11 +22,11 @@ function setup(){
   const c=vm.createContext({window:{},document:{getElementById:get,createElement:element,addEventListener(name,fn){ready=fn;}},InputModel:M,InputDesk:{csvContext(){return {snapshot:{profile:'test'},version,raw_text:raw};},acceptCSVReview(value,expected){assert.equal(expected,version);applied.push(value);version='v2';c.window.AICSVImport.invalidate();}},AssistantIntake:{ensureSession:async()=>{},request:async(suffix,body)=>{
     calls.push({suffix,body});if(suffix==='' && pendingSubmit)return pendingSubmit;
     if(suffix.endsWith('/csv-preview'))return pendingPreview || structuredClone(view);
-    if(suffix.endsWith('/csv-review'))return {...record,status:body.decision,review:{...body,result:{rows:body.rows,prepared_input_hash:'compiled'}}};
+    if(suffix.endsWith('/csv-review'))return pendingReview || {...record,status:body.decision,review:{...body,result:{rows:body.rows,prepared_input_hash:'compiled'}}};
     return structuredClone(record);
   }},preparing:false,pending:false,fixtureLoading:false,setTimeout(){},clearTimeout(){},download(){}});
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../ai-csv-import.js'),'utf8'),c);ready();
-  return {c,get,calls,applied,record,view,setPreview(value){pendingPreview=value;},setSubmit(value){pendingSubmit=value;},setRaw(value){raw=value;}};
+  return {c,get,calls,applied,record,view,setPreview(value){pendingPreview=value;},setSubmit(value){pendingSubmit=value;},setReview(value){pendingReview=value;},setRaw(value){raw=value;}};
 }
 function acknowledge(get){for(const id of ['aiCSVExtras','aiCSVQuestionsAck']){get(id).checked=true;get(id).events.change();}get('aiCSVAck').checked=true;get('aiCSVAck').events.change();}
 
@@ -57,4 +57,26 @@ test('mapping change supersedes an in-flight preview and does not leave the UI s
   get('aiCSVMapping').querySelectorAll('select')[0].onchange();assert.equal(get('aiCSVPreview').disabled,false);
   setPreview(null);await get('aiCSVPreview').onclick();const first=get('aiCSVReviewRows').children[0];
   resolve({...view,rows:[]});await task;assert.equal(get('aiCSVReviewRows').children[0],first);assert.equal(get('aiCSVStart').disabled,false);
+});
+
+test('approval shows pending feedback and a backend rejection beside the action, without staging data',async()=>{
+  const {get,applied,setReview}=setup();get('aiCSVConsent').checked=true;await get('aiCSVStart').onclick();
+  assert.match(get('aiCSVReviewHelp').textContent,/xác nhận cột ngoài mô hình/);
+  assert.equal(get('aiCSVApply').hidden,true);assert.equal(get('aiCSVExport').hidden,true);
+  acknowledge(get);let reject;setReview(new Promise((_,r)=>{reject=r;}));
+  const task=get('aiCSVAccept').onclick();assert.equal(get('aiCSVAccept').disabled,true);
+  assert.match(get('aiCSVAccept').textContent,/Đang kiểm tra/);assert.match(get('aiCSVReviewStatus').textContent,/Đang kiểm tra/);
+  reject(Error('Dòng dữ liệu 1: Số lượng phải khớp định mức'));await task;
+  assert.equal(applied.length,0);assert.equal(get('aiCSVAccept').disabled,false);
+  assert.equal(get('aiCSVReviewStatus').hidden,false);assert.match(get('aiCSVReviewStatus').textContent,/Số lượng/);
+});
+
+test('display-only input choices and column visibility do not discard the current CSV review',async()=>{
+  const {get}=setup();get('aiCSVConsent').checked=true;await get('aiCSVStart').onclick();
+  acknowledge(get);const first=get('aiCSVReviewRows').children[0];
+  for(const target of [{id:'showPlanDetails'},{name:'inputMethod'}]){
+    for(const event of ['input','change'])get('inputDesk').events[event]({target});
+    assert.equal(get('aiCSVResult').hidden,false);assert.equal(get('aiCSVAccept').disabled,false);
+    assert.equal(get('aiCSVReviewRows').children[0],first);
+  }
 });

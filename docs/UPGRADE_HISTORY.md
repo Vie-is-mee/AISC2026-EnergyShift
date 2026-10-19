@@ -774,3 +774,39 @@ Mapping ban đầu của model chưa khớp hoàn toàn: đây là bằng chứn
 và cổng rà soát hoạt động, không phải bằng chứng độ chính xác AI hoặc dữ liệu xưởng.
 
 PR: [#21 - AI đọc CSV và kỹ sư duyệt dữ liệu](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/21).
+
+## 19/10/2026 - Sắp xếp lại đầu vào theo luồng người dùng
+
+Điểm yếu: phần hỏi AI và hàng đợi đứng trước hồ sơ/bảng nhập; bảng kế hoạch đứng
+trước khu vực nhập CSV. Nút phân tích cố định luôn xuất hiện khi người dùng còn
+chuẩn bị dữ liệu. Thông báo duyệt nằm xa nút bấm; trạng thái bị vô hiệu hóa thiếu
+giải thích, dễ bị hiểu là thao tác không phản hồi.
+
+Đưa Điều chuyển đơn hàng lên đầu thanh trái/mobile và dùng làm màn hình bắt đầu.
+Chia nội dung thành bốn khối tuần tự: hồ sơ → nhập lệnh → rà soát bảng → phân tích.
+Tách ba cách nhập CSV, dán Excel và sửa trực tiếp; chỉ hiện công cụ ghép cột khi
+có nguồn. Thu gọn ghi chú, nhập thủ công, hỏi AI, thiết lập và nhóm demo. Đưa nút
+phân tích về đúng bước cuối; thông tin hồ sơ/ngày giờ được trình bày dễ đọc.
+
+Sửa các điều khiển mở bước nhập, thiết lập xưởng và hiện định mức vốn chỉ có
+handler trong shell cũ không còn được nạp. Cổng duyệt CSV bổ sung hướng dẫn còn
+thiếu gì, trạng thái chờ trên nút, phản hồi/lỗi ngay cạnh thao tác và đường kiểm
+tra lại lượt khi mất kết nối. Khi nhận thành công, hiển thị số lô, thông báo và
+chuyển focus tới bảng đã cập nhật; không tự chạy solver. Bản ghi và cơ chế kiểm
+tra/hash/nguồn CSV giữ nguyên.
+
+Kiểm chứng bằng kiểm thử Node và Edge hai origin với model giả được ghi rõ.
+Bao gồm bấm chuột thật vào nút duyệt cho trường hợp sai sản lượng và nhận thành
+công, đối chiếu số lô/focus/thông báo và hash với engine; kiểm tra desktop/mobile,
+đổi cách nhập, mở thiết lập/chi tiết, hover và kéo Gantt. Không dùng lượt giả làm
+bằng chứng gọi API; bằng chứng API thật của bước 2 được giữ riêng.
+
+Thay đổi cách hiển thị cột/cách nhập không tự hủy bản rà soát CSV khi nội dung
+nguồn vẫn giữ nguyên. Thay đổi dữ liệu thực vẫn vô hiệu hóa bản cũ như trước.
+
+Kết quả cuối: **201 tests Python + 41 tests Node đạt**, browser không có lỗi JS.
+Luồng duyệt và engine nhận cùng snapshot/hash; nguồn BOM/CRLF vẫn nguyên vẹn.
+Bằng chứng UI: [cloud_rehearsal.json](evaluation/cloud_rehearsal.json), chế độ
+`EXPLICIT_TEST_DOUBLE`. Không có thay đổi dependency hoặc biến môi trường.
+
+PR: [#22 - Luồng nhập liệu tuần tự và phản hồi duyệt CSV](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/22).

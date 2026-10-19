@@ -6,11 +6,16 @@ nhập thủ công. Dùng cùng key/model backend đã cấu hình ở bước 1
 
 ## Cách dùng
 
-1. Mở **Điều chuyển đơn hàng**, chọn hồ sơ xưởng/mẫu đúng. Hồ sơ cần có máy,
+1. **Điều chuyển đơn hàng** là tab đầu tiên và màn hình bắt đầu. Trong khối
+   **1. Chọn hồ sơ xưởng**, mở hồ sơ đã lưu hoặc dùng dữ liệu mẫu. Hồ sơ cần có máy,
    định mức, lịch tham chiếu và giá; một CSV kế hoạch không tự tạo được hồ sơ xưởng.
-2. Mở **Nhập bảng từ Excel / CSV**. Chọn CSV UTF-8/TSV hoặc dán vùng bảng có
-   tiêu đề; có thể dùng [file minh họa](templates/ai_import_demo.csv) với hồ sơ mẫu 8 lô.
-3. Trong **Trợ lý AI · Bước 2**, nhập ghi chú nếu cần, đọc và chọn đồng ý gửi
+2. Trong **2. Nhập lệnh sản xuất**, chọn **Tải CSV / TSV** hoặc **Dán từ Excel**.
+   Chỉ hiện vùng nhập tương ứng; công cụ AI/thủ công xuất hiện khi đã đọc file
+   hoặc có bảng dán. Chưa đọc trực tiếp XLSX. Có thể dùng
+   [file minh họa](templates/ai_import_demo.csv) với hồ sơ mẫu 8 lô.
+   Nếu dùng bảng mẫu hoặc tự nhập, chọn **Sửa bảng trực tiếp** rồi xuống bước 3;
+   không cần gọi AI. Ghép cột thủ công nằm trong một mục thu gọn riêng.
+3. Trong **Nhờ AI đọc bảng và đề xuất ghép cột**, mở ghi chú nếu cần, đọc và chọn đồng ý gửi
    dữ liệu. Bảng gốc cùng phần hồ sơ cần thiết được gửi qua OpenRouter: nguồn
    hồ sơ, khoảng lập lịch, mã định mức, sản lượng, release/due và máy tương thích.
    Không gửi thêm biểu giá/chi phí vào prompt ghép cột. Dữ liệu thực nhạy cảm cần
@@ -28,16 +33,25 @@ nhập thủ công. Dùng cùng key/model backend đã cấu hình ở bước 1
    bất kỳ ô nào đều phải xác nhận rà soát lại. Ghi chú được lưu cùng quyết định.
 8. Bấm **Duyệt và đưa vào bảng**. Backend kiểm tra lại mapping, số dòng, định
    mức, số lượng, máy, ngày giờ và data gate. Nếu chưa đạt, giữ nguyên kế hoạch
-   và bản đề xuất chờ sửa; không tự chạy bằng dữ liệu cũ.
+   và bản đề xuất chờ sửa; không tự chạy bằng dữ liệu cũ. Nút hiện trạng thái
+   đang kiểm tra; lỗi xuất hiện ngay cạnh nút. Nếu nút chưa bật, dòng hướng dẫn
+   bên trên chỉ rõ còn thiếu xác nhận nào.
 9. Khi đạt, bảng được đưa vào **bản chuẩn bị**; chưa sửa input đang phân tích
    hoặc chạy solver. Rà soát chi phí rồi bấm **Phân tích kế hoạch** để kiểm tra
-   và tính B0/B1/B2. Lịch không khả thi vẫn bị verifier chặn như trước.
+   và tính B0/B1/B2. Khi nhận thành công, màn hình chuyển đến **3. Rà soát bảng
+   kế hoạch**, hiện số lô đã nhận và bảng mới. Bấm **Tiếp tục đến bước 4** để đến
+   **4. Kiểm tra và phân tích**. Nút phân tích nằm trong bước này, không nổi đè
+   lên vùng nhập. Lịch không khả thi vẫn bị verifier chặn như trước.
 10. Tải bản ghi CSV và bản sao workspace/báo cáo cần giữ. Nút tải nguồn giữ
     nguyên văn file đã đọc; các sửa đổi nằm ở bản chuẩn bị và bản ghi rà soát.
 
 Nếu mất phản hồi khi duyệt, dùng **Kiểm tra lại lượt** trước khi gửi thêm POST.
 Nếu backend đã duyệt mà chưa đưa được vào bảng, bấm **Đưa bản đã duyệt vào bảng**;
 chỉ được dùng khi nguồn, hồ sơ và bảng hiện tại vẫn đúng phiên bản.
+
+Phần hỏi AI về tình huống sản xuất nằm trong mục tùy chọn ở bước 4. Thiết lập
+xưởng, định mức, quản lý hồ sơ/JSON và nhóm demo được thu gọn phía dưới bốn bước;
+không phải điền tất cả các mục này cho mỗi lần nhập kế hoạch.
 
 ## Chức năng AI và chương trình được phân chia rõ
 

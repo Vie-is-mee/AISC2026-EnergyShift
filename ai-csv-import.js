@@ -4,7 +4,11 @@ window.AICSVImport = (() => {
   const active = new Set(["QUEUED", "RUNNING"]);
   let current = null, context = null, view = null, epoch = 0, previewEpoch = 0;
   let busy = false, applying = false, applied = false, timer = null, viewMapping = null;
-  const status = text => {$("aiCSVStatus").textContent = text;};
+  const status = text => {
+    $("aiCSVStatus").textContent = text;
+    const local = $("aiCSVReviewStatus");
+    if (local) { local.textContent = text; local.hidden = false; }
+  };
   const request = (suffix, body) => AssistantIntake.request(suffix, body);
   function fresh() {
     if (!context) return false;
@@ -28,6 +32,27 @@ window.AICSVImport = (() => {
     $("aiCSVReject").disabled = busy || !reviewing || !acknowledged;
     $("aiCSVApply").disabled = busy || current?.status !== "ACCEPTED" || !fresh() || applied;
     $("aiCSVExport").disabled = !current || !["ACCEPTED","REJECTED"].includes(current.status);
+    $("aiCSVApply").hidden = current?.status !== "ACCEPTED" || applied;
+    $("aiCSVExport").hidden = $("aiCSVExport").disabled;
+    $("aiCSVCancel").hidden = !current || !["QUEUED","RUNNING","AWAITING_REVIEW"].includes(current.status);
+    $("aiCSVReload").hidden = !current || applied;
+    const decided = ["ACCEPTED", "REJECTED"].includes(current?.status);
+    $("aiCSVAccept").hidden = decided;
+    $("aiCSVReject").hidden = decided;
+    $("aiCSVPreview").hidden = decided;
+    $("aiCSVStart").textContent = busy ? "Đang xử lý…" : current ? "Đọc lại bảng bằng AI" : "Nhờ AI ghép cột";
+    $("aiCSVAccept").textContent = busy && reviewing ? "Đang kiểm tra bảng…" : "Duyệt và đưa vào bảng";
+    $("aiCSVResult").setAttribute("aria-busy", String(busy));
+    const help = $("aiCSVReviewHelp");
+    if (help) {
+      const missing = [];
+      if (!view || JSON.stringify(mapping()) !== viewMapping) missing.push("cập nhật bản xem trước");
+      if (!extras) missing.push("xác nhận cột ngoài mô hình");
+      if (!questions) missing.push("xác nhận đã xem câu hỏi/cảnh báo");
+      if (!$("aiCSVReviewNote").value.trim()) missing.push("nhập ghi chú rà soát");
+      if (!$("aiCSVAck").checked) missing.push("tích xác nhận rà soát cuối cùng");
+      help.textContent = reviewing ? (missing.length ? "Để duyệt: " + missing.join("; ") + "." : "Đã đủ xác nhận. Bấm Duyệt và đưa vào bảng; backend sẽ kiểm tra dữ liệu.") : "";
+    }
   }
   function steps(id) {
     for (const name of ["Source","Model","Review","Done"]) {
@@ -44,7 +69,11 @@ window.AICSVImport = (() => {
     $("aiCSVResult").hidden = true;$("aiCSVAck").checked = false;
     steps("Source");buttons();
   }
-  function unacknowledge() {$("aiCSVAck").checked=false;buttons();}
+  function unacknowledge() {
+    $("aiCSVAck").checked=false;
+    if (current?.status === "AWAITING_REVIEW") status("Bạn vừa sửa nội dung. Kiểm tra lại rồi tích xác nhận rà soát cuối cùng.");
+    buttons();
+  }
   function list(id, values) {
     $(id).replaceChildren(...values.map(text=>{const e=document.createElement("li");e.textContent=text;return e;}));
   }
@@ -153,11 +182,12 @@ window.AICSVImport = (() => {
   async function review(decision) {
     if(busy || !current || current.status!=="AWAITING_REVIEW" || !fresh() || !$("aiCSVAck").checked)return;
     const expected=epoch;busy=true;buttons();
+    status(decision === "ACCEPTED" ? "Đang kiểm tra dữ liệu và đưa vào bảng…" : "Đang ghi nhận từ chối…");
     try {
       const value=await request("/"+current.id+"/csv-review",{input_hash:current.input_hash,request_hash:current.request_hash,mapping:mapping(),decision,reviewed_summary:$("aiCSVReviewNote").value.trim(),acknowledged:true,rows:canonicalRows(),extras_acknowledged:$("aiCSVExtras").checked,questions_acknowledged:$("aiCSVQuestionsAck").checked});
       if(expected!==epoch || !fresh())return;
       showProposal(value);if(decision==="ACCEPTED")applyAccepted();
-    } catch(e){if(expected===epoch){busy=false;status(e.message+" Nếu kết nối bị mất, kiểm tra lại lượt trước khi gửi duyệt lần nữa.");buttons();}}
+    } catch(e){if(expected===epoch){busy=false;status(e.message+" Nếu kết nối bị mất, kiểm tra lại lượt trước khi gửi duyệt lần nữa.");buttons();$("aiCSVReviewStatus")?.scrollIntoView?.({block:"center",behavior:"smooth"});}}
   }
   document.addEventListener("DOMContentLoaded",()=>{
     $("aiCSVStart").onclick=start;$("aiCSVPreview").onclick=preview;
@@ -169,7 +199,10 @@ window.AICSVImport = (() => {
       catch(e){if(epoch===expected){busy=false;status(e.message);buttons();}}
     };
     $("tablePaste").addEventListener("input",invalidate);$("tableFile").addEventListener("change",invalidate);$("aiCSVNotes").addEventListener("input",invalidate);
-    for(const event of ["input","change"])$("inputDesk").addEventListener(event,e=>{if(!$("aiCSVPanel").contains(e.target))invalidate();});
+    for(const event of ["input","change"])$("inputDesk").addEventListener(event,e=>{
+      if(e.target.id==="showPlanDetails" || e.target.name==="inputMethod")return;
+      if(!$("aiCSVPanel").contains(e.target))invalidate();
+    });
     $("aiCSVConsent").addEventListener("change",()=>{if(!$("aiCSVConsent").checked)invalidate();});
     $("aiCSVAck").addEventListener("change",buttons);
     ["aiCSVExtras","aiCSVQuestionsAck"].forEach(id=>$(id).addEventListener("change",unacknowledge));$("aiCSVReviewNote").addEventListener("input",unacknowledge);
