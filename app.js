@@ -85,6 +85,8 @@ function table(id, rows) {
     );
 }
 function clearResult() {
+  if ($("measurementConfirmed")) $("measurementConfirmed").checked = false;
+  put("measurementResult", "Chưa có đối chiếu cho đầu vào hiện tại.");
   revision++;
   currentReport = null;
   put(
@@ -479,7 +481,10 @@ function renderGantt() {
     ]),
   );
   put("scheduleListCount", `${jobs.length} lô · ${code}`);
-  put("scheduleConflictReport", `${code}: verifier ${currentReport.plans[code].verification.status}. Sửa dữ liệu ở Điều chuyển đơn hàng rồi phân tích lại để cập nhật lịch và chi phí.`);
+  put(
+    "scheduleConflictReport",
+    `${code}: verifier ${currentReport.plans[code].verification.status}. Sửa dữ liệu ở Điều chuyển đơn hàng rồi phân tích lại để cập nhật lịch và chi phí.`,
+  );
   put(
     "scheduleEditStatus",
     "Sửa bảng tại Điều chuyển đơn hàng rồi phân tích lại để cập nhật cả lịch và chi phí.",
@@ -1043,6 +1048,227 @@ function showDecisionMemo() {
   openModal("memoModal");
 }
 
+function measurementRows(text) {
+  const parsed = InputModel.parseTable(text, { maxRows: 500 }),
+    required = [
+      "start",
+      "end",
+      "machine_id",
+      "kwh",
+      "scope",
+      "source_type",
+      "reference",
+    ];
+  if (
+    parsed.headers.length !== required.length ||
+    required.some((k) => !parsed.headers.includes(k))
+  )
+    throw Error(
+      "CSV cần đúng các cột: " +
+        required.join(", ") +
+        ". Không tự bỏ cột thừa.",
+    );
+  return parsed.rows.map((values, index) => {
+    const row = Object.fromEntries(
+      parsed.headers.map((k, i) => [k, values[i].trim()]),
+    );
+    if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(row.kwh))
+      throw Error(
+        `Dòng ${index + 2}: nhập kWh không âm, dấu thập phân là dấu chấm; ô trống không được xem là 0.`,
+      );
+    row.kwh = Number(row.kwh);
+    row.machine_id = row.machine_id || null;
+    return row;
+  });
+}
+function initializeMeasurements() {
+  const reset = () => {
+    if (currentReport) delete currentReport.reconciliation;
+    $("measurementConfirmed").checked = false;
+    put("measurementResult", "Chưa đối chiếu cho bảng số đo hiện tại.");
+  };
+  $("measurementCsv").oninput = reset;
+  $("executedPlan").onchange = reset;
+  $("measurementConfirmed").onchange = () => {
+    if (currentReport) delete currentReport.reconciliation;
+    put(
+      "measurementResult",
+      "Xác nhận đã đổi; đối chiếu lại để có báo cáo mới.",
+    );
+  };
+  $("measurementFile").onchange = async (e) => {
+    try {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 128 * 1024) throw Error("CSV tối đa 128 KiB.");
+      $("measurementCsv").value = await file.text();
+      reset();
+    } catch (error) {
+      put("measurementResult", error.message);
+    }
+  };
+  $("measurementTemplate").onclick = () =>
+    download(
+      "EnergyShift_meter_template.csv",
+      "start,end,machine_id,kwh,scope,source_type,reference\r\n2026-10-19T09:30:00+07:00,2026-10-19T10:30:00+07:00,M1,,RUN_ONLY,MEASURED,replace-with-meter-file-reference\r\n",
+      "text/csv",
+    );
+  $("measurementExample").onclick = () => {
+    if (!currentReport) {
+      toast("Phân tích một kế hoạch trước.");
+      return;
+    }
+    const plan = currentReport.plans[$("executedPlan").value],
+      row = plan.cost.ledger.find((r) => r.component === "RUN_ELECTRICITY");
+    $("measurementCsv").value =
+      "start,end,machine_id,kwh,scope,source_type,reference\n" +
+      [
+        row.start,
+        row.end,
+        row.machine_id,
+        exact(row.kwh_exact) * 1.05,
+        "RUN_ONLY",
+        "SYNTHETIC",
+        "constructed-5-percent-example-NOT-REAL",
+      ].join(",");
+    reset();
+  };
+  $("runMeasurementCheck").onclick = async () => {
+    if (!currentReport) {
+      put(
+        "measurementResult",
+        "Phân tích kế hoạch trước để có lịch và dấu vết đầu vào.",
+      );
+      return;
+    }
+    if (!$("measurementConfirmed").checked) {
+      put(
+        "measurementResult",
+        "Xác nhận lịch được chọn đúng là lịch đã thực hiện và số đo có phạm vi như khai báo.",
+      );
+      return;
+    }
+    const report = currentReport,
+      token = revision,
+      raw = $("measurementCsv").value,
+      code = $("executedPlan").value;
+    $("runMeasurementCheck").disabled = true;
+    try {
+      const rows = measurementRows(raw),
+        response = await apiFetch("/api/demo/reconcile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            snapshot: report.input_snapshot,
+            executed_schedule: report.plans[code].schedule,
+            executed_schedule_confirmed: true,
+            observations: rows,
+          }),
+        }),
+        result = await response.json();
+      if (
+        currentReport !== report ||
+        revision !== token ||
+        raw !== $("measurementCsv").value ||
+        code !== $("executedPlan").value ||
+        !$("measurementConfirmed").checked
+      )
+        return;
+      if (!response.ok)
+        throw Error(
+          result.errors?.map((e) => e.why).join("; ") ||
+            result.detail ||
+            "Không đối chiếu được số đo.",
+        );
+      report.reconciliation = {
+        ...result,
+        measurement_input_csv: raw,
+        executed_plan: code,
+      };
+      const box = $("measurementResult");
+      box.replaceChildren(
+        node(
+          "p",
+          `${result.source_type === "SYNTHETIC" ? "DỮ LIỆU GIẢ LẬP — chỉ kiểm tra luồng" : "Số đo người dùng cung cấp — chưa xác thực đồng hồ"}. Nguồn dự báo: ${result.prediction_source_type}. Không phải chứng minh tiết kiệm thực tế.`,
+        ),
+      );
+      if (result.metrics) {
+        const m = result.metrics;
+        box.append(
+          dataTable(
+            ["Chỉ tiêu", "Giá trị"],
+            [
+              ["Khoảng đo so sánh được", m.comparable_intervals],
+              [
+                "kWh đo / dự báo",
+                `${exact(m.measured_kwh_exact).toFixed(3)} / ${exact(m.modeled_kwh_exact).toFixed(3)}`,
+              ],
+              [
+                "Sai lệch tuyệt đối trung bình (kWh)",
+                exact(m.mae_kwh_exact).toFixed(3),
+              ],
+              [
+                "Độ lệch dự báo − đo trung bình (kWh)",
+                exact(m.bias_kwh_exact).toFixed(3),
+              ],
+              [
+                "Tổng sai lệch tuyệt đối / tổng kWh đo",
+                m.wape_pct_exact == null
+                  ? "Không xác định khi tổng đo bằng 0"
+                  : exact(m.wape_pct_exact).toFixed(2) + "%",
+              ],
+              [
+                "Phần điện chạy mô hình được phủ bởi số đo",
+                m.modeled_run_energy_coverage_pct_exact == null
+                  ? "Không xác định"
+                  : exact(m.modeled_run_energy_coverage_pct_exact).toFixed(2) +
+                    "%",
+              ],
+            ],
+          ),
+        );
+      } else
+        box.append(
+          node(
+            "p",
+            "Không chấm độ chính xác: đồng hồ tổng máy/xưởng có tải chưa nằm trong mô hình điện chạy. Cần tách tải hoặc bổ sung mô hình trước khi so sánh.",
+          ),
+        );
+      box.append(
+        dataTable(
+          ["Máy", "Bắt đầu", "Phạm vi", "Trạng thái"],
+          result.intervals.map((r) => [
+            r.machine_id || "Toàn xưởng",
+            timeLabel(r.start),
+            r.scope,
+            r.status === "COMPARABLE_RUN_ONLY"
+              ? "Cùng phạm vi điện chạy"
+              : "Khác phạm vi, không chấm điểm",
+          ]),
+        ),
+      );
+      const exportButton = node(
+        "button",
+        "Tải báo cáo đối chiếu",
+        "manual-btn",
+      );
+      exportButton.onclick = () => {
+        if (currentReport === report && report.reconciliation)
+          download(
+            "EnergyShift_measurement_check.json",
+            JSON.stringify(report.reconciliation, null, 2),
+            "application/json",
+          );
+      };
+      box.append(exportButton);
+    } catch (error) {
+      if (currentReport === report) put("measurementResult", error.message);
+    } finally {
+      $("runMeasurementCheck").disabled = false;
+    }
+  };
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     applyTheme(localStorage.getItem("energyshift_theme") || "dark");
@@ -1160,6 +1386,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       setDataset(d);
     };
+  initializeMeasurements();
   clearResult();
   closeScheduleEditor();
   closeMobileNav();

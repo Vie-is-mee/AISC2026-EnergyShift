@@ -10,8 +10,8 @@
     "work/ui-qa/input-mobile.png"
   ],
   "source_sha256": {
-    "index.html": "641bf9c50ca4358644c1cdc160859ee27980db2e142a487626fdde8dcfb97d36",
-    "app.js": "d2334960adeeb144484fa4090d43ba0a572e1282566651372b1ff5147ef29340",
+    "index.html": "836145c39cb6a7aa221e14c6b6809743254bf386c6aabd17cef13981e3cb9bee",
+    "app.js": "41edb6b1a36feeb6a1ebdf6d1bbf689beb7c90698463f92f15f94f34daf2eec5",
     "workspace.css": "6d3509def38c7b33aca1eba98e01a5fb119c78045f6e6cf3a616d67681b3d2ce",
     "input-desk.js": "01d04a3ab47b4080e6acc62482d95938088ce1b8051cc1453e01e7c16813f71d",
     "backend/b2.py": "835190fa31b76c1e1499a15122923954174e3800dfaea92e6c682d34b1ca17d1"

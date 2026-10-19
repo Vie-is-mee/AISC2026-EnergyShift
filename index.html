@@ -1366,6 +1366,57 @@
                 </div>
               </div>
             </section>
+            <details class="analytics-card" id="measurementPanel">
+              <summary>Đối chiếu số đo điện — chuẩn bị thử nghiệm</summary>
+              <p>
+                Chỉ đánh giá sai lệch dự báo khi cùng lịch đã thực hiện và cùng
+                phạm vi điện chạy. Số đo tổng máy/xưởng có tải nền/chờ/setup sẽ
+                không được chấm độ chính xác với mô hình điện chạy. Chưa có dữ
+                liệu xưởng trong demo.
+              </p>
+              <label
+                >Lịch đã thực hiện
+                <select id="executedPlan">
+                  <option value="B0">B0 — lịch gốc</option>
+                  <option value="B1">B1 — dịch một lô</option>
+                  <option value="B2">B2 — phối hợp</option>
+                </select></label
+              >
+              <div class="live-actions">
+                <button id="measurementTemplate" type="button">
+                  Tải mẫu CSV trống</button
+                ><button id="measurementExample" type="button">
+                  Nạp ví dụ GIẢ LẬP</button
+                ><label
+                  >Mở CSV số đo<input
+                    accept=".csv,text/csv"
+                    id="measurementFile"
+                    type="file"
+                /></label>
+              </div>
+              <label
+                >CSV số đo (tối đa 500 dòng, thời gian +07:00)<textarea
+                  id="measurementCsv"
+                  placeholder="start,end,machine_id,kwh,scope,source_type,reference"
+                  rows="5"
+                  spellcheck="false"
+                ></textarea></label
+              ><label
+                ><input id="measurementConfirmed" type="checkbox" /> Tôi xác
+                nhận lịch được chọn là lịch đã thực hiện; phạm vi đồng hồ và
+                nguồn số đo được khai báo đúng. Ví dụ giả lập chỉ dùng kiểm tra
+                luồng.</label
+              ><button
+                class="manual-btn"
+                id="runMeasurementCheck"
+                type="button"
+              >
+                Đối chiếu số đo
+              </button>
+              <div id="measurementResult" role="status">
+                Chưa có số đo đối chiếu.
+              </div>
+            </details>
           </div>
           <!-- ===================================================================
            TAB 4: 5 PHYSICAL CONSTRAINTS (INDEPENDENT VALIDATION MATRIX)

@@ -10,8 +10,8 @@
     "work/ui-qa/input-mobile.png"
   ],
   "source_sha256": {
-    "index.html": "641bf9c50ca4358644c1cdc160859ee27980db2e142a487626fdde8dcfb97d36",
-    "app.js": "d2334960adeeb144484fa4090d43ba0a572e1282566651372b1ff5147ef29340",
+    "index.html": "836145c39cb6a7aa221e14c6b6809743254bf386c6aabd17cef13981e3cb9bee",
+    "app.js": "41edb6b1a36feeb6a1ebdf6d1bbf689beb7c90698463f92f15f94f34daf2eec5",
     "workspace.css": "6d3509def38c7b33aca1eba98e01a5fb119c78045f6e6cf3a616d67681b3d2ce",
     "input-desk.js": "01d04a3ab47b4080e6acc62482d95938088ce1b8051cc1453e01e7c16813f71d",
     "backend/b2.py": "835190fa31b76c1e1499a15122923954174e3800dfaea92e6c682d34b1ca17d1"
@@ -21,11 +21,11 @@
   "live_cloud_deployed": false,
   "built_artifact_sha256": {
     "api-client.js": "8522aa8d7de6f901800dbc2e4564e77879d2c22a63e321813a9b05ac1ee33b8a",
-    "app.js": "d2334960adeeb144484fa4090d43ba0a572e1282566651372b1ff5147ef29340",
+    "app.js": "41edb6b1a36feeb6a1ebdf6d1bbf689beb7c90698463f92f15f94f34daf2eec5",
     "deployment-config.js": "43360a942063ee2e38ead0a9c886144c40e9999067b7a0d0ecfbd4d01fc4d6bd",
-    "index.html": "641bf9c50ca4358644c1cdc160859ee27980db2e142a487626fdde8dcfb97d36",
+    "index.html": "836145c39cb6a7aa221e14c6b6809743254bf386c6aabd17cef13981e3cb9bee",
     "input-desk.js": "01d04a3ab47b4080e6acc62482d95938088ce1b8051cc1453e01e7c16813f71d",
-    "input-model.js": "c0f4bf1a4d33021d19df85f3b690d609f970eb1dc288620c334a9d39cc2d6a16",
+    "input-model.js": "dc886a5df8266c7b4927ee1d8d6927bb4de3885041e401c9289a05ab454a1cec",
     "live.css": "24cf4787797ab3140b85335451b508786c22b0b1920f909758ce24ef86c247ba",
     "workspace.css": "6d3509def38c7b33aca1eba98e01a5fb119c78045f6e6cf3a616d67681b3d2ce",
     "workspace.js": "d24d9ff689c3590d8065d9c73712bdc5991e8f6e799b5587a134f97d74bc1091"

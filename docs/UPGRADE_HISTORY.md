@@ -20,6 +20,8 @@ PR [#13](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/13), CI đạt 
 
 ## 19/10/2026 — Ưu tiên 2: hoàn thiện thông tin hỗ trợ quyết định
 
+PR [#14](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/14), CI đạt trước merge.
+
 - Điểm yếu: biểu đồ không có trục/tooltip; PASS không có bằng chứng chi tiết;
   trạng thái nội bộ khó hiểu; tờ trình là JSON kỹ thuật.
 - Thêm trục thời gian/đơn vị, điểm có tooltip và keyboard focus, bảng theo giờ
@@ -32,6 +34,21 @@ PR [#13](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/13), CI đạt 
   thu gọn chi tiết để ưu tiên timeline; giữ bố cục/stylesheet chuẩn.
 - Node kiểm tra lựa chọn phương án, tích phân kWh/tiền; Edge kiểm tra bảng giờ,
   ràng buộc và các luồng input hiện có. Không gọi model API.
+
+## 19/10/2026 — Ưu tiên 3: chuẩn bị đối chiếu số đo và thử nghiệm thực
+
+- Người dùng xác nhận chưa có dữ liệu thực; làm sẵn luồng thay vì dựng kết quả.
+- Nhập CSV tối đa 500 khoảng đo, giữ nguồn/reference, yêu cầu xác nhận lịch đã
+  thực hiện. Backend kiểm tra lịch và tính lại ledger; chỉ chấm RUN_ONLY cùng
+  máy/phạm vi. TOTAL_MACHINE/TOTAL_PLANT khác phạm vi thì không chấm điểm.
+- Tính MAE, bias, WAPE (null nếu mẫu đo tổng 0), coverage theo điện chạy mô hình;
+  không gán độ tin cậy thống kê, xác thực đồng hồ hoặc measured savings. Giữ
+  nguyên nguồn dự báo và nhãn SYNTHETIC; không tự hiệu chuẩn hồ sơ.
+- Sửa dữ liệu/số đo xóa kết quả cũ; JSON xuất giữ lịch, hash và CSV gốc. Có mẫu
+  trống, ví dụ giả lập rõ nhãn, quy trình thu thập dữ liệu và nhật ký usability.
+- Tests chặn overlap, sai máy/horizon/offset, thiếu attestation, JSON trùng khóa,
+  số đo tổng khác phạm vi; kiểm tra kWh/sai lệch/coverage và CSV không mất cột.
+  Chi tiết: [MEASUREMENT_PILOT.md](MEASUREMENT_PILOT.md).
 
 ## 19/10/2026 — B2 phối hợp nhiều lô trên UI/UX chuẩn
 

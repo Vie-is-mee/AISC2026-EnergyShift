@@ -15,6 +15,9 @@ from starlette.middleware.cors import CORSMiddleware
 from .analysis import analyze
 from .validation import parse_json
 from .deployment import allowed_hosts, allowed_origins, build_sha
+from .http_input import read_json
+from .reconciliation import reconcile
+from pydantic import ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ID = "editable-cell"
@@ -149,3 +152,14 @@ async def analyze_request(request: Request):
         return JSONResponse({"status": "ERROR", "errors": [{"code": "ANALYSIS_ERROR", "why": "Analysis failed; no recommendation was produced"}]}, status_code=500)
     finally:
         analysis_lock.release()
+
+
+@app.post("/api/demo/reconcile")
+async def reconcile_request(request: Request):
+    raw = await read_json(request)
+    try:
+        return await run_in_threadpool(reconcile, raw)
+    except ValidationError as exc:
+        return error(422, "MEASUREMENT_SCHEMA", "; ".join(".".join(map(str,e["loc"]))+": "+e["msg"] for e in exc.errors(include_input=False,include_url=False)))
+    except ValueError as exc:
+        return error(422, "MEASUREMENT_INVALID", str(exc))
