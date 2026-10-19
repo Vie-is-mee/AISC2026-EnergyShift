@@ -805,3 +805,5 @@ Kết quả cuối: **201 tests Python + 40 tests Node đạt**, browser không 
 Luồng duyệt và engine nhận cùng snapshot/hash; nguồn BOM/CRLF vẫn nguyên vẹn.
 Bằng chứng UI: [cloud_rehearsal.json](evaluation/cloud_rehearsal.json), chế độ
 `EXPLICIT_TEST_DOUBLE`. Không có thay đổi dependency hoặc biến môi trường.
+
+PR: [#22 - Luồng nhập liệu tuần tự và phản hồi duyệt CSV](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/22).
