@@ -827,3 +827,5 @@ Lượt đồng bộ này không gọi lại model thật, không thay đổi c�
 Cập nhật harness DOM cho hai test API client và đưa bộ test ngữ cảnh vào CI.
 Kiểm tra local: 206 tests Python và 45 tests Node đạt; diễn tập trình duyệt dùng
 model giả được ghi nhãn riêng, không tính là bằng chứng gọi API thật.
+
+PR: [#23 - Ngữ cảnh cơ sở và rà soát điều kiện ngoài mô hình](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/23).
