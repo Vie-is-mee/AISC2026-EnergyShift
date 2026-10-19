@@ -5,6 +5,9 @@ Hỗ trợ quyết định điều chỉnh lịch sản xuất dựa trên tính
 Frontend HTML/CSS/JavaScript hiện tại nhận kết quả tính thật từ API local.
 Dữ liệu mẫu là SYNTHETIC; đây chưa phải hệ thống vận hành công nghiệp hoàn chỉnh.
 
+Người dùng mới: đọc [quy trình sử dụng từ A đến Z](docs/USER_WORKFLOW.md), gồm
+chuẩn bị dữ liệu, nhập kế hoạch, đọc kết quả, đối chiếu số đo và xử lý lỗi.
+
 ## Xem demo trên Internet
 
 Đã có `vercel.json`, `render.yaml`, `.env.vercel.example` và `.env.render.example`.
