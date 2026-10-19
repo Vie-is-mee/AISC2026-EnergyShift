@@ -121,7 +121,7 @@ try:
         check('document.getElementById("chartTooltip").textContent.includes(' + json.dumps('kW' if metric == 'power' else ' / ') + ')', 'hover_units_' + metric)
         command('Input.dispatchMouseEvent', {'type':'mouseMoved', 'x':1, 'y':1})
         check('document.getElementById("chartTooltip").style.display === "none"', 'hover_hides_on_exit_' + metric)
-    js('switchChartMetric("power");document.querySelector("#elecLineChartSvg circle").focus()')
+    js('switchChartMetric("power");document.querySelector("#elecLineChartSvg circle[tabindex]").focus()')
     check('document.getElementById("chartTooltip").style.display === "block"', 'keyboard_chart_tooltip')
     js('document.activeElement.blur();switchMainTab("tab-overview")')
     check('document.querySelectorAll("#validationList article").length===5 && document.querySelectorAll("#validationEvidence tbody tr").length>=8', 'constraint_cards_have_job_and_mold_evidence')

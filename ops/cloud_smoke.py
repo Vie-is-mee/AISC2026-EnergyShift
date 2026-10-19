@@ -41,6 +41,7 @@ def main():
     parser.add_argument('--assistant-live', action='store_true', help='Explicitly make one model call using only synthetic planning data')
     parser.add_argument('--env-file', type=Path, help='Backend-only dotenv path; never printed or copied into the static build')
     parser.add_argument('--assistant-model', choices=['openrouter/free','cohere/north-mini-code:free'], help='Explicit free-model test override only; never changes .env')
+    parser.add_argument('--planning-tabs', action='store_true', help='Also rehearse inline planning and real drag interactions')
     args = parser.parse_args()
     # Do not attach to or stop services belonging to other processes.
     for port in [8766, 8767]:
@@ -77,6 +78,8 @@ def main():
             server = RehearsalServer(('127.0.0.1', 8766), partial(RehearsalHandler, directory=directory))
             Thread(target=server.serve_forever, daemon=True).start()
             subprocess.run([sys.executable, 'ops/browser_smoke.py', '--input-only', '--base-url', 'http://127.0.0.1:8766'], cwd=ROOT, env=env, check=True)
+            if args.planning_tabs:
+                subprocess.run([sys.executable,'ops/planning_tabs_browser_checks.py','--base-url','http://127.0.0.1:8766'],cwd=ROOT,env=env,check=True)
             packet = json.loads((ROOT / 'docs/evaluation/b2_ui_qa.json').read_text(encoding='utf-8'))
             packet.update(topology='Static allowlisted build on :8766 -> actual FastAPI on :8767, real browser CORS/preflight', live_cloud_deployed=False)
             packet['built_artifact_sha256'] = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in Path(directory).iterdir()}

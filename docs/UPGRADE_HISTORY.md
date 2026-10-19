@@ -725,9 +725,15 @@ không coi test mock là gọi model. Hướng dẫn: [AI_ASSISTANT_STEP1.md](AI
 
 Kiểm chứng bản cuối: 187 tests Python và 34 tests Node đạt; Edge desktop/mobile
 và diễn tập static build → FastAPI hai origin qua CORS/CSP đạt, không lỗi JS.
-Lượt live qua `openrouter/free` được phục vụ bởi `dots-studio/dots-3-note-preview:free`,
+Lượt live mới nhất qua `openrouter/free` được phục vụ bởi `nvidia/nemotron-3.5-super-vl:free`,
 trả JSON và hoàn tất duyệt thủ công trong UI; snapshot được giữ đúng. Evidence:
 `docs/evaluation/assistant_live_smoke.json`. Model cấu hình gặp 429; có lượt thử
 free model trả JSON sai hoặc endpoint từ chối tắt reasoning. Đã giữ evidence lỗi
 riêng, dùng JSON Schema và không ép tắt reasoning. Không sửa `.env`, không tự
 fallback trong sản phẩm, không coi một lượt live là đánh giá độ chính xác model.
+
+Đã tích hợp UI mới từ PR #19 (inline edit, kéo Gantt và hover mới); giữ cả hook
+vô hiệu bản duyệt AI khi lịch thay đổi và logic bản nháp/rà soát của UI. Kiểm tra
+thêm kéo chuột thật và phím Alt+Right gọi đúng đường vô hiệu hóa.
+
+PR: [#20 - Trợ lý AI đọc yêu cầu và cổng kỹ sư rà soát](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/20).
