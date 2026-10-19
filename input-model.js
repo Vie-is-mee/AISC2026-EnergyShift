@@ -38,7 +38,9 @@ const InputModel = (() => {
       .replace(/đ/g, "d")
       .replace(/[_-]/g, " ")
       .replace(/\s+/g, " ");
-  function parseTable(text) {
+  function parseTable(text, { maxRows = 8 } = {}) {
+    if (!Number.isInteger(maxRows) || maxRows < 1 || maxRows > 500)
+      throw Error("Giới hạn dòng phải từ 1 đến 500.");
     if (new TextEncoder().encode(text).length > 128 * 1024)
       throw Error("Bảng vượt 128 KiB.");
     text = text.replace(/^\uFEFF/, "");
@@ -92,8 +94,10 @@ const InputModel = (() => {
     if (quoted) throw Error("CSV còn dấu nháy chưa đóng.");
     row.push(cell);
     if (row.some((v) => v.trim())) grid.push(row);
-    if (grid.length < 2 || grid.length > 9)
-      throw Error("Cần dòng tiêu đề và 1–8 dòng lô; không tự cắt bỏ dòng.");
+    if (grid.length < 2 || grid.length > maxRows + 1)
+      throw Error(
+        `Cần dòng tiêu đề và 1–${maxRows} dòng; không tự cắt bỏ dòng.`,
+      );
     const headers = grid[0].map((v) => v.trim());
     if (headers.length > 32 || grid.some((r) => r.some((c) => c.length > 4096)))
       throw Error("Bảng tối đa 32 cột; mỗi ô tối đa 4096 ký tự.");
