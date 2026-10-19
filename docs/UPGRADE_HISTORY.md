@@ -3,6 +3,19 @@
 File này được cập nhật theo từng bước; mỗi bước source có PR và merge riêng.
 Ngày ghi theo Asia/Ho_Chi_Minh. Chỉ đánh dấu đã làm khi có code và kiểm chứng.
 
+## 19/10/2026 — Ưu tiên 1: thống nhất kết luận và các màn hình
+
+- Phát hiện UI đề xuất B1 nhưng biểu đồ mặc định B2, mô tả cắt đỉnh trong khi
+  B2 có thể tăng đỉnh công suất. Chọn một nguồn phương án từ decision.selected_plan
+  cho Gantt so sánh, biểu đồ, legend, phụ tải và mặc định bảng ràng buộc.
+- KEEP/MEASURE chọn B0 thì không tự chuyển sang B2. B2 vẫn xem riêng như đối chứng.
+- Bỏ thông điệp cắt đỉnh cố định; hiện chênh lệch đỉnh thực tính từ lịch và giới
+  hạn điện nền/chờ/setup. Không khẳng định an toàn TBA.
+- Bỏ nhãn máy không tồn tại trong hồ sơ; không cố định 24 giờ trong tiêu đề chính.
+  Giữ stylesheet/bố cục chuẩn. Thay input xóa cả mô tả và nhãn kết quả cũ.
+- Kiểm tra contract B0/B1/B2 bằng Node, thêm vào CI; chạy lại 155 Python tests
+  và hồi quy Edge/two-origin. Không có số đo nhà máy hoặc lời hứa tiết kiệm mới.
+
 ## 19/10/2026 — B2 phối hợp nhiều lô trên UI/UX chuẩn
 
 - Điểm yếu: B1 chỉ dịch một job; B2 chưa chạy. UI mới có bố cục chuẩn nhưng

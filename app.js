@@ -87,6 +87,9 @@ function table(id, rows) {
 function clearResult() {
   revision++;
   currentReport = null;
+  put("peakComparisonNote", "Chưa có kết quả cho đầu vào hiện tại. Chưa thể kết luận thay đổi đỉnh tải.");
+  put("loadComparisonTitle", "Phụ tải và tiền điện của lịch đề xuất");
+  put("chartSelectedLabel", "Chưa có lịch đề xuất");
   closeModal();
   [
     "plansGrid",
@@ -165,7 +168,7 @@ function errors(items) {
   }
 }
 function referencePlan() {
-  return currentReport?.decision.selected_plan === "B1" ? "B1" : "B2";
+  return currentReport?.decision.selected_plan || "B0";
 }
 function peak(plan) {
   const events = new Map();
@@ -191,6 +194,7 @@ function peak(plan) {
   return max;
 }
 function renderReport(report) {
+  activeGanttPlan = "compare";
   report.input_preparation = window.InputDesk?.evidence();
   currentReport = report;
   const plans = report.plans,
@@ -318,6 +322,27 @@ function renderReport(report) {
       ),
     ),
   );
+  $("validationPlanSelect").value = chosen.toLowerCase();
+  $("btnViewCompare").textContent = `B0 và lịch đề xuất ${chosen}`;
+  put(
+    "loadComparisonTitle",
+    `Phụ tải và tiền điện: B0 so với lịch đề xuất ${chosen}`,
+  );
+  put("chartBaselineLabel", "Lịch gốc B0");
+  put("chartSelectedLabel", `Lịch đề xuất ${chosen}`);
+  const deltaPeak = peak(plans[chosen]) - peak(plans.B0);
+  put(
+    "peakComparisonNote",
+    `Đỉnh công suất chạy: B0 ${peak(plans.B0).toFixed(2)} kW → ${chosen} ${peak(plans[chosen]).toFixed(2)} kW (${deltaPeak > 0 ? "tăng" : "giảm"} ${Math.abs(deltaPeak).toFixed(2)} kW). Mục tiêu hiện tại là giảm chi phí điện và chuyển đổi, không phải cắt đỉnh. Chưa gồm phụ tải nền/chờ/setup.`,
+  );
+  document.querySelectorAll(".circuit-machine-text").forEach((element, i) => {
+    const m = report.input_snapshot.machines[i];
+    element.replaceChildren(
+      document.createTextNode(
+        m ? `${m.id}: theo hồ sơ` : "Không có máy trong hồ sơ",
+      ),
+    );
+  });
   renderGantt();
   renderValidation();
   renderRisk();
@@ -348,23 +373,21 @@ function renderGantt() {
     span = Date.parse(data.horizon.end) - start,
     codes =
       activeGanttPlan === "compare"
-        ? ["B0", "B2"]
+        ? [...new Set(["B0", referencePlan()])]
         : [activeGanttPlan.toUpperCase()];
-  document
-    .querySelector(".gantt-hours-track")
-    .replaceChildren(
-      ...Array.from({ length: 13 }, (_, i) =>
-        node(
-          "span",
-          new Date(start + (span * i) / 12).toLocaleTimeString("vi-VN", {
-            timeZone: "Asia/Ho_Chi_Minh",
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          "hour-mark",
-        ),
+  document.querySelector(".gantt-hours-track").replaceChildren(
+    ...Array.from({ length: 13 }, (_, i) =>
+      node(
+        "span",
+        new Date(start + (span * i) / 12).toLocaleTimeString("vi-VN", {
+          timeZone: "Asia/Ho_Chi_Minh",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        "hour-mark",
       ),
-    );
+    ),
+  );
   $("ganttLanes").replaceChildren(
     ...data.machines.map((machine) => {
       const row = node("div", null, "gantt-lane-row"),
@@ -474,7 +497,10 @@ function renderValidation() {
       `B2: ${currentReport.plans.B2.solver_status}; giữ máy/thứ tự B0 hoặc B1, không chứng minh tối ưu toàn nhà máy.`,
     ),
   );
-  put("confirmationProgress", "3 lịch đã được kiểm tra độc lập");
+  put(
+    "confirmationProgress",
+    `${code}: ${plan.verification.status} · 3 lịch đã kiểm tra`,
+  );
   put(
     "validationConfirmNotice",
     "PASS áp dụng cho ràng buộc đã khai báo; chưa thay thế kiểm tra hiện trường.",
@@ -514,7 +540,7 @@ function renderChart() {
     start = Date.parse(data.horizon.start),
     end = Date.parse(data.horizon.end),
     hours = Math.ceil((end - start) / 3600000),
-    series = ["B0", "B2"].map((code) => ({
+    series = [...new Set(["B0", referencePlan()])].map((code) => ({
       code,
       values: Array.from({ length: hours }, (_, i) => {
         const a = start + i * 3600000,
@@ -563,13 +589,19 @@ function renderChart() {
   caption.setAttribute("x", "40");
   caption.setAttribute("y", "290");
   caption.setAttribute("fill", "currentColor");
-  caption.textContent = `B0 tím · B2 xanh | ${hours} giờ | ${activeMetric === "power" ? "kW trung bình mỗi giờ" : "điện năng theo giá từng giờ (đ)"} | mô hình`;
+  caption.textContent = `B0 tím · ${referencePlan()} xanh | ${hours} giờ | ${activeMetric === "power" ? "kW trung bình mỗi giờ" : "điện năng theo giá từng giờ (đ)"} | mô hình`;
   svg.append(caption);
   put("hudHourVal", "Theo lịch");
   put("hudTariffVal", "Theo đầu vào");
   put("hudB0Val", `${peak(currentReport.plans.B0).toFixed(2)} kW đỉnh`);
-  put("hudB2Val", `${peak(currentReport.plans.B2).toFixed(2)} kW đỉnh`);
-  put("hudSavingVal", "Không phải IoT");
+  put(
+    "hudB2Val",
+    `${peak(currentReport.plans[referencePlan()]).toFixed(2)} kW đỉnh`,
+  );
+  put(
+    "hudSavingVal",
+    `${(peak(currentReport.plans[referencePlan()]) - peak(currentReport.plans.B0)).toFixed(2)} kW so B0`,
+  );
   $("btnMetricCost")?.classList.toggle("active", activeMetric === "cost");
   $("btnMetricPower")?.classList.toggle("active", activeMetric === "power");
 }

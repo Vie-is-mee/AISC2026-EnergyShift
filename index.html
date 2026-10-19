@@ -920,33 +920,11 @@
               <div class="gantt-control-header">
                 <div>
                   <h2 class="section-heading">
-                    <svg
-                      fill="none"
-                      height="18"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      viewbox="0 0 24 24"
-                      width="18"
-                    >
-                      <rect
-                        height="18"
-                        rx="2"
-                        ry="2"
-                        width="18"
-                        x="3"
-                        y="4"
-                      ></rect>
-                      <line x1="16" x2="16" y1="2" y2="6"></line>
-                      <line x1="8" x2="8" y1="2" y2="6"></line>
-                      <line x1="3" x2="21" y1="10" y2="10"></line>
-                    </svg>
-                    Biểu Đồ Tiến Độ Chạy Máy 24 Giờ &amp; Biểu Giá Điện EVN
-                    (TOU)
+                    Tiến độ chạy máy trong chân trời đã khai báo
                   </h2>
                   <p class="section-subtitle">
-                    Hiển thị khung chạy máy minh họa theo 3 khung giá EVN. Vuốt
-                    hoặc cuộn ngang để xem đủ 24 giờ; các lô chạy qua 00:00 sẽ
-                    tiếp tục sang ngày hôm sau.
+                    So sánh lịch gốc và lịch được đề xuất. Có thể xem riêng B0,
+                    B1 hoặc B2; B2 chưa được chọn vẫn là đối chứng.
                   </p>
                 </div>
                 <!-- Gantt Mode Segmented Buttons -->
@@ -1261,25 +1239,12 @@
             <section class="section-container">
               <div class="chart-section-header">
                 <div>
-                  <h2 class="section-heading">
-                    <svg
-                      fill="none"
-                      height="18"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      viewbox="0 0 24 24"
-                      width="18"
-                    >
-                      <path d="M3 3v18h18"></path>
-                      <path d="m19 9-5 5-4-4-3 3"></path>
-                    </svg>
-                    Phân Tích Đường Phụ Tải &amp; Chi Phí Tiền Điện 24 Giờ (B0
-                    vs B2)
+                  <h2 class="section-heading" id="loadComparisonTitle">
+                    Phụ tải và tiền điện của lịch đề xuất
                   </h2>
-                  <p class="section-subtitle">
-                    Chứng minh cơ chế Cắt đỉnh nhọn (Peak Shaving): B2 triệt
-                    tiêu tải trọng ở hai khung cao điểm đỏ (09:30-11:30 và
-                    17:00-20:00) và điều phối công suất sang thung lũng đêm.
+                  <p class="section-subtitle" id="peakComparisonNote">
+                    Chưa có kết quả. Phụ tải là mô hình theo lịch, không phải số
+                    đo trực tiếp.
                   </p>
                 </div>
                 <div class="chart-controls-group">
@@ -1301,11 +1266,12 @@
                   </div>
                   <div class="chart-legend-pills">
                     <span class="legend-pill"
-                      ><span class="line-dot dot-b0"></span>Lịch gốc (B0)</span
+                      ><span class="line-dot dot-b0"></span
+                      ><span id="chartBaselineLabel">Lịch gốc B0</span></span
                     >
                     <span class="legend-pill"
-                      ><span class="line-dot dot-b2"></span>Lịch đề xuất
-                      (B2)</span
+                      ><span class="line-dot dot-b2"></span
+                      ><span id="chartSelectedLabel">Lịch đề xuất</span></span
                     >
                   </div>
                 </div>
@@ -1335,13 +1301,13 @@
                   >
                 </div>
                 <div class="hud-item hud-load-b2">
-                  <span class="hud-label">TẢI ĐỀ XUẤT (B2)</span>
+                  <span class="hud-label">LỊCH ĐƯỢC ĐỀ XUẤT</span>
                   <span class="hud-val tabular text-success" id="hudB2Val"
                     >Chưa phân tích</span
                   >
                 </div>
                 <div class="hud-item hud-saving">
-                  <span class="hud-label">CẮT GIẢM TỨC THỜI</span>
+                  <span class="hud-label">CHÊNH LỆCH ĐỈNH MÔ HÌNH</span>
                   <span class="hud-val tabular text-highlight" id="hudSavingVal"
                     >Chưa phân tích</span
                   >
@@ -1463,20 +1429,7 @@
               <div class="section-title-bar">
                 <div>
                   <h2 class="section-heading">
-                    <svg
-                      fill="none"
-                      height="18"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      viewbox="0 0 24 24"
-                      width="18"
-                    >
-                      <polyline
-                        points="22 12 18 12 15 21 9 3 6 12 2 12"
-                      ></polyline>
-                    </svg>
-                    Kiểm Soát Rủi Ro &amp; Thử Nghiệm Độ Nhạy Ba Mức (THẤP / CƠ
-                    SỞ / CAO)
+                    Khoảng lợi ích và bằng chứng cần bổ sung
                   </h2>
                   <p class="section-subtitle">
                     Khoảng lợi ích của từng lịch khi công suất và chi phí loại
