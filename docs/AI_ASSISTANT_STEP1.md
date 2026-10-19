@@ -101,3 +101,5 @@ Tham khảo [ngữ nghĩa reasoning/budget OpenRouter](https://openrouter.ai/doc
 Thêm khảo sát CSV và đề xuất biến đổi có nguồn, bản so sánh trước/sau, cổng duyệt
 dữ liệu; sau đó bổ sung ràng buộc và công cụ solver để AI tổ chức thử kịch bản.
 Cổng duyệt phạm vi và lịch cuối chưa được triển khai trong bước 1.
+
+Cập nhật: bước chuẩn bị CSV đã có; xem [hướng dẫn bước 2](AI_CSV_WORKFLOW.md).

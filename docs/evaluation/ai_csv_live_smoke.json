@@ -1,0 +1,57 @@
+{
+  "status": "ACCEPTED",
+  "kind": "CSV",
+  "api": {
+    "status": "OK",
+    "requested_model": "openrouter/free",
+    "response_id": "gen-1792405199-y2bMTUN9fjfcqPt0Edc0",
+    "model": "nvidia/nemotron-3-super-120b-a12b:free",
+    "latency_seconds": 39.776,
+    "http_status": null,
+    "error_category": null,
+    "finish_reason": "stop",
+    "usage": {
+      "prompt_tokens": 1288,
+      "completion_tokens": 1711,
+      "total_tokens": 2999
+    }
+  },
+  "raw_hash": "sha256:9731ffaa1e4fb9b6bee547f063c395a9be31f1d3dd3aa107035b58a7d7ee2d83",
+  "input_hash": "sha256:8bd1a70a1555ca1d01309a12ca418fa7448bba81b07d58a8a4000bc905ae4f96",
+  "request_hash": "7bbc56d90be93c0fdb5e97ec8aa622734f698343b47702e51404ce9589ad753b",
+  "prepared_input_hash": "sha256:82e13a3ea0dbf470e2d00904e4fecc59b283c72b1daf49ff22f9990cc076709b",
+  "source_preserved": true,
+  "changes": [
+    {
+      "field": "job_id",
+      "origin": "CSV_TRIMMED"
+    },
+    {
+      "field": "template_id",
+      "origin": "USER_CONFIRMED_PROFILE"
+    },
+    {
+      "field": "quantity",
+      "origin": "USER_CONFIRMED_PROFILE"
+    },
+    {
+      "field": "release",
+      "origin": "USER_CONFIRMED_PROFILE"
+    },
+    {
+      "field": "due",
+      "origin": "USER_CONFIRMED_PROFILE"
+    }
+  ],
+  "unmodeled_columns": [
+    "Notes"
+  ],
+  "manual_mapping_review": true,
+  "proposal_mapping_matched_expected": false,
+  "review_scope": "CSV_PREPARATION_ONLY_NOT_SCHEDULE_APPROVAL",
+  "synthetic_only": true,
+  "external_model_call": true,
+  "live_cloud_deployed": false,
+  "engine_trace_matches": true,
+  "limitations": "One live CSV example verifies wiring and review, not model mapping accuracy or factory validation."
+}

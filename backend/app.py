@@ -110,6 +110,11 @@ def assistant_script():
     return FileResponse(ROOT / "assistant.js", media_type="text/javascript")
 
 
+@app.get("/ai-csv-import.js")
+def ai_csv_script():
+    return FileResponse(ROOT / "ai-csv-import.js", media_type="text/javascript")
+
+
 @app.get("/api/demo/health")
 def health():
     sha = build_sha()
@@ -256,6 +261,28 @@ async def assistant_cancel(ident: str, request: Request):
         return await run_in_threadpool(get_assistant().cancel, workspace_token(request), ident)
     except TeamError as exc:
         return team_error(exc)
+
+
+@app.post("/api/demo/assistant/requests/{ident}/csv-preview")
+async def assistant_csv_preview(ident: str, request: Request):
+    raw = await read_json(request)
+    try:
+        return await run_in_threadpool(get_assistant().csv_preview,workspace_token(request),ident,raw)
+    except TeamError as exc:
+        return team_error(exc)
+    except ValidationError:
+        return error(422,"CSV_PREVIEW_SCHEMA","Ghép cột hoặc phiên bản xem trước không hợp lệ.")
+
+
+@app.post("/api/demo/assistant/requests/{ident}/csv-review")
+async def assistant_csv_review(ident: str, request: Request):
+    raw = await read_json(request)
+    try:
+        return await run_in_threadpool(get_assistant().csv_review,workspace_token(request),ident,raw)
+    except TeamError as exc:
+        return team_error(exc)
+    except ValidationError:
+        return error(422,"CSV_REVIEW_SCHEMA","Bảng/ghép cột/đồng ý rà soát không hợp lệ; chưa thay đổi kế hoạch.")
 
 
 @app.post("/api/demo/workspaces")

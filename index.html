@@ -17,6 +17,7 @@
     <script defer="" src="/input-model.js"></script>
     <script defer="" src="/input-desk.js"></script>
     <script defer="" src="/assistant.js"></script>
+    <script defer="" src="/ai-csv-import.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#workspaceMain">Chuyển đến nội dung chính</a>
@@ -1508,6 +1509,31 @@
                     rows="5"
                     spellcheck="false"
                   ></textarea>
+                  <section class="analytics-card ai-csv-panel" id="aiCSVPanel" aria-labelledby="aiCSVTitle">
+                    <p class="live-eyebrow">TRỢ LÝ AI · BƯỚC 2</p>
+                    <h3 id="aiCSVTitle">Nhờ AI đọc bảng và đề xuất ghép cột</h3>
+                    <p>Giữ nguyên file gốc. AI đề xuất ý nghĩa cột, chỉ ra điểm nghi vấn và hỏi lại; bạn sửa, chọn giá trị từ hồ sơ hoặc tự nhập trước khi duyệt. Không tự xóa dòng, đoán số liệu hay chạy lịch.</p>
+                    <p class="live-muted">AI: tối đa 32 KiB, 8 dòng dữ liệu, 32 cột. Luồng thủ công bên dưới vẫn dùng riêng. Cột ngoài mô hình được giữ kèm nhưng chưa được tính.</p>
+                    <label for="aiCSVNotes">Ghi chú giúp AI hiểu bảng (không bắt buộc)</label>
+                    <textarea id="aiCSVNotes" rows="2" maxlength="1000" placeholder="Ví dụ: SL là số lượng; cột ghi chú chứa yêu cầu giao hàng cần kiểm tra thêm."></textarea>
+                    <label class="desk-check"><input type="checkbox" id="aiCSVConsent" />Tôi đồng ý gửi toàn bộ bảng CSV/TSV và hồ sơ tham chiếu cần thiết tới model qua OpenRouter.</label>
+                    <ol class="assistant-flow" aria-label="Luồng nhập CSV bằng AI"><li id="aiCSVStepSource" aria-current="step">1. File gốc</li><li id="aiCSVStepModel">2. AI đọc bảng</li><li id="aiCSVStepReview">3. Bạn rà soát</li><li id="aiCSVStepDone">4. Đưa vào bản chuẩn bị</li></ol>
+                    <div class="live-actions"><button type="button" id="aiCSVStart">Nhờ AI ghép cột</button><button type="button" id="aiCSVCancel" disabled>Dừng / bỏ đề xuất</button><button type="button" id="aiCSVReload" disabled>Kiểm tra lại lượt</button></div>
+                    <p id="aiCSVStatus" role="status" aria-live="polite">Chưa gửi bảng tới AI.</p>
+                    <div id="aiCSVResult" hidden>
+                      <h4>Cách hiểu và điểm cần xem lại</h4><p id="aiCSVSummary"></p><ul id="aiCSVIssues"></ul><ul id="aiCSVQuestions"></ul>
+                      <h4>Ghép cột (bạn có thể sửa)</h4><div class="live-table-wrap"><table><thead><tr><th>Cột gốc</th><th>Trường sử dụng</th><th>Lý do AI đề xuất</th></tr></thead><tbody id="aiCSVMapping"></tbody></table></div>
+                      <button type="button" id="aiCSVPreview">Cập nhật bản xem trước</button>
+                      <p id="aiCSVPreviewNote" class="live-muted"></p>
+                      <div class="live-table-wrap"><table class="ai-csv-review-table"><thead id="aiCSVReviewHead"></thead><tbody id="aiCSVReviewRows"></tbody></table></div>
+                      <label class="desk-check"><input type="checkbox" id="aiCSVExtras" />Tôi đã xem cột ngoài mô hình; giữ kèm nguồn, chưa coi là ràng buộc đã kiểm tra.</label>
+                      <label class="desk-check"><input type="checkbox" id="aiCSVQuestionsAck" />Tôi đã xem câu hỏi/cảnh báo. Duyệt nhập bảng chưa phê duyệt các điều kiện ngoài mô hình.</label>
+                      <label for="aiCSVReviewNote">Ghi chú rà soát</label><textarea id="aiCSVReviewNote" rows="2" maxlength="1600"></textarea>
+                      <label class="desk-check"><input type="checkbox" id="aiCSVAck" />Tôi đã kiểm tra ghép cột và từng dòng, gồm các ô sửa hoặc lấy từ hồ sơ. Chỉ đưa vào bản chuẩn bị, chưa duyệt lịch chạy.</label>
+                      <div class="live-actions"><button type="button" id="aiCSVAccept" disabled>Duyệt và đưa vào bảng</button><button type="button" id="aiCSVReject" disabled>Từ chối đề xuất</button><button type="button" id="aiCSVApply" disabled>Đưa bản đã duyệt vào bảng</button><button type="button" id="aiCSVExport" disabled>Tải bản ghi CSV</button></div>
+                    </div>
+                    <details><summary>File gốc và dấu vết API</summary><p id="aiCSVTrace">Chưa có lượt API.</p><button type="button" id="aiCSVDownloadSource">Tải nguyên văn bảng nguồn</button></details>
+                  </section>
                   <button id="previewImport" type="button">
                     Xem trước &amp; ghép cột
                   </button>

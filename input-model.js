@@ -208,6 +208,21 @@ const InputModel = (() => {
         start: timestamp(r.start),
       });
     });
+    // The profile is a reusable catalog; the submitted snapshot only declares
+    // families in this plan or the initial machine state. Keep the full catalog in base.
+    const activeFamilies = new Set([
+      ...data.jobs.map(j => j.family),
+      ...Object.values(data.setup.initial_family_by_machine),
+    ]);
+    const catalogFamilies = new Set([
+      ...base.jobs.map(j => j.family),
+      ...Object.values(base.setup.initial_family_by_machine),
+    ]);
+    const catalogMachines = new Set(base.machines.map(m => m.id));
+    data.setup.transitions = data.setup.transitions.filter(t =>
+      !catalogMachines.has(t.machine_id) || !catalogFamilies.has(t.from_family) ||
+      !catalogFamilies.has(t.to_family) ||
+      (activeFamilies.has(t.from_family) && activeFamilies.has(t.to_family)));
     if (!options.reconfirmCosts) {
       for (const k of data.cost_scope.excluded)
         data.cost_scope.excluded_review[k] = {
