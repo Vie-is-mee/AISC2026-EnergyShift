@@ -85,6 +85,7 @@ function table(id, rows) {
     );
 }
 function clearResult() {
+  window.AssistantIntake?.invalidate();
   humanReviews.clear();
   scheduleDraft = null;
   scheduleEditorState = null;

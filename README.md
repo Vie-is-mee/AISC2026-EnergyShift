@@ -5,6 +5,11 @@ Hỗ trợ quyết định điều chỉnh lịch sản xuất dựa trên tính
 Frontend HTML/CSS/JavaScript hiện tại nhận kết quả tính thật từ API local.
 Dữ liệu mẫu là SYNTHETIC; đây chưa phải hệ thống vận hành công nghiệp hoàn chỉnh.
 
+Đã có [trợ lý AI bước 1: hiểu yêu cầu và con người rà soát](docs/AI_ASSISTANT_STEP1.md).
+Trong Điều chuyển đơn hàng, mô tả phát sinh và chọn **Nhờ AI xem yêu cầu** để
+gọi model thật qua backend. Cần cấu hình key/model ở Render hoặc `.env` local;
+nút Phân tích kế hoạch vẫn chạy engine độc lập. AI chưa tự sửa dữ liệu/chọn lịch.
+
 ## Xem demo trên Internet
 
 Đã có `vercel.json`, `render.yaml`, `.env.vercel.example` và `.env.render.example`.

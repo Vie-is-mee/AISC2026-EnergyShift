@@ -2,6 +2,7 @@
 import base64
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import socket
@@ -106,6 +107,9 @@ try:
     check('referencePlan() === currentReport.decision.selected_plan && document.getElementById("chartSelectedLabel").textContent.includes(referencePlan())', 'selected_plan_consistent_across_views')
     check('document.querySelectorAll("#plansGrid .plan-card").length === 3', 'three_real_plan_cards')
     check('document.querySelectorAll("#hourlyDetails tbody tr").length===24 && document.getElementById("elecLineChartSvg").textContent.includes("kW")', 'hourly_axes_and_accessible_table')
+    if os.environ.get('ENERGYSHIFT_ASSISTANT_QA') == '1':
+        from assistant_browser_checks import run_checks as assistant_checks
+        assistant_checks(js,click,wait,check,command,OUT,ROOT)
     js('switchMainTab("tab-loadcurve")')
     time.sleep(.3)
     for metric in ['power', 'cost']:
@@ -117,7 +121,7 @@ try:
         check('document.getElementById("chartTooltip").textContent.includes(' + json.dumps('kW' if metric == 'power' else ' / ') + ')', 'hover_units_' + metric)
         command('Input.dispatchMouseEvent', {'type':'mouseMoved', 'x':1, 'y':1})
         check('document.getElementById("chartTooltip").style.display === "none"', 'hover_hides_on_exit_' + metric)
-    js('switchChartMetric("power");document.querySelector("#elecLineChartSvg circle").focus()')
+    js('switchChartMetric("power");document.querySelector("#elecLineChartSvg circle[tabindex]").focus()')
     check('document.getElementById("chartTooltip").style.display === "block"', 'keyboard_chart_tooltip')
     js('document.activeElement.blur();switchMainTab("tab-overview")')
     check('document.querySelectorAll("#validationList article").length===5 && document.querySelectorAll("#validationEvidence tbody tr").length>=8', 'constraint_cards_have_job_and_mold_evidence')
@@ -175,7 +179,7 @@ try:
     summary = {'browser':'headless Microsoft Edge via CDP','all_checks_pass':True,'base_url':args.base_url,'javascript_exceptions':len(failures),
                'scope':'selected-plan consistency; hourly axes/table, verifier evidence, readable memo, scope-safe synthetic measurement check, private queued team run/history, and input regression',
                'screenshots':['work/ui-qa/workspace-dark.png','work/ui-qa/input-desktop.png','work/ui-qa/input-mobile.png'],
-               'source_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['index.html','app.js','workspace.css','input-desk.js','input-model.js','backend/b2.py','backend/neighborhoods.py','backend/team.py','backend/app.py','backend/reconciliation.py']},
+               'source_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['index.html','app.js','workspace.css','input-desk.js','input-model.js','assistant.js','backend/assistant.py','backend/openrouter.py','backend/b2.py','backend/neighborhoods.py','backend/team.py','backend/app.py','backend/reconciliation.py']},
                'limitations':'Local browser and synthetic inputs; no certification of factory operation or live cloud.'}
     (ROOT / 'docs/evaluation/b2_ui_qa.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(summary),flush=True)

@@ -151,6 +151,15 @@ localStorage nằm ở browser, không bị phụ thuộc filesystem tạm của
 
 ## Kiểm chứng cấu hình trong repository
 
+### Tùy chọn: bật trợ lý AI bước 1
+
+Sau khi deploy bản mới, đặt `OPENROUTER_API_KEY` và `OPENROUTER_MODEL` trong
+**Render → Environment**, rồi redeploy backend. Không đưa key lên Vercel;
+file `.env` cá nhân không tự được đưa lên cloud. Model/endpoint cần hỗ trợ
+JSON Schema; UI báo lỗi thật khi model quá tải hoặc trả sai contract. Không
+tự đổi model. Engine vẫn dùng được khi chưa bật trợ lý. Xem
+[luồng người dùng rà soát và giới hạn](AI_ASSISTANT_STEP1.md).
+
 - `python -m unittest discover -s backend/tests -q`: 143 tests Python.
 - `node --test ops/input-model.test.cjs ops/deployment.test.cjs`: 23 tests Node.
 - Build tests kiểm tra allowlist, URL hợp lệ, không xuất biến secret và thư mục

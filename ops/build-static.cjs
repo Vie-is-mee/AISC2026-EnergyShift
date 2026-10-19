@@ -2,7 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
-const PUBLIC_FILES = ['index.html', 'app.js', 'live.css', 'input-model.js', 'input-desk.js', 'api-client.js', 'workspace.css', 'workspace.js'];
+const PUBLIC_FILES = ['index.html', 'app.js', 'live.css', 'input-model.js', 'input-desk.js', 'api-client.js', 'workspace.css', 'workspace.js', 'assistant.js'];
 function build(destination = path.join(ROOT, 'dist'), env = process.env) {
   const raw = (env.ENERGYSHIFT_API_BASE_URL || '').trim().replace(/\/$/, '');
   let url;

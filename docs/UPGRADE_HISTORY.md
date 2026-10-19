@@ -703,3 +703,37 @@ stale tooltips. Cost and average-power units and underlying calculations are unc
 Validation: Node view contracts and real Edge CDP mouse movement over empty plot
 space for both metrics, tooltip exit and keyboard focus; full two-origin UI rehearsal.
 Approved layout and stylesheets remain unchanged.
+
+## 19/10/2026 - Trợ lý AI bước 1: hiểu yêu cầu, có người rà soát
+
+Điểm yếu: API model chỉ có trong benchmark riêng; UI lập lịch không có luồng AI
+giúp hiểu yêu cầu, hỏi lại và ghi quyết định của kỹ sư.
+
+Thêm dịch vụ intake gọi OpenRouter thật, worker/queue và ngân sách hữu hạn, lưu
+trạng thái/metadata vào SQLite theo capability riêng. Model trả đề xuất cấu trúc;
+kiểm tra schema và mã lô. Cổng duyệt ràng buộc với input_hash/request_hash, có nội
+dung người dùng sửa và ghi chấp nhận/từ chối. Hủy không nhận phản hồi đến muộn.
+
+UI giữ sáu mục và stylesheet chuẩn; thêm khu vực mô tả, đồng ý gửi snapshot,
+tiến trình thật, câu hỏi, sửa cách hiểu, xác nhận/từ chối, dấu vết provider và tải
+bản ghi. Sửa input/mô tả vô hiệu kết quả liên quan. Không có đường AI tự sửa
+dataset, gọi solver hoặc vượt kiểm chứng; CSV và hai cổng duyệt sau còn chờ.
+
+Có test service/API về consent, phiên riêng, stale hash, review, cancellation,
+quota, phản hồi sai/echo secret và restart. Bằng chứng live và UI ghi riêng;
+không coi test mock là gọi model. Hướng dẫn: [AI_ASSISTANT_STEP1.md](AI_ASSISTANT_STEP1.md).
+
+Kiểm chứng bản cuối: 187 tests Python và 34 tests Node đạt; Edge desktop/mobile
+và diễn tập static build → FastAPI hai origin qua CORS/CSP đạt, không lỗi JS.
+Lượt live mới nhất qua `openrouter/free` được phục vụ bởi `nvidia/nemotron-3.5-super-vl:free`,
+trả JSON và hoàn tất duyệt thủ công trong UI; snapshot được giữ đúng. Evidence:
+`docs/evaluation/assistant_live_smoke.json`. Model cấu hình gặp 429; có lượt thử
+free model trả JSON sai hoặc endpoint từ chối tắt reasoning. Đã giữ evidence lỗi
+riêng, dùng JSON Schema và không ép tắt reasoning. Không sửa `.env`, không tự
+fallback trong sản phẩm, không coi một lượt live là đánh giá độ chính xác model.
+
+Đã tích hợp UI mới từ PR #19 (inline edit, kéo Gantt và hover mới); giữ cả hook
+vô hiệu bản duyệt AI khi lịch thay đổi và logic bản nháp/rà soát của UI. Kiểm tra
+thêm kéo chuột thật và phím Alt+Right gọi đúng đường vô hiệu hóa.
+
+PR: [#20 - Trợ lý AI đọc yêu cầu và cổng kỹ sư rà soát](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/20).

@@ -1,0 +1,28 @@
+{
+  "status": "ACCEPTED",
+  "api": {
+    "status": "OK",
+    "requested_model": "openrouter/free",
+    "response_id": "gen-1792402685-B1ZCtaBnhp2gvN9FM7gM",
+    "model": "nvidia/nemotron-3.5-super-vl:free",
+    "latency_seconds": 74.822,
+    "http_status": null,
+    "error_category": null,
+    "finish_reason": "stop",
+    "usage": {
+      "prompt_tokens": 5994,
+      "completion_tokens": 3427,
+      "total_tokens": 9421
+    }
+  },
+  "input_hash": "sha256:8bd1a70a1555ca1d01309a12ca418fa7448bba81b07d58a8a4000bc905ae4f96",
+  "request_hash": "f2fa1aa8726c3ce96b96358109d0af6475e1ac590ed49fd5b682c26e090fcce6",
+  "review_scope": "INTENT_ONLY_NO_DATA_OR_SCHEDULE_CHANGE",
+  "identity_verified": false,
+  "proposal_had_questions": true,
+  "snapshot_preserved": true,
+  "synthetic_only": true,
+  "external_model_call": true,
+  "live_cloud_deployed": false,
+  "limitations": "One genuine model response validates wiring and human-review flow; not model accuracy or factory effectiveness."
+}

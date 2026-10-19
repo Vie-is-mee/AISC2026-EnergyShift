@@ -1,9 +1,12 @@
 """Windows Edge regression: plan selection and real mouse timeline dragging. Requires requirements-browser.txt and the API on localhost:8765."""
-import json, subprocess, tempfile, time, urllib.request
+import json, subprocess, tempfile, time, urllib.request, argparse
 from pathlib import Path
 import websocket
 
 root=Path(__file__).resolve().parents[1]
+parser=argparse.ArgumentParser()
+parser.add_argument('--base-url',default='http://127.0.0.1:8765')
+base_url=parser.parse_args().base_url
 out=root/'work/ui-qa/merged-tabs';out.mkdir(parents=True,exist_ok=True)
 import socket
 with socket.socket() as probe:
@@ -35,7 +38,7 @@ def wait(code):
 try:
     for i in range(70):
         try:
-            target=json.load(urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:9351/json/new?http://127.0.0.1:8765',method='PUT')));break
+            target=json.load(urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:9351/json/new?'+base_url,method='PUT')));break
         except Exception:time.sleep(.2)
     ws=websocket.create_connection(target['webSocketDebuggerUrl'],origin='http://localhost:9351',timeout=120)
     command('Runtime.enable');command('Page.enable')
@@ -49,13 +52,14 @@ try:
     check('activeGanttPlan==="b2" && document.querySelectorAll(".job-pill-b2").length===8','B2 displays actual B2 schedule')
     js('document.querySelector(".job-pill-b2").click()')
     check('!!scheduleEditorState && !$("scheduleEditForm").hidden','Simple bar click still opens inline editor')
-    js('closeScheduleEditor();selectGanttPlan("b0");window.beforeDrag=Date.parse(currentReport.plans.B0.schedule.find(a=>a.job_id==="J1").start);document.querySelector("[data-job-id=J1]").scrollIntoView({block:"center"})')
+    js('closeScheduleEditor();selectGanttPlan("b0");window.aiInvalidations=0;const originalInvalidate=AssistantIntake.invalidate;AssistantIntake.invalidate=()=>{window.aiInvalidations++;originalInvalidate();};window.beforeDrag=Date.parse(currentReport.plans.B0.schedule.find(a=>a.job_id==="J1").start);document.querySelector("[data-job-id=J1]").scrollIntoView({block:"center"})')
     point=js('(()=>{const e=document.querySelector("[data-job-id=J1]"),r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,delta:e.parentElement.getBoundingClientRect().width/48};})()')
     command('Input.dispatchMouseEvent',{'type':'mouseMoved','x':point['x'],'y':point['y']})
     command('Input.dispatchMouseEvent',{'type':'mousePressed','button':'left','clickCount':1,'x':point['x'],'y':point['y']})
     command('Input.dispatchMouseEvent',{'type':'mouseMoved','buttons':1,'x':point['x']+point['delta'],'y':point['y']})
     command('Input.dispatchMouseEvent',{'type':'mouseReleased','button':'left','clickCount':1,'x':point['x']+point['delta'],'y':point['y']})
     check('!!scheduleDraft && currentReport===null && Date.parse(scheduleDraft.current_schedule.find(a=>a.job_id==="J1").start)-beforeDrag===1800000','Real mouse drag moves job exactly 30 minutes and invalidates old results')
+    check('window.aiInvalidations > 0 && document.getElementById("aiAccept").disabled','Dragging invalidates assistant review through canonical clearResult')
     check('!scheduleEditorState && $("scheduleEditForm").hidden','Drag release does not accidentally open editor')
     js('selectGanttPlan("b1")')
     check('!!currentReport && activeGanttPlan==="b1" && !$("btnViewB0").disabled && !$("btnViewB2").disabled','B1 after dragging recalculates new input and all selectors remain usable')

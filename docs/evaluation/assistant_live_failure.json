@@ -1,0 +1,20 @@
+{
+  "status": "ERROR",
+  "api": {
+    "status": "HTTP_ERROR",
+    "requested_model": "openrouter/free",
+    "response_id": null,
+    "model": null,
+    "latency_seconds": 1.003,
+    "http_status": 400,
+    "error_category": "PROVIDER_ERROR",
+    "finish_reason": null,
+    "usage": {}
+  },
+  "input_hash": "sha256:8bd1a70a1555ca1d01309a12ca418fa7448bba81b07d58a8a4000bc905ae4f96",
+  "request_hash": "f2fa1aa8726c3ce96b96358109d0af6475e1ac590ed49fd5b682c26e090fcce6",
+  "synthetic_only": true,
+  "external_model_call": true,
+  "live_cloud_deployed": false,
+  "limitations": "Provider failed: no model proposal and no completed human-review browser proof."
+}

@@ -1,3 +1,12 @@
+.assistant-panel { margin-bottom: 18px; }
+#assistantPanel textarea { width: 100%; max-width: 100%; min-height: 96px; font: inherit; }
+#assistantPanel .desk-check { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; }
+#assistantPanel .desk-check input { flex-shrink: 0; margin-top: 4px; }
+#assistantPanel h4 { margin: 14px 0 6px; }
+.assistant-flow { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; }
+.assistant-flow li { padding: 5px 10px; border: 1px solid var(--border-subtle, #c4d1d9); border-radius: 6px; }
+.assistant-flow [aria-current="step"] { color: var(--accent-cyan, #087e83); border-color: currentColor; font-weight: 700; }
+#aiTrace { overflow-wrap: anywhere; }
 .live-kpis strong[data-tone="negative"] {
   color: #a3382a;
 }
