@@ -1,0 +1,806 @@
+{
+  "generated_at": "2026-10-19T04:26:23.439561+00:00",
+  "source_type": "SYNTHETIC",
+  "method": "Actual CP-SAT with independent verifier and exact ledger recosting",
+  "limitations": "Constructed small cases, not industrial validation/global benchmark. No LLM call.",
+  "cases": [
+    {
+      "case": "coordinated",
+      "input_hash": "sha256:11d374aeb8678b1c0c54d585db127e8ee6d5d3013c966beae8b073b4a6ee0d4d",
+      "decision": {
+        "kind": "CHANGE",
+        "selected_plan": "B2",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_FIXED_ASSIGNMENTS_AND_ORDER",
+          "B2_INCREMENTAL_VALUE_ROBUST"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "costs_vnd": {
+        "B0": 135920,
+        "B1": 91760,
+        "B2": 47600
+      },
+      "verifiers": {
+        "B0": "PASS",
+        "B1": "PASS",
+        "B2": "PASS"
+      },
+      "solver": {
+        "algorithm": "OR-Tools CP-SAT",
+        "version": "9.15.6755",
+        "models": [
+          {
+            "seed": "B0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.0831042,
+            "branches": 338,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          }
+        ],
+        "grid_minutes": 30,
+        "time_limit_seconds": 6,
+        "runtime_seconds": 0.117023,
+        "domain": "Union of B0/B1 fixed machine assignments and job orders; grid plus incumbent anchors",
+        "optimality": "PROVEN_IN_DECLARED_DOMAIN",
+        "global_optimum_proven": false,
+        "fallback": "Retain independently verified best B0/B1 on timeout/rejection; origin identifies source"
+      },
+      "origin": "CP_SAT_B0",
+      "economics": {
+        "B1": {
+          "status": "BOUNDED",
+          "unknown_components": [],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "rounding_allowance_exact_vnd": "1",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 27535,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+          "excluded_incremental_bounds_vnd": [
+            0,
+            0
+          ],
+          "headroom_after_review_vnd": 27535,
+          "net_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "percentage_margin_bounds_exact_vnd": [
+            "180879/5",
+            "247129/5"
+          ],
+          "all_declared_values_qualify": true,
+          "no_declared_values_qualify": false
+        },
+        "B2": {
+          "status": "BOUNDED",
+          "unknown_components": [],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "75070",
+            "101570"
+          ],
+          "rounding_allowance_exact_vnd": "2",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 65070,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+          "excluded_incremental_bounds_vnd": [
+            0,
+            0
+          ],
+          "headroom_after_review_vnd": 65070,
+          "net_saving_bounds_exact_vnd": [
+            "75070",
+            "101570"
+          ],
+          "percentage_margin_bounds_exact_vnd": [
+            "7391469/100",
+            "10000691/100"
+          ],
+          "all_declared_values_qualify": true,
+          "no_declared_values_qualify": false
+        },
+        "incremental_B2_over_B1": {
+          "status": "BOUNDED",
+          "net_incremental_bounds_exact_vnd": [
+            "37534",
+            "50786"
+          ],
+          "method": "Independent power bounds; excluded costs may differ throughout declared bounds, no assumed cancellation"
+        }
+      }
+    },
+    {
+      "case": "incremental_too_small",
+      "input_hash": "sha256:f77c8e2828c79d1453eb6d5d9b4611598dea9f06284c006bd36232f8b32c14c1",
+      "decision": {
+        "kind": "USE_SIMPLE_RULE",
+        "selected_plan": "B1",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_FIXED_ASSIGNMENTS_AND_ORDER",
+          "B2_INCREMENTAL_VALUE_NOT_ESTABLISHED"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "costs_vnd": {
+        "B0": 135920,
+        "B1": 91760,
+        "B2": 47600
+      },
+      "verifiers": {
+        "B0": "PASS",
+        "B1": "PASS",
+        "B2": "PASS"
+      },
+      "solver": {
+        "algorithm": "OR-Tools CP-SAT",
+        "version": "9.15.6755",
+        "models": [
+          {
+            "seed": "B0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.0212684,
+            "branches": 338,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          }
+        ],
+        "grid_minutes": 30,
+        "time_limit_seconds": 6,
+        "runtime_seconds": 0.03203,
+        "domain": "Union of B0/B1 fixed machine assignments and job orders; grid plus incumbent anchors",
+        "optimality": "PROVEN_IN_DECLARED_DOMAIN",
+        "global_optimum_proven": false,
+        "fallback": "Retain independently verified best B0/B1 on timeout/rejection; origin identifies source"
+      },
+      "origin": "CP_SAT_B0",
+      "economics": {
+        "B1": {
+          "status": "BOUNDED",
+          "unknown_components": [],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "rounding_allowance_exact_vnd": "1",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 27535,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+          "excluded_incremental_bounds_vnd": [
+            0,
+            0
+          ],
+          "headroom_after_review_vnd": 27535,
+          "net_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "percentage_margin_bounds_exact_vnd": [
+            "180879/5",
+            "247129/5"
+          ],
+          "all_declared_values_qualify": true,
+          "no_declared_values_qualify": false
+        },
+        "B2": {
+          "status": "BOUNDED",
+          "unknown_components": [],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "75070",
+            "101570"
+          ],
+          "rounding_allowance_exact_vnd": "2",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 65070,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+          "excluded_incremental_bounds_vnd": [
+            0,
+            0
+          ],
+          "headroom_after_review_vnd": 65070,
+          "net_saving_bounds_exact_vnd": [
+            "75070",
+            "101570"
+          ],
+          "percentage_margin_bounds_exact_vnd": [
+            "7391469/100",
+            "10000691/100"
+          ],
+          "all_declared_values_qualify": true,
+          "no_declared_values_qualify": false
+        },
+        "incremental_B2_over_B1": {
+          "status": "BOUNDED",
+          "net_incremental_bounds_exact_vnd": [
+            "37534",
+            "50786"
+          ],
+          "method": "Independent power bounds; excluded costs may differ throughout declared bounds, no assumed cancellation"
+        }
+      }
+    },
+    {
+      "case": "single_job_review",
+      "input_hash": "sha256:2cc927024d512973a3e093a0c3a97e3a7d6178255df84d9657b0caebfb3d00db",
+      "decision": {
+        "kind": "CHANGE",
+        "selected_plan": "B1",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_FIXED_ASSIGNMENTS_AND_ORDER",
+          "B2_COST_REVIEW_REQUIRED"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "costs_vnd": {
+        "B0": 135920,
+        "B1": 91760,
+        "B2": 47600
+      },
+      "verifiers": {
+        "B0": "PASS",
+        "B1": "PASS",
+        "B2": "PASS"
+      },
+      "solver": {
+        "algorithm": "OR-Tools CP-SAT",
+        "version": "9.15.6755",
+        "models": [
+          {
+            "seed": "B0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.0215435,
+            "branches": 338,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          }
+        ],
+        "grid_minutes": 30,
+        "time_limit_seconds": 6,
+        "runtime_seconds": 0.03301,
+        "domain": "Union of B0/B1 fixed machine assignments and job orders; grid plus incumbent anchors",
+        "optimality": "PROVEN_IN_DECLARED_DOMAIN",
+        "global_optimum_proven": false,
+        "fallback": "Retain independently verified best B0/B1 on timeout/rejection; origin identifies source"
+      },
+      "origin": "CP_SAT_B0",
+      "economics": {
+        "B1": {
+          "status": "BOUNDED",
+          "unknown_components": [],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "rounding_allowance_exact_vnd": "1",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 27535,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+          "excluded_incremental_bounds_vnd": [
+            0,
+            0
+          ],
+          "headroom_after_review_vnd": 27535,
+          "net_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "percentage_margin_bounds_exact_vnd": [
+            "180879/5",
+            "247129/5"
+          ],
+          "all_declared_values_qualify": true,
+          "no_declared_values_qualify": false
+        },
+        "B2": {
+          "status": "UNKNOWN_SCOPE",
+          "unknown_components": [
+            "COORDINATED_COST_REVIEW"
+          ],
+          "scope_note": "Single-job reviews do not authorize coordinated changes"
+        },
+        "incremental_B2_over_B1": {
+          "status": "UNKNOWN",
+          "reason": "Explicit coordinated cost bounds required"
+        }
+      }
+    },
+    {
+      "case": "unknown_overtime",
+      "input_hash": "sha256:a15dc46749790201e53890f361ccd2c50b2ea7256eca91b49523cc9f361ed1b3",
+      "decision": {
+        "kind": "MEASURE_FIRST",
+        "selected_plan": "B0",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_FIXED_ASSIGNMENTS_AND_ORDER",
+          "CANDIDATES_NEED_MORE_EVIDENCE"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "costs_vnd": {
+        "B0": 135920,
+        "B1": 91760,
+        "B2": 47600
+      },
+      "verifiers": {
+        "B0": "PASS",
+        "B1": "PASS",
+        "B2": "PASS"
+      },
+      "solver": {
+        "algorithm": "OR-Tools CP-SAT",
+        "version": "9.15.6755",
+        "models": [
+          {
+            "seed": "B0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.0214429,
+            "branches": 338,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          }
+        ],
+        "grid_minutes": 30,
+        "time_limit_seconds": 6,
+        "runtime_seconds": 0.032021,
+        "domain": "Union of B0/B1 fixed machine assignments and job orders; grid plus incumbent anchors",
+        "optimality": "PROVEN_IN_DECLARED_DOMAIN",
+        "global_optimum_proven": false,
+        "fallback": "Retain independently verified best B0/B1 on timeout/rejection; origin identifies source"
+      },
+      "origin": "CP_SAT_B0",
+      "economics": {
+        "B1": {
+          "status": "UNKNOWN_COSTS",
+          "unknown_components": [
+            "LABOR_OVERTIME"
+          ],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "rounding_allowance_exact_vnd": "1",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 27535,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews."
+        },
+        "B2": {
+          "status": "UNKNOWN_COSTS",
+          "unknown_components": [
+            "LABOR_OVERTIME"
+          ],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "75070",
+            "101570"
+          ],
+          "rounding_allowance_exact_vnd": "2",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 65070,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews."
+        },
+        "incremental_B2_over_B1": {
+          "status": "UNKNOWN",
+          "reason": "Explicit coordinated cost bounds required"
+        }
+      }
+    },
+    {
+      "case": "expensive_overtime",
+      "input_hash": "sha256:00e59fdd56689a2531edd9d01c4ab8efeeba96189b5075f50ab43e6a186a4880",
+      "decision": {
+        "kind": "KEEP_CURRENT",
+        "selected_plan": "B0",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_FIXED_ASSIGNMENTS_AND_ORDER",
+          "NO_QUALIFYING_CANDIDATE_IN_SEARCHED_DOMAIN"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "costs_vnd": {
+        "B0": 135920,
+        "B1": 91760,
+        "B2": 47600
+      },
+      "verifiers": {
+        "B0": "PASS",
+        "B1": "PASS",
+        "B2": "PASS"
+      },
+      "solver": {
+        "algorithm": "OR-Tools CP-SAT",
+        "version": "9.15.6755",
+        "models": [
+          {
+            "seed": "B0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.0220358,
+            "branches": 338,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          }
+        ],
+        "grid_minutes": 30,
+        "time_limit_seconds": 6,
+        "runtime_seconds": 0.031076,
+        "domain": "Union of B0/B1 fixed machine assignments and job orders; grid plus incumbent anchors",
+        "optimality": "PROVEN_IN_DECLARED_DOMAIN",
+        "global_optimum_proven": false,
+        "fallback": "Retain independently verified best B0/B1 on timeout/rejection; origin identifies source"
+      },
+      "origin": "CP_SAT_B0",
+      "economics": {
+        "B1": {
+          "status": "BOUNDED",
+          "unknown_components": [],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "rounding_allowance_exact_vnd": "1",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 27535,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+          "excluded_incremental_bounds_vnd": [
+            1000000,
+            1000000
+          ],
+          "headroom_after_review_vnd": -972465,
+          "net_saving_bounds_exact_vnd": [
+            "-962465",
+            "-949215"
+          ],
+          "percentage_margin_bounds_exact_vnd": [
+            "-4819121/5",
+            "-4752871/5"
+          ],
+          "all_declared_values_qualify": false,
+          "no_declared_values_qualify": true
+        },
+        "B2": {
+          "status": "BOUNDED",
+          "unknown_components": [],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "75070",
+            "101570"
+          ],
+          "rounding_allowance_exact_vnd": "2",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            },
+            {
+              "job_id": "J2",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 65070,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+          "excluded_incremental_bounds_vnd": [
+            1000000,
+            1000000
+          ],
+          "headroom_after_review_vnd": -934930,
+          "net_saving_bounds_exact_vnd": [
+            "-924930",
+            "-898430"
+          ],
+          "percentage_margin_bounds_exact_vnd": [
+            "-92608531/100",
+            "-89999309/100"
+          ],
+          "all_declared_values_qualify": false,
+          "no_declared_values_qualify": true
+        },
+        "incremental_B2_over_B1": {
+          "status": "BOUNDED",
+          "net_incremental_bounds_exact_vnd": [
+            "37534",
+            "50786"
+          ],
+          "method": "Independent power bounds; excluded costs may differ throughout declared bounds, no assumed cancellation"
+        }
+      }
+    },
+    {
+      "case": "zero_budget",
+      "input_hash": "sha256:11d374aeb8678b1c0c54d585db127e8ee6d5d3013c966beae8b073b4a6ee0d4d",
+      "decision": {
+        "kind": "USE_SIMPLE_RULE",
+        "selected_plan": "B1",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_FIXED_ASSIGNMENTS_AND_ORDER",
+          "B2_SEARCH_INCOMPLETE",
+          "B2_INCREMENTAL_VALUE_NOT_ESTABLISHED"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "costs_vnd": {
+        "B0": 135920,
+        "B1": 91760,
+        "B2": 91760
+      },
+      "verifiers": {
+        "B0": "PASS",
+        "B1": "PASS",
+        "B2": "PASS"
+      },
+      "solver": {
+        "algorithm": "OR-Tools CP-SAT",
+        "version": "9.15.6755",
+        "models": [
+          {
+            "seed": "B0",
+            "status": "NOT_RUN",
+            "reason": "BUDGET_OR_DOMAIN_LIMIT"
+          }
+        ],
+        "grid_minutes": 30,
+        "time_limit_seconds": 0,
+        "runtime_seconds": 0.00447,
+        "domain": "Union of B0/B1 fixed machine assignments and job orders; grid plus incumbent anchors",
+        "optimality": "NOT_PROVEN",
+        "global_optimum_proven": false,
+        "fallback": "Retain independently verified best B0/B1 on timeout/rejection; origin identifies source"
+      },
+      "origin": "B1",
+      "economics": {
+        "B1": {
+          "status": "BOUNDED",
+          "unknown_components": [],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "rounding_allowance_exact_vnd": "1",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 27535,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+          "excluded_incremental_bounds_vnd": [
+            0,
+            0
+          ],
+          "headroom_after_review_vnd": 27535,
+          "net_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "percentage_margin_bounds_exact_vnd": [
+            "180879/5",
+            "247129/5"
+          ],
+          "all_declared_values_qualify": true,
+          "no_declared_values_qualify": false
+        },
+        "B2": {
+          "status": "BOUNDED",
+          "unknown_components": [],
+          "method": "independent job/machine power box; fixed schedules; rational linear bounds plus rounding allowance",
+          "modeled_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "rounding_allowance_exact_vnd": "1",
+          "power_drivers": [
+            {
+              "job_id": "J1",
+              "machine_id": "M1",
+              "base_saving_coefficient_exact_vnd": "44160",
+              "power_uncertainty_pct_exact": "3/20",
+              "saving_range_contribution_exact_vnd": "13248",
+              "worst_saving_power_factor": "17/20"
+            }
+          ],
+          "max_total_extra_cost_vnd_for_robust_change": 27535,
+          "percentage_denominator": "modeled B0 run electricity + setup, not whole-plant cost",
+          "limitations": "Does not bound duration, tariffs, setup, outages or authenticity of supplied cost reviews.",
+          "excluded_incremental_bounds_vnd": [
+            0,
+            0
+          ],
+          "headroom_after_review_vnd": 27535,
+          "net_saving_bounds_exact_vnd": [
+            "37535",
+            "50785"
+          ],
+          "percentage_margin_bounds_exact_vnd": [
+            "180879/5",
+            "247129/5"
+          ],
+          "all_declared_values_qualify": true,
+          "no_declared_values_qualify": false
+        },
+        "incremental_B2_over_B1": {
+          "status": "BOUNDED",
+          "net_incremental_bounds_exact_vnd": [
+            "0",
+            "0"
+          ],
+          "method": "Independent power bounds; excluded costs may differ throughout declared bounds, no assumed cancellation"
+        }
+      }
+    }
+  ]
+}

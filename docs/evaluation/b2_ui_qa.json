@@ -1,0 +1,20 @@
+{
+  "browser": "headless Microsoft Edge via CDP",
+  "all_checks_pass": true,
+  "base_url": "http://127.0.0.1:8766",
+  "javascript_exceptions": 0,
+  "scope": "verified B2 on approved cockpit plus existing input persistence/import/lot checks",
+  "screenshots": [
+    "work/ui-qa/workspace-dark.png",
+    "work/ui-qa/input-desktop.png",
+    "work/ui-qa/input-mobile.png"
+  ],
+  "source_sha256": {
+    "index.html": "d168ac2799fa6b69e24821584db0fd24c700dfe2e72b7ab0dca7e756c9fd0067",
+    "app.js": "335e1dcd924a06d0ef98b28e5fe8ac344f71ba0e0010693986f3bad3128cd556",
+    "workspace.css": "6d3509def38c7b33aca1eba98e01a5fb119c78045f6e6cf3a616d67681b3d2ce",
+    "input-desk.js": "ccbe81c3e811ff3bf0e10d637a1f801815729191c5b1f815d74e163e97f7414e",
+    "backend/b2.py": "ae997d59e46c9d885bea7b0279d5919e862fc1fd75b551a730a7b38447906b49"
+  },
+  "limitations": "Local browser and synthetic inputs; no certification of factory operation or live cloud."
+}

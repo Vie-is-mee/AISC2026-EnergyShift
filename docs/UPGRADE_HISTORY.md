@@ -3,6 +3,43 @@
 File này được cập nhật theo từng bước; mỗi bước source có PR và merge riêng.
 Ngày ghi theo Asia/Ho_Chi_Minh. Chỉ đánh dấu đã làm khi có code và kiểm chứng.
 
+## 19/10/2026 — B2 phối hợp nhiều lô trên UI/UX chuẩn
+
+- Điểm yếu: B1 chỉ dịch một job; B2 chưa chạy. UI mới có bố cục chuẩn nhưng
+  controller dùng kịch bản, KPI và telemetry dựng sẵn.
+- Lấy bản UI người dùng xác nhận sau khi agent UI hoàn tất làm mốc trên nền
+  `ec408d9`. Thực hiện trong worktree `EnergyShift-B2`, nhánh `feature/b2-recovery`,
+  tránh xung đột thư mục agent UI. Giữ nguyên stylesheet `workspace.css`, header,
+  sáu mục điều hướng, màu/theme/responsive. Nối kết quả thật vào các mount UI.
+- Thêm OR-Tools CP-SAT 9.15.6755 chọn đồng thời thời điểm chạy nhiều job trong
+  hợp hai miền cố định máy/thứ tự B0 và B1. Lưới 30 phút cộng incumbent, ngân
+  sách B2 6 giây, tối đa 8 job/3 máy/48 giờ. Không nhận tối ưu toàn nhà máy.
+- Mô hình giữ release/due, lịch máy, chuẩn bị và giữ khuôn vật lý. Verifier
+  dựng lại lịch, cost engine tính lại phân số/HALF_UP; sai hoặc không khớp
+  objective bị loại. Hết giờ/từ chối mô hình giữ B0/B1 đã hậu kiểm, ghi rõ origin
+  và trạng thái thật. Không dựng số solver hoặc dấu PASS.
+- B2 cần xác nhận phạm vi chi phí mọi phương án; review dịch một job không đủ.
+  Chỉ ưu tiên B2 khi cận thấp lợi ích tăng thêm đạt ngưỡng; chưa chứng minh thì
+  dùng B1. Không mặc định chi phí loại trừ triệt tiêu; UNKNOWN vẫn chặn đề xuất.
+  Chặn chi phí âm tạo khuyến nghị đổi sang lịch không đổi.
+- Giữ input hồ sơ, nháp, import CSV/Excel, lot confirmation, cấu hình nâng cao
+  và dấu vết dữ liệu. Thay đổi input xóa hiệu lực kết quả cũ; response về muộn
+  bị loại. Xuất JSON có cùng run_id/input_hash/snapshot/ledger/solver/evidence.
+- Phụ tải là mô hình từ ledger chạy, chưa phải IoT. Chưa có công suất nền/định
+  mức TBA để kết luận an toàn. Không còn 5/5 hoặc định mức TBA giả làm bằng chứng.
+- Ca hai lô SYNTHETIC: B0 135.920đ, B1 91.760đ, B2 47.600đ, PASS cả ba;
+  lợi ích nominal tăng thêm 44.160đ. Đây là ví dụ thuật toán, không phải số đo
+  tiết kiệm thực tế. Có sáu ca: phối hợp, ngưỡng B2 cao, review hẹp, overtime
+  UNKNOWN/quá lớn, ngân sách 0.
+- Kiểm chứng: 155 Python tests, 23 Node tests; B2 có 12 ca gồm đối chiếu vét
+  cạn có lịch máy gián đoạn/mốc ngoài lưới, khuôn, fallback và policy. Edge
+  kiểm tra UI B2, baseline lỗi, stale response, input và desktop/mobile; diễn
+  tập build static hai origin với CORS/CSP. Không gọi API model hoặc đưa key
+  vào frontend. Vercel/Render cần build lại với dependency mới.
+- Chi tiết: [B2_COORDINATED_SEARCH.md](B2_COORDINATED_SEARCH.md),
+  [sáu ca](evaluation/b2_cases.json), [browser QA](evaluation/b2_ui_qa.json).
+- PR và trạng thái CI được bổ sung sau kiểm tra commit cuối.
+
 ## 18/10/2026 — Đánh giá nền trước nâng cấp
 
 Đối chiếu submission V3.2, PRODUCT.md, source và master roadmap 18–22/10.

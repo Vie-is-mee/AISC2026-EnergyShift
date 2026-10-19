@@ -111,7 +111,9 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(second["decision"]["kind"], "MEASURE_FIRST")
         self.assertNotEqual(first["input_hash"], second["input_hash"])
         self.assertNotEqual(first["run_id"], second["run_id"])
-        self.assertIsNone(second["plans"]["B2"]["cost"])
+        self.assertEqual(second["plans"]["B2"]["verification"]["status"], "PASS")
+        self.assertEqual(second["plans"]["B2"]["input_hash"], second["input_hash"])
+        self.assertEqual(second["decision"]["selected_plan"], "B0")
 
     def test_invalid_baseline_has_no_economic_result(self):
         self.data["current_schedule"][0]["start"] = "2026-10-19T23:30:00+07:00"

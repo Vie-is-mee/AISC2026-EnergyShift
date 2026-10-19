@@ -2,53 +2,33 @@
   "browser": "headless Microsoft Edge via CDP",
   "all_checks_pass": true,
   "base_url": "http://127.0.0.1:8766",
-  "scope": "input-only",
   "javascript_exceptions": 0,
+  "scope": "verified B2 on approved cockpit plus existing input persistence/import/lot checks",
   "screenshots": [
+    "work/ui-qa/workspace-dark.png",
     "work/ui-qa/input-desktop.png",
     "work/ui-qa/input-mobile.png"
   ],
-  "flows": [
-    "profile persistence",
-    "draft recovery",
-    "CSV mapping memory",
-    "extra-column preservation",
-    "explicit lot reconfirmation",
-    "new plan cost reset",
-    "day shift confirmation",
-    "structured workshop fields",
-    "storage denied",
-    "input desktop/mobile",
-    "workspace file restore",
-    "CSV file BOM/CRLF preservation",
-    "one-click prepare and analyze",
-    "visible primary action"
-  ],
   "source_sha256": {
-    "index.html": "38627949e47de3e25aa631d32339ea2fbf77a86fdf8db24a0a8ad3d41c193b1f",
-    "app.js": "51f01f79190c420376b407f4f6c192c5a4e5fcb35698e57f10a0058a9045164f",
-    "live.css": "5e831b9c1b110e0f7ae9a2aebf07ece2552e166f17e3c7d9062a839cb0b85487",
-    "backend/app.py": "d039bc5de48eacc1c436ac5c8cd3fc7e74436e0d64caabac6806da98ca095ed1",
-    "input-model.js": "c0f4bf1a4d33021d19df85f3b690d609f970eb1dc288620c334a9d39cc2d6a16",
-    "input-desk.js": "3a8174c7f25a41c05f8f6b0d19990e0bc54a36722ffc235e1ada54b0f5972f6f",
-    "api-client.js": "8522aa8d7de6f901800dbc2e4564e77879d2c22a63e321813a9b05ac1ee33b8a",
-    "deployment-config.js": "8cc5be2fd39b4af34465aec923b045ddc0d7e267bc0e3fdf57a1bc1df6fa060e",
-    "workspace.css": "9e89c43036cee6ce13ddee64298944cd3998bc610859f5353681375fc9d1d145",
-    "workspace.js": "013121cb89d49d88c2add3194bfd9829f57356c35d698dc6ba68e0d8b44927a9"
+    "index.html": "d168ac2799fa6b69e24821584db0fd24c700dfe2e72b7ab0dca7e756c9fd0067",
+    "app.js": "335e1dcd924a06d0ef98b28e5fe8ac344f71ba0e0010693986f3bad3128cd556",
+    "workspace.css": "6d3509def38c7b33aca1eba98e01a5fb119c78045f6e6cf3a616d67681b3d2ce",
+    "input-desk.js": "ccbe81c3e811ff3bf0e10d637a1f801815729191c5b1f815d74e163e97f7414e",
+    "backend/b2.py": "ae997d59e46c9d885bea7b0279d5919e862fc1fd75b551a730a7b38447906b49"
   },
   "limitations": "Local two-origin rehearsal, not a live Vercel/Render deployment or cold-start/performance certification.",
   "topology": "Static allowlisted build on :8766 -> actual FastAPI on :8767, real browser CORS/preflight",
   "live_cloud_deployed": false,
   "built_artifact_sha256": {
     "api-client.js": "8522aa8d7de6f901800dbc2e4564e77879d2c22a63e321813a9b05ac1ee33b8a",
-    "app.js": "51f01f79190c420376b407f4f6c192c5a4e5fcb35698e57f10a0058a9045164f",
+    "app.js": "335e1dcd924a06d0ef98b28e5fe8ac344f71ba0e0010693986f3bad3128cd556",
     "deployment-config.js": "43360a942063ee2e38ead0a9c886144c40e9999067b7a0d0ecfbd4d01fc4d6bd",
-    "index.html": "38627949e47de3e25aa631d32339ea2fbf77a86fdf8db24a0a8ad3d41c193b1f",
-    "input-desk.js": "3a8174c7f25a41c05f8f6b0d19990e0bc54a36722ffc235e1ada54b0f5972f6f",
+    "index.html": "d168ac2799fa6b69e24821584db0fd24c700dfe2e72b7ab0dca7e756c9fd0067",
+    "input-desk.js": "ccbe81c3e811ff3bf0e10d637a1f801815729191c5b1f815d74e163e97f7414e",
     "input-model.js": "c0f4bf1a4d33021d19df85f3b690d609f970eb1dc288620c334a9d39cc2d6a16",
-    "live.css": "5e831b9c1b110e0f7ae9a2aebf07ece2552e166f17e3c7d9062a839cb0b85487",
-    "workspace.css": "9e89c43036cee6ce13ddee64298944cd3998bc610859f5353681375fc9d1d145",
-    "workspace.js": "013121cb89d49d88c2add3194bfd9829f57356c35d698dc6ba68e0d8b44927a9"
+    "live.css": "24cf4787797ab3140b85335451b508786c22b0b1920f909758ce24ef86c247ba",
+    "workspace.css": "6d3509def38c7b33aca1eba98e01a5fb119c78045f6e6cf3a616d67681b3d2ce",
+    "workspace.js": "d24d9ff689c3590d8065d9c73712bdc5991e8f6e799b5587a134f97d74bc1091"
   },
   "test_overrides": "Only generated API base URL and CSP connect origin are changed to localhost; other Vercel headers are used verbatim."
 }

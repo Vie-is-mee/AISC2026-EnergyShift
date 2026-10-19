@@ -1,5 +1,9 @@
 # Local API + giao diện dùng engine thật
 
+Cập nhật 19/10: API chạy B0/B1/B2 trên UI chuẩn hiện tại. Xem
+[miền CP-SAT và policy](B2_COORDINATED_SEARCH.md). Controller là `app.js`;
+`workspace.js` cũ giữ tương thích asset nhưng không nạp.
+
 Đây là bước nối UI sau khi siết contract demo-3. Không thêm LLM vào policy.
 
 ## Chạy

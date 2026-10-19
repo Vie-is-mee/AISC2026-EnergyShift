@@ -18,6 +18,7 @@ from .deployment import allowed_hosts, allowed_origins, build_sha
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ID = "editable-cell"
+FIXTURE_FILES = {"editable-cell": "editable_cell.json", "coordinated-cell": "coordinated_cell.json"}
 MAX_BYTES = 512 * 1024
 analysis_lock = Lock()
 FRONTEND_ORIGINS = allowed_origins()
@@ -104,14 +105,15 @@ def health():
 
 @app.get("/api/demo/fixtures")
 def fixtures():
-    return [{"id": FIXTURE_ID, "name": "Cụm ép phun giả lập · 8 công việc / 3 máy", "source_type": "SYNTHETIC"}]
+    return [{"id": FIXTURE_ID, "name": "Cụm ép phun giả lập · 8 công việc / 3 máy", "source_type": "SYNTHETIC"},
+            {"id": "coordinated-cell", "name": "Phối hợp hai lô · kiểm chứng B2", "source_type": "SYNTHETIC"}]
 
 
 @app.get("/api/demo/fixtures/{fixture_id}")
 def fixture(fixture_id: str):
-    if fixture_id != FIXTURE_ID:
+    if fixture_id not in FIXTURE_FILES:
         return error(404, "FIXTURE_NOT_FOUND", "Unknown fixture ID")
-    return json.loads((ROOT / "backend/fixtures/editable_cell.json").read_text(encoding="utf-8"))
+    return json.loads((ROOT / "backend/fixtures" / FIXTURE_FILES[fixture_id]).read_text(encoding="utf-8"))
 
 
 @app.post("/api/demo/validate")
@@ -140,7 +142,7 @@ async def analyze_request(request: Request):
     if not analysis_lock.acquire(blocking=False):
         return error(409, "ANALYSIS_BUSY", "An analysis is running; wait for it to finish")
     try:
-        report = await run_in_threadpool(analyze, data, max_candidates=2000)
+        report = await run_in_threadpool(analyze, data, max_candidates=2000, enable_b2=True)
         report["input_snapshot"] = data
         return report
     except Exception:

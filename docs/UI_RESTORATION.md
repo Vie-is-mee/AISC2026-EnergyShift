@@ -1,5 +1,9 @@
 # Khôi phục UI của nhóm, giữ engine và đầu vào đã nâng cấp
 
+Cập nhật: phần dưới là hồ sơ PR #11. Bản UI chuẩn hiện tại trên nền `ec408d9`
+đã được giữ trong nâng cấp [B2 chạy thật](B2_COORDINATED_SEARCH.md).
+`app.js` nối dữ liệu trực tiếp; không nạp `workspace.js` cũ. B2 không còn NOT_RUN.
+
 Ngày 19/10/2026. Người dùng yêu cầu dùng giao diện trong
 `EnergyShift_Complete_UI_UX_Chat_Changes`, thay cho màn hình dài nhiều thiết lập.
 

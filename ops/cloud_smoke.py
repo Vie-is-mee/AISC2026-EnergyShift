@@ -61,7 +61,7 @@ def main():
             server = RehearsalServer(('127.0.0.1', 8766), partial(RehearsalHandler, directory=directory))
             Thread(target=server.serve_forever, daemon=True).start()
             subprocess.run([sys.executable, 'ops/browser_smoke.py', '--input-only', '--base-url', 'http://127.0.0.1:8766'], cwd=ROOT, check=True)
-            packet = json.loads((ROOT / 'docs/evaluation/input_ui_qa.json').read_text(encoding='utf-8'))
+            packet = json.loads((ROOT / 'docs/evaluation/b2_ui_qa.json').read_text(encoding='utf-8'))
             packet.update(topology='Static allowlisted build on :8766 -> actual FastAPI on :8767, real browser CORS/preflight', live_cloud_deployed=False)
             packet['built_artifact_sha256'] = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in Path(directory).iterdir()}
             packet['test_overrides'] = 'Only generated API base URL and CSP connect origin are changed to localhost; other Vercel headers are used verbatim.'

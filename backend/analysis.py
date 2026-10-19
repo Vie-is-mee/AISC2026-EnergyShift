@@ -10,7 +10,7 @@ from .validation import validate_input
 from .risk import economic_risk, power_uncertainty
 
 
-def analyze(snapshot, *, grid_minutes=30, max_candidates=5000):
+def analyze(snapshot, *, grid_minutes=30, max_candidates=5000, enable_b2=False, b2_time_limit_seconds=6):
     gate = validate_input(snapshot)
     run_id = "run_" + uuid4().hex
     if gate.status != "READY":
@@ -61,7 +61,7 @@ def analyze(snapshot, *, grid_minutes=30, max_candidates=5000):
                      for j in b1["verification"]["jobs"]
                      if j["setup_start"] != before[j["job_id"]]["setup_start"]
                      or b0["cost"]["by_job"][j["job_id"]]["setup_vnd"] != b1["cost"]["by_job"][j["job_id"]]["setup_vnd"]]
-    return {**common, "status": "COMPLETED", "plans": {"B0": b0, "B1": b1,
+    report = {**common, "status": "COMPLETED", "plans": {"B0": b0, "B1": b1,
             "B2": {"status": "NOT_RUN", "solver_status": "NOT_RUN", "cost": None, "schedule": None}},
             "comparison": {"saving_vnd": total0 - total1,
                            "saving_pct": round((total0 - total1) * 100 / total0, 6) if total0 else None,
@@ -69,3 +69,7 @@ def analyze(snapshot, *, grid_minutes=30, max_candidates=5000):
                            "changed_assignments": len(b1["changes"]), "derived_setup_effects": setup_effects},
             "search": result["search"], "sensitivity": sensitivity,
             "economic_assessment": risk, "decision": decision}
+    if enable_b2:
+        from .coordinated import extend_with_b2
+        report = extend_with_b2(gate.snapshot, report, grid_minutes=grid_minutes, time_limit_seconds=b2_time_limit_seconds)
+    return report

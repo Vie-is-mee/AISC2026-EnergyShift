@@ -423,6 +423,8 @@ window.InputDesk = (() => {
     const stampId = serial,
       costConfirmed = el("confirmCosts").checked;
     const data = M.compile(base, rows, { reconfirmCosts: costConfirmed });
+    if (costConfirmed)
+      data.cost_scope.review_scope = "ALL_CANDIDATE_SCHEDULES_IN_HORIZON";
     const gate = await validate(data);
     if (stampId !== serial)
       throw Error("Bảng đã đổi trong lúc kiểm tra. Hãy áp dụng lại.");

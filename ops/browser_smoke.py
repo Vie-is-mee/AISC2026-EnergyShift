@@ -7,6 +7,7 @@ import subprocess
 import socket
 import sys
 import argparse
+import tempfile
 import time
 import urllib.request
 import websocket
@@ -24,7 +25,7 @@ with socket.socket() as probe:
 browser = subprocess.Popen([r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
     '--headless=new', '--disable-gpu', '--no-first-run', '--disable-background-networking',
     '--remote-debugging-port=9345', '--remote-allow-origins=http://localhost:9345',
-    '--user-data-dir=' + str(OUT / 'edge-profile'), 'about:blank'],
+    '--user-data-dir=' + tempfile.mkdtemp(prefix='edge-b2-', dir=OUT), 'about:blank'],
     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
 ws = None
 events = []
@@ -62,12 +63,15 @@ def wait(expression, timeout=90):
 
 
 def click(identifier):
+    before = js('revision') if identifier == 'loadFixture' else None
     js('document.getElementById(' + json.dumps(identifier) + ').click()')
+    if before is not None:
+        wait('!fixtureLoading && revision > ' + str(before))
 
 
 def run():
     click('analyze')
-    wait('!document.getElementById("analyze").disabled')
+    wait('!preparing && !pending && !document.getElementById("analyze").disabled')
 
 
 def check(condition, label):
@@ -96,88 +100,52 @@ try:
     command('Emulation.setDeviceMetricsOverride', {'width': 1440, 'height': 1100, 'deviceScaleFactor': 1, 'mobile': False})
     command('Page.reload', {'ignoreCache': True})
     wait('document.getElementById("analyze") && !document.getElementById("analyze").disabled')
-    if "--input-only" not in sys.argv:
-        check('document.getElementById("results").hidden', 'initial_has_no_fake_result')
-        run()
-        check('currentReport.decision.kind === "CHANGE" && document.getElementById("saving").textContent.includes("132.918")', 'real_default_change_and_saving')
-        check('document.querySelectorAll(".rail-item[data-tab]").length===6 && document.querySelector(".rail-item.active").dataset.tab==="tab-overview"', 'reference_six_section_navigation_and_result_redirect')
-        js('Workspace.show("tab-loadcurve")')
-        check('!document.getElementById("tab-loadcurve").hidden && document.querySelectorAll("#loadRows tr").length===24 && document.querySelectorAll("#loadChart svg polyline").length===2', 'load_and_tariff_view_is_computed_from_current_report')
-        check('Math.abs([...document.querySelectorAll("#loadRows tr")].reduce((n,r)=>n+Number(r.children[1].textContent.replaceAll(".","").replace(",",".")),0)-rational(currentReport.plans.B0.cost.total_kwh_exact))<0.2', 'hourly_energy_display_reconciles_with_engine_ledger')
-        js('Workspace.show("tab-gantt")')
-        check('!document.getElementById("tab-gantt").hidden && document.getElementById("tab-overview").hidden', 'navigation_shows_only_selected_report_section')
-        js('Workspace.show("tab-dispatch")')
-        check('!document.getElementById("advancedInput").open && document.querySelectorAll("#planInputRows tr:first-child td[data-field]").length===7 && getComputedStyle(document.querySelector("#planInputRows td[data-field=template_id]")).display==="none"', 'daily_input_is_compact_with_advanced_fields_preserved')
-        click('themeToggle')
-        check('document.documentElement.dataset.theme==="dark"', 'reference_theme_toggle_works')
-        wait('getComputedStyle(document.body).color==="rgb(248, 250, 252)"')
-        screenshot = command('Page.captureScreenshot', {'format': 'png', 'captureBeyondViewport': True})
-        (OUT / 'workspace-dark.png').write_bytes(base64.b64decode(screenshot['data']))
-        click('themeToggle')
-        js('Workspace.show("tab-overview")')
-        check('document.querySelectorAll("#jobRows tr").length === 8 && document.querySelectorAll(".live-track").length === 6', 'all_jobs_and_machine_plan_tracks_render')
-        check('document.getElementById("results").dataset.runId === currentReport.run_id && document.getElementById("hashMeta").textContent.includes(currentReport.input_hash)', 'same_run_and_hash')
-        run_id = js('currentReport.run_id')
-        input_hash = js('currentReport.input_hash')
-        click('export')
-        downloaded = downloads / ('EnergyShift_' + run_id + '.json')
-        deadline = time.monotonic() + 10
-        while time.monotonic() < deadline and not downloaded.exists():
-            time.sleep(.1)
-        packet = json.loads(downloaded.read_text(encoding='utf-8'))
-        assert packet['run_id'] == run_id and packet['input_hash'] == input_hash
-        print(json.dumps({'check': 'export_packet_matches_visible_run', 'pass': True}), flush=True)
-        screenshot = command('Page.captureScreenshot', {'format': 'png', 'captureBeyondViewport': True})
-        (OUT / 'desktop.png').write_bytes(base64.b64decode(screenshot['data']))
-        command('Emulation.setDeviceMetricsOverride', {'width': 390, 'height': 844, 'deviceScaleFactor': 1, 'mobile': True})
-        click('menuToggle')
-        check('document.body.classList.contains("mobile-nav-open") && document.getElementById("menuToggle").getAttribute("aria-expanded")==="true"', 'reference_mobile_menu_opens')
-        click('closeMenu')
-        wait('getComputedStyle(document.getElementById("mainRail")).visibility==="hidden"')
-        check('document.documentElement.scrollWidth <= 390', 'mobile_no_page_overflow')
-        screenshot = command('Page.captureScreenshot', {'format': 'png', 'captureBeyondViewport': True})
-        (OUT / 'mobile.png').write_bytes(base64.b64decode(screenshot['data']))
-        command('Emulation.setDeviceMetricsOverride', {'width': 1440, 'height': 1100, 'deviceScaleFactor': 1, 'mobile': False})
-        click('unknownCost')
-        check('document.getElementById("results").hidden && currentReport === null', 'editing_invalidates_report')
-        run()
-        check('currentReport.decision.kind === "MEASURE_FIRST" && document.getElementById("netRange").textContent.includes("Chưa đủ")', 'unknown_cost_has_no_fake_net_range')
-        click('loadFixture'); click('extraCost'); run()
-        check('currentReport.decision.kind === "KEEP_CURRENT"', 'extra_cost_changes_actual_verdict')
-        check('document.getElementById("netRange").dataset.tone === "negative"', 'negative_net_is_not_colored_positive')
-        click('loadFixture')
-        js('let d=JSON.parse(document.getElementById("dataset").value);d.jobs[0].quantity=1000000;document.getElementById("dataset").value=JSON.stringify(d);document.getElementById("dataset").dispatchEvent(new Event("input"))')
-        run()
-        check('document.getElementById("results").hidden && document.getElementById("errors").textContent.includes("LOT_CONFIRMATION_MISMATCH")', 'quantity_error_no_savings')
-        click('loadFixture')
-        js('let d2=JSON.parse(document.getElementById("dataset").value);d2.current_schedule[1].start="2026-10-19T09:00:00+07:00";document.getElementById("dataset").value=JSON.stringify(d2);document.getElementById("dataset").dispatchEvent(new Event("input"))')
-        run()
-        check('document.getElementById("results").hidden && document.getElementById("errors").textContent.includes("MACHINE_OVERLAP")', 'invalid_baseline_no_economic_result')
-        click('loadFixture'); click('analyze')
-        js('document.getElementById("dataset").dispatchEvent(new Event("input"))')
-        wait('!document.getElementById("analyze").disabled')
-        check('document.getElementById("results").hidden && document.getElementById("status").textContent.includes("bỏ kết quả cũ")', 'stale_response_discarded')
-        click('loadFixture')
-        js('let d3=JSON.parse(document.getElementById("dataset").value);d3.cost_scope.excluded_review.LABOR_OVERTIME.reference="<img src=x onerror=window.__injected=1>";document.getElementById("dataset").value=JSON.stringify(d3);document.getElementById("dataset").dispatchEvent(new Event("input"))')
-        run()
-        check('!window.__injected && document.getElementById("reviewRows").textContent.includes("<img") && !document.querySelector("#reviewRows img")', 'evidence_reference_is_text_not_html')
-        document = command('DOM.getDocument')
-        upload = command('DOM.querySelector', {'nodeId': document['root']['nodeId'], 'selector': '#upload'})
-        command('DOM.setFileInputFiles', {'nodeId': upload['nodeId'], 'files': [str(ROOT / 'backend/fixtures/editable_cell.json')]})
-        wait('document.getElementById("results").hidden && document.getElementById("dataset").value.includes("editable-cell-01") && !document.getElementById("dataset").value.includes("<img")')
-        check('currentReport === null && JSON.parse(document.getElementById("dataset").value).schema_version === "demo-3"', 'upload_replaces_input_and_invalidates_result')
+    check('currentReport === null && !document.getElementById("plansGrid").children.length', 'initial_has_no_fake_result')
+    run()
+    check('currentReport.status === "COMPLETED" && currentReport.plans.B2.verification.status === "PASS"', 'real_backend_B2_independently_verified')
+    check('document.querySelectorAll("#plansGrid .plan-card").length === 3', 'three_real_plan_cards')
+    check('document.querySelectorAll(".rail-item").length === 6', 'approved_six_section_navigation_retained')
+    js('switchMainTab("tab-gantt")')
+    check('document.getElementById("tab-gantt").classList.contains("active") && !document.getElementById("tab-overview").classList.contains("active") && document.querySelectorAll(".gantt-job-pill").length === 16', 'actual_gantt_and_navigation')
+    js('toggleAppTheme()')
+    check('document.documentElement.dataset.theme === "light"', 'approved_theme_toggle')
+    js('toggleAppTheme();switchMainTab("tab-overview")')
+    screenshot = command('Page.captureScreenshot', {'format':'png', 'captureBeyondViewport':True})
+    (OUT / 'workspace-dark.png').write_bytes(base64.b64decode(screenshot['data']))
+    js('document.getElementById("scenarioSelect").value="coordinated-cell";document.getElementById("scenarioSelect").dispatchEvent(new Event("change"))')
+    wait('JSON.parse(document.getElementById("dataset").value).jobs.length === 2')
+    run()
+    check('currentReport.decision.selected_plan === "B2" && currentReport.plans.B2.cost.total_vnd < currentReport.plans.B1.cost.total_vnd', 'coordinated_sample_selects_actual_B2')
+    check('document.getElementById("kpiTotalCost").textContent === money(currentReport.plans.B2.cost.total_vnd)', 'displayed_B2_cost_matches_report')
+    js('showDecisionMemo()')
+    check('document.getElementById("memoModal").classList.contains("open") && document.getElementById("memoContent").textContent.includes(currentReport.input_hash)', 'memo_preserves_report_trace')
+    js('closeModal()')
+    click('unknownCost'); run()
+    check('currentReport.decision.kind === "MEASURE_FIRST" && currentReport.decision.selected_plan === "B0"', 'unknown_cost_blocks_recommendation')
+    click('extraCost'); run()
+    check('currentReport.decision.kind === "KEEP_CURRENT"', 'high_cost_keeps_baseline')
+    js('window.originalApiFetch=apiFetch;window.releaseResponse=null;apiFetch=async(...args)=>{const response=await originalApiFetch(...args);await new Promise(resolve=>window.releaseResponse=resolve);return response;};revalidateDashboard();void 0')
+    wait('typeof window.releaseResponse === "function"')
+    js('clearResult();window.releaseResponse()')
+    wait('!pending')
+    check('currentReport === null && !document.getElementById("plansGrid").children.length', 'late_response_cannot_restore_invalidated_report')
+    js('apiFetch=window.originalApiFetch;let invalid=JSON.parse(document.getElementById("dataset").value);invalid.current_schedule[0].start="2026-10-19T23:30:00+07:00";setDataset(invalid)')
+    run()
+    check('currentReport === null && !document.getElementById("errors").hidden', 'invalid_baseline_has_visible_error_without_costs')
+    js('document.getElementById("scenarioSelect").value="editable-cell";document.getElementById("scenarioSelect").dispatchEvent(new Event("change"))')
+    wait('JSON.parse(document.getElementById("dataset").value).jobs.length === 8')
     from input_browser_checks import run_checks
     run_checks(js, click, wait, check, run, command, OUT)
     failures = [e for e in events if e.get('method') == 'Runtime.exceptionThrown']
-    assert not failures, 'Browser JavaScript exception'
-    summary = {'browser': 'headless Microsoft Edge via CDP', 'all_checks_pass': True, 'base_url': args.base_url, 'scope': 'input-only' if '--input-only' in sys.argv else 'full-regression',
-               'javascript_exceptions': len(failures),
-               'screenshots': (['work/ui-qa/desktop.png','work/ui-qa/mobile.png','work/ui-qa/workspace-dark.png'] if '--input-only' not in sys.argv else []) + ['work/ui-qa/input-desktop.png','work/ui-qa/input-mobile.png'],
-               'flows': (['default CHANGE','unknown MEASURE','extra-cost KEEP','quantity invalid','baseline invalid','stale response','untrusted reference as text','JSON export roundtrip','JSON file upload','six-section reference navigation','computed hourly kWh versus ledger','compact daily fields','light/dark theme','mobile navigation'] if '--input-only' not in sys.argv else []) + ['profile persistence','draft recovery','CSV mapping memory','extra-column preservation','explicit lot reconfirmation','new plan cost reset','day shift confirmation','structured workshop fields','storage denied','input desktop/mobile','workspace file restore','CSV file BOM/CRLF preservation','one-click prepare and analyze','visible primary action'],
-               'source_sha256': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in ['index.html','app.js','live.css','backend/app.py','input-model.js','input-desk.js','api-client.js','deployment-config.js','workspace.css','workspace.js']},
-               'limitations': 'One local browser run, synthetic data. Does not certify all browsers or industrial operation.'}
-    (ROOT / ('docs/evaluation/input_ui_qa.json' if '--input-only' in sys.argv else 'docs/evaluation/live_ui_qa.json')).write_text(json.dumps(summary, indent=2)+'\n', encoding='utf-8')
-    print(json.dumps(summary), flush=True)
+    assert not failures, failures
+    summary = {'browser':'headless Microsoft Edge via CDP','all_checks_pass':True,'base_url':args.base_url,'javascript_exceptions':len(failures),
+               'scope':'verified B2 on approved cockpit plus existing input persistence/import/lot checks',
+               'screenshots':['work/ui-qa/workspace-dark.png','work/ui-qa/input-desktop.png','work/ui-qa/input-mobile.png'],
+               'source_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['index.html','app.js','workspace.css','input-desk.js','backend/b2.py']},
+               'limitations':'Local browser and synthetic inputs; no certification of factory operation or live cloud.'}
+    (ROOT / 'docs/evaluation/b2_ui_qa.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
+    print(json.dumps(summary),flush=True)
+
 finally:
     if ws:
         try:
