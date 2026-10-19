@@ -38,7 +38,9 @@ Ngày ghi theo Asia/Ho_Chi_Minh. Chỉ đánh dấu đã làm khi có code và k
   vào frontend. Vercel/Render cần build lại với dependency mới.
 - Chi tiết: [B2_COORDINATED_SEARCH.md](B2_COORDINATED_SEARCH.md),
   [sáu ca](evaluation/b2_cases.json), [browser QA](evaluation/b2_ui_qa.json).
-- PR và trạng thái CI được bổ sung sau kiểm tra commit cuối.
+- PR: [#12 — B2 kiểm chứng độc lập trên UI chuẩn](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/12).
+  Implementation commit: `a3fcb6af4088e998fc3fbdf0d2697e493d1fe382`.
+  Merge chỉ thực hiện sau khi CI của commit cuối đạt.
 
 ## 18/10/2026 — Đánh giá nền trước nâng cấp
 
