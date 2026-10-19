@@ -3,27 +3,32 @@
   "all_checks_pass": true,
   "base_url": "http://127.0.0.1:8766",
   "javascript_exceptions": 0,
-  "scope": "verified B2 on approved cockpit plus existing input persistence/import/lot checks",
+  "scope": "selected-plan consistency; hourly axes/table, verifier evidence, readable memo, scope-safe synthetic measurement check, private queued team run/history, and input regression",
   "screenshots": [
     "work/ui-qa/workspace-dark.png",
     "work/ui-qa/input-desktop.png",
     "work/ui-qa/input-mobile.png"
   ],
   "source_sha256": {
-    "index.html": "836145c39cb6a7aa221e14c6b6809743254bf386c6aabd17cef13981e3cb9bee",
-    "app.js": "41edb6b1a36feeb6a1ebdf6d1bbf689beb7c90698463f92f15f94f34daf2eec5",
+    "index.html": "689667d0be38faaa306127ce9fd1985ea0fe80a6eabe8052f3641a46b997054c",
+    "app.js": "23fc9add059c6c56f949ff34ff80ed1dad1dd8e2d3e03b882f062bccdef4ef85",
     "workspace.css": "6d3509def38c7b33aca1eba98e01a5fb119c78045f6e6cf3a616d67681b3d2ce",
     "input-desk.js": "01d04a3ab47b4080e6acc62482d95938088ce1b8051cc1453e01e7c16813f71d",
-    "backend/b2.py": "835190fa31b76c1e1499a15122923954174e3800dfaea92e6c682d34b1ca17d1"
+    "input-model.js": "dc886a5df8266c7b4927ee1d8d6927bb4de3885041e401c9289a05ab454a1cec",
+    "backend/b2.py": "673aaae1964db5754a006d73265b536b8ac3f5c89215435749f1915255c9fbbc",
+    "backend/neighborhoods.py": "722a2fca2f401c7afdb996ed5fa40b7f0f2fc4f0e4897ec8b512d0c1bcea7cd7",
+    "backend/team.py": "dcbd5aabcd483b80b43178bd4134b370caf23f6186acd9a8c60c2fad1326feee",
+    "backend/app.py": "f8a7f53452b14738e06acd69253311c9676f5bd9d58fcafb94108c18b9729c91",
+    "backend/reconciliation.py": "6e546b5a3dfebca6c0458a09151b6fff0e593eb0cba6dd96c680ec6fdea9cbf6"
   },
   "limitations": "Local two-origin rehearsal, not a live Vercel/Render deployment or cold-start/performance certification.",
   "topology": "Static allowlisted build on :8766 -> actual FastAPI on :8767, real browser CORS/preflight",
   "live_cloud_deployed": false,
   "built_artifact_sha256": {
     "api-client.js": "8522aa8d7de6f901800dbc2e4564e77879d2c22a63e321813a9b05ac1ee33b8a",
-    "app.js": "41edb6b1a36feeb6a1ebdf6d1bbf689beb7c90698463f92f15f94f34daf2eec5",
+    "app.js": "23fc9add059c6c56f949ff34ff80ed1dad1dd8e2d3e03b882f062bccdef4ef85",
     "deployment-config.js": "43360a942063ee2e38ead0a9c886144c40e9999067b7a0d0ecfbd4d01fc4d6bd",
-    "index.html": "836145c39cb6a7aa221e14c6b6809743254bf386c6aabd17cef13981e3cb9bee",
+    "index.html": "689667d0be38faaa306127ce9fd1985ea0fe80a6eabe8052f3641a46b997054c",
     "input-desk.js": "01d04a3ab47b4080e6acc62482d95938088ce1b8051cc1453e01e7c16813f71d",
     "input-model.js": "dc886a5df8266c7b4927ee1d8d6927bb4de3885041e401c9289a05ab454a1cec",
     "live.css": "24cf4787797ab3140b85335451b508786c22b0b1920f909758ce24ef86c247ba",

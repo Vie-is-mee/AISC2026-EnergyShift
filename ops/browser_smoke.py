@@ -128,6 +128,15 @@ try:
     check('currentReport.reconciliation?.source_type === "SYNTHETIC" && document.getElementById("measurementResult").textContent.includes("GIẢ LẬP")', 'constructed_meter_check_never_claims_real_validation')
     js('document.getElementById("measurementCsv").dispatchEvent(new Event("input"))')
     check('!currentReport.reconciliation && !document.getElementById("measurementConfirmed").checked', 'editing_measurements_invalidates_previous_check')
+    js('document.getElementById("teamMode").checked=true;document.getElementById("teamMode").dispatchEvent(new Event("change"))')
+    wait('TeamDemo.hasSession()')
+    run()
+    check('Boolean(currentReport.team_job_id) && currentReport.plans.B2.solver.neighborhood_limit===12 && !JSON.stringify(currentReport).includes("workspace_token")', 'queued_team_run_uses_bounded_neighbors_without_exporting_session_key')
+    wait('document.querySelectorAll("#teamHistory button").length>0')
+    js('window.savedTeamRun=currentReport.run_id;document.querySelector("#teamHistory button").click()')
+    wait('currentReport?.run_id===window.savedTeamRun && document.querySelector(".rail-item.active").dataset.tab==="tab-overview"')
+    check('currentReport.input_preparation===null || currentReport.input_preparation.input_hash===currentReport.input_hash', 'history_restore_does_not_attach_unrelated_input_evidence')
+    js('document.getElementById("teamMode").checked=false')
     js('showDecisionMemo()')
     check('document.getElementById("memoModal").classList.contains("open") && document.getElementById("memoContent").textContent.includes(currentReport.input_hash)', 'memo_preserves_report_trace')
     js('closeModal()')
@@ -150,9 +159,9 @@ try:
     failures = [e for e in events if e.get('method') == 'Runtime.exceptionThrown']
     assert not failures, failures
     summary = {'browser':'headless Microsoft Edge via CDP','all_checks_pass':True,'base_url':args.base_url,'javascript_exceptions':len(failures),
-               'scope':'verified B2 on approved cockpit plus existing input persistence/import/lot checks',
+               'scope':'selected-plan consistency; hourly axes/table, verifier evidence, readable memo, scope-safe synthetic measurement check, private queued team run/history, and input regression',
                'screenshots':['work/ui-qa/workspace-dark.png','work/ui-qa/input-desktop.png','work/ui-qa/input-mobile.png'],
-               'source_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['index.html','app.js','workspace.css','input-desk.js','backend/b2.py']},
+               'source_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['index.html','app.js','workspace.css','input-desk.js','input-model.js','backend/b2.py','backend/neighborhoods.py','backend/team.py','backend/app.py','backend/reconciliation.py']},
                'limitations':'Local browser and synthetic inputs; no certification of factory operation or live cloud.'}
     (ROOT / 'docs/evaluation/b2_ui_qa.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(summary),flush=True)

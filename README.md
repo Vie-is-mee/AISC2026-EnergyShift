@@ -23,8 +23,8 @@ python -m uvicorn backend.app:app --host 127.0.0.1 --port 8765
 Mở **http://127.0.0.1:8765/**. Sau khi cài dependency, giao diện/engine/fixture
 không cần Internet hoặc key OpenRouter. Dùng hồ sơ xưởng đã lưu, sửa bảng kế hoạch
 hoặc dán từ Excel / mở CSV, rồi bấm Phân tích kế hoạch (tự kiểm tra/áp dụng). JSON giữ ở mục
-nâng cao. Sửa input làm mất hiệu lực kết quả cũ. B2 đã chạy CP-SAT trong miền
-máy/thứ tự B0/B1: [phạm vi và bằng chứng B2](docs/B2_COORDINATED_SEARCH.md).
+nâng cao. Sửa input làm mất hiệu lực kết quả cũ. B2 chạy CP-SAT trên cấu hình
+B0/B1 và các miền láng giềng có giới hạn: [phạm vi và bằng chứng B2](docs/B2_COORDINATED_SEARCH.md).
 
 Kiểm thử: `python -m pip install -r requirements-dev.txt`, rồi
 `python -m unittest discover -s backend/tests -v`, `node --check app.js` và
@@ -36,6 +36,11 @@ Xem [hướng dẫn API, giới hạn và demo đầu cuối](docs/LOCAL_DEMO.md
 Xem [hồ sơ xưởng, nhập bảng và nghiên cứu thiết kế đầu vào](docs/INPUT_WORKSPACE.md).
 Giao diện dùng lại thiết kế của nhóm, có sáu mục trái và luồng nhập một nút:
 [phạm vi UI/UX và cách dùng](docs/UI_RESTORATION.md).
+
+Đã có biểu đồ/bằng chứng ràng buộc và tờ trình dễ đọc, [đối chiếu số đo theo
+đúng phạm vi](docs/MEASUREMENT_PILOT.md), cùng [hàng đợi/lịch sử nhóm demo và
+miền solver mở rộng](docs/TEAM_DEMO.md). Chưa có số đo nhà máy trong demo;
+không công bố measured savings hoặc phân quyền doanh nghiệp.
 
 ## Backend — B0/B1 với contract demo-3
 

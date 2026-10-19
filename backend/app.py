@@ -4,6 +4,10 @@ from datetime import datetime, timedelta
 import json
 from pathlib import Path
 import subprocess
+import os
+import tempfile
+from collections import defaultdict, deque
+from time import monotonic
 from threading import Lock
 
 from fastapi import FastAPI, Request
@@ -18,17 +22,22 @@ from .deployment import allowed_hosts, allowed_origins, build_sha
 from .http_input import read_json
 from .reconciliation import reconcile
 from pydantic import ValidationError
+from .team import TeamService, TeamError
+from .schemas import Model
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ID = "editable-cell"
 FIXTURE_FILES = {"editable-cell": "editable_cell.json", "coordinated-cell": "coordinated_cell.json"}
 MAX_BYTES = 512 * 1024
 analysis_lock = Lock()
+team_lock = Lock()
+team_service = None
+workspace_requests = defaultdict(deque)
 FRONTEND_ORIGINS = allowed_origins()
 app = FastAPI(title="EnergyShift demo", docs_url=None, redoc_url=None, openapi_url=None)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts())
 app.add_middleware(CORSMiddleware, allow_origins=FRONTEND_ORIGINS,
-                   allow_methods=["GET", "POST"], allow_headers=["Content-Type"], allow_credentials=False)
+                   allow_methods=["GET", "POST", "DELETE"], allow_headers=["Content-Type", "Authorization"], allow_credentials=False)
 
 
 def error(status, code, why, field="$", fix="Correct the input and try again"):
@@ -39,7 +48,7 @@ def error(status, code, why, field="$", fix="Correct the input and try again"):
 @app.middleware("http")
 async def local_headers(request, call_next):
     origin = request.headers.get("origin")
-    if request.method == "POST" and origin and origin not in FRONTEND_ORIGINS and origin not in (
+    if request.method in ("POST", "DELETE") and origin and origin not in FRONTEND_ORIGINS and origin not in (
             "http://" + request.headers.get("host", ""), "https://" + request.headers.get("host", "")):
         return error(403, "FOREIGN_ORIGIN", "Browser origin is not configured for this demo")
     response = await call_next(request)
@@ -145,7 +154,7 @@ async def analyze_request(request: Request):
     if not analysis_lock.acquire(blocking=False):
         return error(409, "ANALYSIS_BUSY", "An analysis is running; wait for it to finish")
     try:
-        report = await run_in_threadpool(analyze, data, max_candidates=2000, enable_b2=True)
+        report = await run_in_threadpool(analyze, data, max_candidates=2000, enable_b2=True, b2_neighborhood_limit=12)
         report["input_snapshot"] = data
         return report
     except Exception:
@@ -163,3 +172,80 @@ async def reconcile_request(request: Request):
         return error(422, "MEASUREMENT_SCHEMA", "; ".join(".".join(map(str,e["loc"]))+": "+e["msg"] for e in exc.errors(include_input=False,include_url=False)))
     except ValueError as exc:
         return error(422, "MEASUREMENT_INVALID", str(exc))
+
+
+class QueuedInput(Model):
+    snapshot: dict
+    input_preparation: dict | None = None
+
+
+def get_team():
+    global team_service
+    if os.environ.get("ENERGYSHIFT_TEAM_DEMO_ENABLED", "1") != "1":
+        raise TeamError(503, "Team demo is disabled by the server")
+    with team_lock:
+        if team_service is None:
+            path=os.environ.get("ENERGYSHIFT_TEAM_DB", str(Path(tempfile.gettempdir())/"energyshift-team-demo.sqlite3"))
+            team_service=TeamService(path,analysis_lock=analysis_lock)
+        return team_service
+
+
+def workspace_token(request):
+    authorization=request.headers.get("authorization", "")
+    return authorization[7:] if authorization.startswith("Bearer ") else ""
+
+
+def team_error(exc):
+    response=error(exc.status,"TEAM_DEMO",exc.message)
+    if exc.status==429:response.headers["Retry-After"]="3"
+    return response
+
+
+@app.post("/api/demo/workspaces")
+async def create_workspace(request: Request):
+    await read_json(request)
+    now=monotonic();ip=request.client.host if request.client else "unknown"
+    with team_lock:
+        for key in list(workspace_requests):
+            if not workspace_requests[key] or workspace_requests[key][-1] < now-60:del workspace_requests[key]
+        recent=workspace_requests[ip]
+        while recent and recent[0] < now-60:recent.popleft()
+        if len(recent)>=8 or len(workspace_requests)>512:return team_error(TeamError(429,"Too many workspace creations; retry later"))
+        recent.append(now)
+    try:return await run_in_threadpool(get_team().create_workspace)
+    except TeamError as exc:return team_error(exc)
+
+
+@app.post("/api/demo/jobs",status_code=202)
+async def submit_job(request: Request):
+    raw=await read_json(request)
+    try:
+        data=QueuedInput.model_validate(raw)
+        return await run_in_threadpool(get_team().submit,workspace_token(request),data.snapshot,data.input_preparation)
+    except ValidationError:return error(422,"JOB_SCHEMA","Use snapshot and optional matching input_preparation")
+    except TeamError as exc:return team_error(exc)
+
+
+@app.get("/api/demo/jobs")
+async def job_history(request: Request):
+    try:return await run_in_threadpool(get_team().history,workspace_token(request))
+    except TeamError as exc:return team_error(exc)
+
+
+@app.get("/api/demo/jobs/{job_id}")
+async def get_job(request: Request,job_id: str):
+    try:return await run_in_threadpool(get_team().get,workspace_token(request),job_id)
+    except TeamError as exc:return team_error(exc)
+
+
+@app.post("/api/demo/jobs/{job_id}/cancel")
+async def cancel_job(request: Request,job_id: str):
+    await read_json(request)
+    try:return await run_in_threadpool(get_team().cancel,workspace_token(request),job_id)
+    except TeamError as exc:return team_error(exc)
+
+
+@app.delete("/api/demo/workspaces/current")
+async def remove_workspace(request: Request):
+    try:return await run_in_threadpool(get_team().delete_workspace,workspace_token(request))
+    except TeamError as exc:return team_error(exc)

@@ -1,0 +1,187 @@
+{
+  "source_type": "SYNTHETIC",
+  "scope": "Three small constructed cases on one local serialized worker; not a load benchmark or measured savings",
+  "cross_workspace_read": "REJECTED_404",
+  "runtime_seconds": 3.203,
+  "cases": [
+    {
+      "status": "COMPLETED",
+      "input_hash": "sha256:11d374aeb8678b1c0c54d585db127e8ee6d5d3013c966beae8b073b4a6ee0d4d",
+      "decision": {
+        "kind": "CHANGE",
+        "selected_plan": "B2",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_NEIGHBORHOODS",
+          "B2_INCREMENTAL_VALUE_ROBUST"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "costs_vnd": {
+        "B0": 135920,
+        "B1": 91760,
+        "B2": 47600
+      },
+      "solver": {
+        "algorithm": "OR-Tools CP-SAT",
+        "version": "9.15.6755",
+        "models": [
+          {
+            "seed": "B0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.0736155,
+            "branches": 338,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          },
+          {
+            "seed": "SWAP_B0_M1_0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.0454482,
+            "branches": 0,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          }
+        ],
+        "grid_minutes": 30,
+        "time_limit_seconds": 6,
+        "runtime_seconds": 0.161583,
+        "domain": "B0/B1 domains plus bounded adjacent swaps and single-job machine insertions; coordinated starts on grid plus incumbent anchors",
+        "neighborhood_limit": 12,
+        "declared_domains": 2,
+        "optimality": "PROVEN_IN_DECLARED_DOMAIN",
+        "global_optimum_proven": false,
+        "fallback": "Retain independently verified best B0/B1 on timeout/rejection; origin identifies source"
+      }
+    },
+    {
+      "status": "COMPLETED",
+      "input_hash": "sha256:11d374aeb8678b1c0c54d585db127e8ee6d5d3013c966beae8b073b4a6ee0d4d",
+      "decision": {
+        "kind": "CHANGE",
+        "selected_plan": "B2",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_NEIGHBORHOODS",
+          "B2_INCREMENTAL_VALUE_ROBUST"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "costs_vnd": {
+        "B0": 135920,
+        "B1": 91760,
+        "B2": 47600
+      },
+      "solver": {
+        "algorithm": "OR-Tools CP-SAT",
+        "version": "9.15.6755",
+        "models": [
+          {
+            "seed": "B0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.0502287,
+            "branches": 338,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          },
+          {
+            "seed": "SWAP_B0_M1_0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.0344956,
+            "branches": 0,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          }
+        ],
+        "grid_minutes": 30,
+        "time_limit_seconds": 6,
+        "runtime_seconds": 0.115383,
+        "domain": "B0/B1 domains plus bounded adjacent swaps and single-job machine insertions; coordinated starts on grid plus incumbent anchors",
+        "neighborhood_limit": 12,
+        "declared_domains": 2,
+        "optimality": "PROVEN_IN_DECLARED_DOMAIN",
+        "global_optimum_proven": false,
+        "fallback": "Retain independently verified best B0/B1 on timeout/rejection; origin identifies source"
+      }
+    },
+    {
+      "status": "COMPLETED",
+      "input_hash": "sha256:11d374aeb8678b1c0c54d585db127e8ee6d5d3013c966beae8b073b4a6ee0d4d",
+      "decision": {
+        "kind": "CHANGE",
+        "selected_plan": "B2",
+        "reason_codes": [
+          "MODELED_COST_SCOPE_ONLY",
+          "B2_BOUNDED_NEIGHBORHOODS",
+          "B2_INCREMENTAL_VALUE_ROBUST"
+        ],
+        "evidence_ids": [
+          "plans.B0.verification",
+          "plans.B1.verification",
+          "plans.B2.verification",
+          "plans.B2.solver",
+          "coordinated_economics"
+        ]
+      },
+      "costs_vnd": {
+        "B0": 135920,
+        "B1": 91760,
+        "B2": 47600
+      },
+      "solver": {
+        "algorithm": "OR-Tools CP-SAT",
+        "version": "9.15.6755",
+        "models": [
+          {
+            "seed": "B0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.045738600000000004,
+            "branches": 338,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          },
+          {
+            "seed": "SWAP_B0_M1_0",
+            "status": "OPTIMAL",
+            "solver_seconds": 0.046183100000000005,
+            "branches": 0,
+            "conflicts": 0,
+            "objective_vnd": 47600,
+            "best_bound_vnd": 47600.0
+          }
+        ],
+        "grid_minutes": 30,
+        "time_limit_seconds": 6,
+        "runtime_seconds": 0.132692,
+        "domain": "B0/B1 domains plus bounded adjacent swaps and single-job machine insertions; coordinated starts on grid plus incumbent anchors",
+        "neighborhood_limit": 12,
+        "declared_domains": 2,
+        "optimality": "PROVEN_IN_DECLARED_DOMAIN",
+        "global_optimum_proven": false,
+        "fallback": "Retain independently verified best B0/B1 on timeout/rejection; origin identifies source"
+      }
+    }
+  ],
+  "source_sha256": {
+    "backend/team.py": "dcbd5aabcd483b80b43178bd4134b370caf23f6186acd9a8c60c2fad1326feee",
+    "backend/b2.py": "673aaae1964db5754a006d73265b536b8ac3f5c89215435749f1915255c9fbbc",
+    "backend/neighborhoods.py": "722a2fca2f401c7afdb996ed5fa40b7f0f2fc4f0e4897ec8b512d0c1bcea7cd7"
+  }
+}

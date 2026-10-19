@@ -13,3 +13,7 @@ services:
         sync: false
       - key: PYTHONUNBUFFERED
         value: "1"
+      - key: ENERGYSHIFT_TEAM_DEMO_ENABLED
+        value: "1"
+      - key: ENERGYSHIFT_TEAM_DB
+        value: /tmp/energyshift-team-demo.sqlite3
