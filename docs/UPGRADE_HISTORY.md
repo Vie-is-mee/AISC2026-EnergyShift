@@ -703,3 +703,17 @@ stale tooltips. Cost and average-power units and underlying calculations are unc
 Validation: Node view contracts and real Edge CDP mouse movement over empty plot
 space for both metrics, tooltip exit and keyboard focus; full two-origin UI rehearsal.
 Approved layout and stylesheets remain unchanged.
+
+## 19/10/2026 — Tài liệu workflow dành cho người dùng
+
+Điểm yếu: hướng dẫn nằm rải rác trong tài liệu kỹ thuật và lịch sử, khiến người
+dùng khó theo dõi một lượt làm việc từ chuẩn bị dữ liệu đến đọc và lưu kết quả.
+
+Đã tạo [USER_WORKFLOW.md](USER_WORKFLOW.md) bằng tiếng Việt, đối chiếu controller
+và các contract hiện tại. Tài liệu gồm đầu vào, sáu mục UI, nhập bảng/JSON, hồ sơ,
+nháp/backup, B0/B1/B2, quyết định, đồ thị, rủi ro, tờ trình, đối chiếu số đo,
+hàng đợi nhóm, lỗi thường gặp và checklist. README có liên kết cho người mới.
+
+Giữ rõ dữ liệu giả lập, giới hạn mô hình và các bước phê duyệt/thực hiện ngoài
+hệ thống; không mô tả tính năng dự kiến thành tính năng đã có. Thay đổi chỉ là
+tài liệu, không sửa giao diện hoặc logic. Kiểm tra liên kết nội bộ và diff.
