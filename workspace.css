@@ -2389,3 +2389,290 @@ button, .rail-item, .segment-btn { font-family: var(--font-sans); }
 #tab-gantt .gantt-legend-strip {margin:0 0 12px;}
 #tab-gantt .manual-panel {margin:0 0 8px;}
 @media (max-width:650px) {.gantt-live-heading {margin-top:18px;} .gantt-live-heading p {font-size:11.5px;}}
+
+/* ==========================================================================
+   ENERGY CIRCUIT TELEMETRY FLOW (Live Grid-to-Machine Power Distribution)
+   ========================================================================== */
+.circuit-telemetry-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.circuit-telemetry-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #0284c7, #10b981, #f59e0b, #ef4444);
+  opacity: 0.8;
+}
+.circuit-telemetry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.circuit-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.circuit-panel-title {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+.circuit-tariff-chip {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: var(--brand-light);
+  color: var(--brand-primary);
+  border: 1px solid var(--brand-border);
+}
+.circuit-mode-indicator {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #a7f3d0;
+}
+[data-theme="dark"] .circuit-mode-indicator {
+  background: #064e3b;
+  color: #34d399;
+  border-color: #059669;
+}
+.circuit-flow-canvas-wrap {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.circuit-flow-svg {
+  width: 100%;
+  min-width: 820px;
+  height: 120px;
+  display: block;
+}
+
+/* Cable styles & Animated dashed lines */
+.cable-base {
+  fill: none;
+  stroke: var(--border-medium);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+.cable-pulse {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 8, 12;
+  animation: cableFlow 1.6s linear infinite;
+}
+@keyframes cableFlow {
+  from { stroke-dashoffset: 40; }
+  to { stroke-dashoffset: 0; }
+}
+
+.cable-pulse.pulse-peak {
+  stroke: #f87171;
+  animation-duration: 0.9s;
+}
+.cable-pulse.pulse-offpeak {
+  stroke: #34d399;
+  animation-duration: 2.2s;
+}
+
+/* Circuit Nodes */
+.node-outer-ring {
+  fill: var(--bg-subtle);
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+}
+.node-inner-core {
+  fill: #0284c7;
+  transition: fill 0.3s ease;
+}
+[data-theme="dark"] .node-inner-core {
+  fill: #38bdf8;
+}
+.node-glyph {
+  fill: #ffffff;
+}
+.node-rect-outer {
+  fill: var(--bg-subtle);
+  stroke: var(--brand-primary);
+  stroke-width: 1.8;
+}
+.node-rect-inner {
+  fill: var(--bg-surface);
+  stroke: var(--border-medium);
+  stroke-width: 1;
+}
+.circuit-node-center-text {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+  fill: var(--text-primary);
+}
+.circuit-node-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 750;
+  fill: var(--text-primary);
+}
+.circuit-node-sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  fill: var(--text-muted);
+}
+.circuit-machine-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--text-primary);
+}
+.circuit-kw-highlight {
+  fill: #059669;
+  font-weight: 800;
+}
+.circuit-kw-setup {
+  fill: #d97706;
+  font-weight: 750;
+}
+[data-theme="dark"] .circuit-kw-highlight {
+  fill: #34d399;
+}
+[data-theme="dark"] .circuit-kw-setup {
+  fill: #fbbf24;
+}
+
+/* SCADA Breathing LEDs */
+.machine-status-led {
+  stroke-width: 2;
+  transition: all 0.3s ease;
+}
+.led-active {
+  fill: #10b981;
+  stroke: #a7f3d0;
+  animation: ledPulseGreen 2s infinite ease-in-out;
+}
+.led-setup {
+  fill: #f59e0b;
+  stroke: #fde68a;
+  animation: ledPulseAmber 1.4s infinite ease-in-out;
+}
+.led-idle {
+  fill: #94a3b8;
+  stroke: #cbd5e1;
+}
+
+@keyframes ledPulseGreen {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(16, 185, 129, 0.4)); opacity: 1; }
+  50% { filter: drop-shadow(0 0 7px rgba(16, 185, 129, 0.9)); opacity: 0.85; }
+}
+@keyframes ledPulseAmber {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.4)); opacity: 1; }
+  50% { filter: drop-shadow(0 0 7px rgba(245, 158, 11, 0.95)); opacity: 0.85; }
+}
+
+/* ==========================================================================
+   TELEMETRY HUD BANNER (Synchronized 24H Load Curve Scrubber)
+   ========================================================================== */
+.telemetry-hud-banner {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+  align-items: center;
+}
+.hud-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.hud-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.hud-val {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hud-tariff-peak {
+  color: #dc2626 !important;
+}
+.hud-tariff-normal {
+  color: var(--text-primary) !important;
+}
+.hud-tariff-offpeak {
+  color: #059669 !important;
+}
+[data-theme="dark"] .hud-tariff-peak {
+  color: #f87171 !important;
+}
+[data-theme="dark"] .hud-tariff-offpeak {
+  color: #34d399 !important;
+}
+.text-success {
+  color: #059669;
+}
+[data-theme="dark"] .text-success {
+  color: #34d399;
+}
+.text-highlight {
+  color: #0284c7;
+}
+[data-theme="dark"] .text-highlight {
+  color: #38bdf8;
+}
+
+@media (max-width: 900px) {
+  .telemetry-hud-banner {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .telemetry-hud-banner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 10px 12px;
+  }
+}
+

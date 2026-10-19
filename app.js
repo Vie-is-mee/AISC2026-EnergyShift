@@ -1,10 +1,12 @@
+// Live Backend Decision Engine Endpoint
+const API_ANALYZE_ENDPOINT = "/api/demo/analyze";
 /**
  * EnergyShift VN - Decision Support System
  * Client-side logic, dataset models & interactive visualizations
  */
 
 // Production scenarios according to EnergyShift proposal
-const SCENARIOS = {
+const ENERGY_SCENARIO_PRESETS = {
   scenario1: {
     id: "scenario1",
     name: "Tuần 37/2026 — Khuyến nghị THAY ĐỔI LỊCH (B2)",
@@ -383,7 +385,7 @@ function manualPlanKey(scenarioId, plan) { return `${scenarioId}:${plan}`; }
 function getModifiedPlans(scenarioId) { return ["b0", "b1", "b2"].filter(plan => isScheduleModified(scenarioId, plan)); }
 function isScheduleModified(scenarioId, plan) { return Object.prototype.hasOwnProperty.call(manualStore.schedules, manualPlanKey(scenarioId, plan)); }
 function getWorkingJobs(plan, scenarioId = currentScenarioId) {
-  const source = manualStore.schedules[manualPlanKey(scenarioId, plan)] ?? SCENARIOS[scenarioId].gantt[plan] ?? [];
+  const source = manualStore.schedules[manualPlanKey(scenarioId, plan)] ?? ENERGY_SCENARIO_PRESETS[scenarioId].gantt[plan] ?? [];
   return source.map((job, i) => ({ ...job, _uid: job._uid || `initial-${i}` }));
 }
 function getWorkingGantt() {
@@ -418,8 +420,8 @@ function writeSchedulePlan(plan, jobs) {
   }));
   clearConfirmationForPlan(plan);
   storeManualWorkspace();
-  renderGanttChart(SCENARIOS[currentScenarioId].gantt);
-  renderValidationConstraints(SCENARIOS[currentScenarioId].constraints);
+  renderGanttChart(ENERGY_SCENARIO_PRESETS[currentScenarioId].gantt);
+  renderValidationConstraints(ENERGY_SCENARIO_PRESETS[currentScenarioId].constraints);
   updateOverviewEditNotice();
 }
 function updateOverviewEditNotice() {
@@ -584,7 +586,7 @@ function closeScheduleEditor() {
   scheduleNewMode = false;
   const form = document.getElementById("scheduleEditForm");
   if (form) form.hidden = true;
-  if (hadPreview) renderGanttChart(SCENARIOS[currentScenarioId].gantt);
+  if (hadPreview) renderGanttChart(ENERGY_SCENARIO_PRESETS[currentScenarioId].gantt);
 }
 function previewScheduleEditor() {
   const form = document.getElementById("scheduleEditForm");
@@ -609,7 +611,7 @@ function previewScheduleEditor() {
   document.getElementById("schedulePreviewHint").textContent = valid
     ? `Đang xem trước ${activeGanttPlan.toUpperCase()}: ${name} · ${machine} · ${formatHour(start)} · ${duration} giờ. Chưa lưu.${draftConflicts.length ? ` ⚠ Trùng ${draftConflicts.length} lô trên cùng máy.` : ""}`
     : "Nhập đủ tên, máy, giờ theo bước 30 phút và thời lượng hợp lệ để xem trước.";
-  renderGanttChart(SCENARIOS[currentScenarioId].gantt);
+  renderGanttChart(ENERGY_SCENARIO_PRESETS[currentScenarioId].gantt);
 }
 function saveScheduleJob(e) {
   e.preventDefault();
@@ -674,8 +676,8 @@ function resetManualSchedule() {
   clearConfirmationForPlan(plan);
   storeManualWorkspace();
   closeScheduleEditor();
-  renderGanttChart(SCENARIOS[currentScenarioId].gantt);
-  renderValidationConstraints(SCENARIOS[currentScenarioId].constraints);
+  renderGanttChart(ENERGY_SCENARIO_PRESETS[currentScenarioId].gantt);
+  renderValidationConstraints(ENERGY_SCENARIO_PRESETS[currentScenarioId].constraints);
   updateOverviewEditNotice();
   showToast(`Đã khôi phục lịch mẫu ${plan.toUpperCase()}.`);
 }
@@ -695,22 +697,22 @@ function exportScheduleCSV() {
 function changeValidationPlan(plan) {
   if (!["b0", "b1", "b2"].includes(plan)) return;
   validationPlan = plan;
-  renderValidationConstraints(SCENARIOS[currentScenarioId].constraints);
+  renderValidationConstraints(ENERGY_SCENARIO_PRESETS[currentScenarioId].constraints);
 }
 function updateManualConfirmation(id, checked) {
   const key = manualPlanKey(currentScenarioId, validationPlan);
   manualStore.confirmations[key] ||= {};
   manualStore.confirmations[key][id] = checked;
   storeManualWorkspace();
-  renderValidationConstraints(SCENARIOS[currentScenarioId].constraints);
-  const index = SCENARIOS[currentScenarioId].constraints.findIndex(c => c.id === id);
+  renderValidationConstraints(ENERGY_SCENARIO_PRESETS[currentScenarioId].constraints);
+  const index = ENERGY_SCENARIO_PRESETS[currentScenarioId].constraints.findIndex(c => c.id === id);
   const nextInput = document.querySelectorAll("#validationList input[type=checkbox]")[index];
   if (nextInput) nextInput.focus({ preventScroll: true });
 }
 function clearManualConfirmations() {
   delete manualStore.confirmations[manualPlanKey(currentScenarioId, validationPlan)];
   storeManualWorkspace();
-  renderValidationConstraints(SCENARIOS[currentScenarioId].constraints);
+  renderValidationConstraints(ENERGY_SCENARIO_PRESETS[currentScenarioId].constraints);
   showToast(`Đã bỏ các xác nhận thủ công cho ${validationPlan.toUpperCase()}.`);
 }
 
@@ -814,7 +816,7 @@ function switchMainTab(tabId) {
 
   // Re-render responsive charts when opening specific tabs
   if (tabId === "tab-gantt") {
-    const scenario = SCENARIOS[currentScenarioId];
+    const scenario = ENERGY_SCENARIO_PRESETS[currentScenarioId];
     if (scenario) renderGanttChart(scenario.gantt);
   } else if (tabId === "tab-loadcurve") {
     renderElectricityHourlyChart();
@@ -857,7 +859,7 @@ function closeMobileNav() { toggleMobileNav(false); }
 // Main Dashboard Renderer
 // ==========================================================================
 function renderDashboard() {
-  const scenario = SCENARIOS[currentScenarioId];
+  const scenario = ENERGY_SCENARIO_PRESETS[currentScenarioId];
   if (!scenario) return;
 
   // 1. Update Context Labels
@@ -1230,7 +1232,7 @@ function selectGanttPlan(planType) {
     b.classList.toggle("active", b.getAttribute("data-plan") === planType);
   });
   closeScheduleEditor();
-  const scenario = SCENARIOS[currentScenarioId];
+  const scenario = ENERGY_SCENARIO_PRESETS[currentScenarioId];
   if (scenario) renderGanttChart(scenario.gantt);
 }
 
@@ -1835,7 +1837,7 @@ function renderValidationConstraints(constraints) {
   const info = document.getElementById("validationConfirmNotice");
   info.textContent = edited
     ? `Lịch ${validationPlan.toUpperCase()} đã chỉnh thủ công. Vui lòng đối chiếu lại: trạng thái bên dưới là minh họa, không phải kết quả kiểm định lịch vừa sửa.`
-    : `Đang rà soát ${validationPlan.toUpperCase()} / ${SCENARIOS[currentScenarioId].weekLabel}. Xác nhận được lưu riêng theo kịch bản và phương án trên trình duyệt này.`;
+    : `Đang rà soát ${validationPlan.toUpperCase()} / ${ENERGY_SCENARIO_PRESETS[currentScenarioId].weekLabel}. Xác nhận được lưu riêng theo kịch bản và phương án trên trình duyệt này.`;
   constraints.forEach((c, idx) => {
     const card = document.createElement("div");
     card.className = `constraint-gate-card ${c.pass ? "gate-pass" : "gate-fail"}${checks[c.id] ? " gate-user-checked" : ""}`;
@@ -1992,7 +1994,7 @@ function closeModal() {
 function showDecisionMemo() {
   const modal = document.getElementById("memoModal");
   const content = document.getElementById("memoContent");
-  const scenario = SCENARIOS[currentScenarioId];
+  const scenario = ENERGY_SCENARIO_PRESETS[currentScenarioId];
   if (!scenario) return;
 
   const k = scenario.kpis;
