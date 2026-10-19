@@ -14,7 +14,7 @@ window.AICSVImport = (() => {
     if (!context) return false;
     try {
       const now = InputDesk.csvContext();
-      return now.version === context.version && now.raw_text === context.raw_text && $("aiCSVNotes").value === context.notes;
+      return now.version === context.version && now.raw_text === context.raw_text && $("aiCSVNotes").value === context.notes && $("facilityContext").value.trim() === context.work_context;
     } catch { return false; }
   }
   function mapping() {return [...$("aiCSVMapping").querySelectorAll("select")].map(s => s.value);}
@@ -158,11 +158,11 @@ window.AICSVImport = (() => {
     let next;
     try {next=InputDesk.csvContext();if(!next.raw_text.trim())throw Error("Mở CSV/TSV hoặc dán bảng trước khi gọi AI.");}
     catch(e){status(e.message);return;}
-    invalidate();context={...next,notes:$("aiCSVNotes").value};const expected=epoch;
+    invalidate();context={...next,notes:$("aiCSVNotes").value,work_context:$("facilityContext").value.trim()};const expected=epoch;
     busy=true;buttons();steps("Model");status("Đang kiểm tra nguồn và gửi bảng tới AI…");
     try {
       await AssistantIntake.ensureSession();if(expected!==epoch || !fresh())return;
-      const value=await request("",{kind:"CSV",snapshot:context.snapshot,raw_text:context.raw_text,message:context.notes,consent:true});
+      const value=await request("",{kind:"CSV",snapshot:context.snapshot,raw_text:context.raw_text,message:context.notes,work_context:context.work_context,consent:true});
       if(expected!==epoch || !fresh()){request("/"+value.id+"/cancel",{}).catch(()=>{});return;}
       showProposal(value);if(active.has(value.status))timer=setTimeout(()=>poll(expected),500);else if(value.status==="AWAITING_REVIEW")await preview();
     } catch(e){if(expected===epoch){busy=false;status(e.message+" Không tự gửi lại API.");buttons();}}
@@ -198,9 +198,9 @@ window.AICSVImport = (() => {
       try {const value=await request("/"+id+"/cancel",{});if(epoch===expected){showProposal(value);busy=false;buttons();}}
       catch(e){if(epoch===expected){busy=false;status(e.message);buttons();}}
     };
-    $("tablePaste").addEventListener("input",invalidate);$("tableFile").addEventListener("change",invalidate);$("aiCSVNotes").addEventListener("input",invalidate);
+    $("tablePaste").addEventListener("input",invalidate);$("tableFile").addEventListener("change",invalidate);$("aiCSVNotes").addEventListener("input",invalidate);$("facilityContext").addEventListener("input",invalidate);
     for(const event of ["input","change"])$("inputDesk").addEventListener(event,e=>{
-      if(e.target.id==="showPlanDetails" || e.target.name==="inputMethod")return;
+      if(e.target.id==="showPlanDetails" || e.target.id==="facilityContext" || e.target.name==="inputMethod")return;
       if(!$("aiCSVPanel").contains(e.target))invalidate();
     });
     $("aiCSVConsent").addEventListener("change",()=>{if(!$("aiCSVConsent").checked)invalidate();});

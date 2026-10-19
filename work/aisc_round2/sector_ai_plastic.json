@@ -1,0 +1,25 @@
+{
+  "case": "plastic",
+  "source_type": "SYNTHETIC",
+  "fixture": "backend/fixtures/coordinated_cell.json",
+  "fixture_sha256": "1a8670ae3a7d4d06dd2d618ae29952cf69b6a4ebe349855e6de7feab51469156",
+  "model_requested": "google/gemma-4-26b-a4b-it:free",
+  "model_reported": null,
+  "status": "HTTP_ERROR",
+  "http_status": 404,
+  "error_category": "PROVIDER_ERROR",
+  "latency_seconds": 1.044,
+  "finish_reason": null,
+  "tokens_used": null,
+  "scope_review": {
+    "version": "context-scope-1",
+    "status": "NOT_ASSESSED",
+    "indicators": [],
+    "engine_constraints_added": false,
+    "scope_disclaimer": "Bộ phát hiện chỉ gợi ý điều kiện cần kỹ sư rà soát; không xác nhận tính đầy đủ. Không phát hiện từ khóa KHÔNG có nghĩa là solver hỗ trợ mọi điều kiện. Ngữ cảnh và phản hồi AI không tự thêm điều kiện vào lịch hoặc verifier."
+  },
+  "timestamp_utc": "2026-10-19T14:16:23.252556+00:00",
+  "review_level": "SINGLE_REAL_MODEL_SMOKE_NOT_A_QUALITY_BENCHMARK",
+  "ai_proposal": null,
+  "contract_valid": false
+}

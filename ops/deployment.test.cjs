@@ -29,7 +29,7 @@ test('contaminated output directory fails rather than publishing extra files', (
 }));
 test('API client targets configured backend without browser credentials', async () => {
   let observed;
-  const context = { window: { ENERGYSHIFT_CONFIG: { apiBaseUrl: 'https://demo.onrender.com' } }, fetch: async (...args) => { observed = args; return 'ok'; } };
+  const context = { document: { addEventListener() {}, getElementById() { return null; } }, window: { ENERGYSHIFT_CONFIG: { apiBaseUrl: 'https://demo.onrender.com' } }, fetch: async (...args) => { observed = args; return 'ok'; } };
   vm.createContext(context); vm.runInContext(fs.readFileSync(path.join(ROOT, 'api-client.js'), 'utf8'), context);
   assert.equal(await vm.runInContext('apiFetch("/api/demo/analyze", {method:"POST",body:"{}"})', context), 'ok');
   assert.equal(observed[0], 'https://demo.onrender.com/api/demo/analyze');
@@ -38,7 +38,7 @@ test('API client targets configured backend without browser credentials', async 
   assert.throws(() => vm.runInContext('apiFetch("https://foreign.example")', context));
 });
 test('local mode stays same-origin', async () => {
-  const context = { window: {}, fetch: async (url) => url }; vm.createContext(context);
+  const context = { document: { addEventListener() {}, getElementById() { return null; } }, window: {}, fetch: async (url) => url }; vm.createContext(context);
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'api-client.js'), 'utf8'), context);
   assert.equal(await vm.runInContext('apiFetch("/api/demo/health")', context), '/api/demo/health');
 });

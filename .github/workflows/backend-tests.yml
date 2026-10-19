@@ -28,3 +28,5 @@ jobs:
       - run: node --test ops/view-contract.test.cjs
       - run: node --test ops/assistant-view.test.cjs
       - run: node --test ops/ai-csv-view.test.cjs
+      - run: node --check api-client.js
+      - run: node --test ops/work-context.test.cjs
