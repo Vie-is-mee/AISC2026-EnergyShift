@@ -690,3 +690,16 @@ Chi tiết: [UI_RESTORATION.md](UI_RESTORATION.md).
 Nhánh: `fix/restore-workspace-navigation`; implementation commit:
 `fa48ece8088a356228c76837daf2a8a3ed2946b9`.
 PR: [#11 — khôi phục UI cockpit và rút gọn nhập kế hoạch](https://github.com/Vie-is-mee/AISC2026-EnergyShift/pull/11).
+
+
+## 2026-10-19 - Restore chart hover values
+
+Weakness: tiny SVG point targets made hourly values difficult to discover.
+Fix: pointer movement anywhere inside the plot selects the nearest hourly bin,
+with a shared tooltip for B0 and the actual selected plan. Inverting the SVG
+screen matrix preserves accurate selection under responsive scaling and letterboxing.
+Keyboard point focus remains supported; exit, cancellation and metric changes hide
+stale tooltips. Cost and average-power units and underlying calculations are unchanged.
+Validation: Node view contracts and real Edge CDP mouse movement over empty plot
+space for both metrics, tooltip exit and keyboard focus; full two-origin UI rehearsal.
+Approved layout and stylesheets remain unchanged.
