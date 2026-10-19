@@ -710,6 +710,7 @@ function renderChart() {
     svg = $("elecLineChartSvg"),
     ns = "http://www.w3.org/2000/svg",
     unit = activeMetric === "power" ? "kW trung bình" : "đ / khoảng giờ";
+  $("chartTooltip").style.display = "none";
   svg.replaceChildren();
   svg.setAttribute("viewBox", "0 0 960 360");
   svg.setAttribute("role", "img");
@@ -761,6 +762,30 @@ function renderChart() {
       timeLabel(series[0].values[i].start),
     );
   }
+  const tooltip = $("chartTooltip");
+  const hideTooltip = () => { tooltip.style.display = "none"; };
+  const showHour = (i) => {
+    const interval = series[0].values[i];
+    tooltip.textContent = `${timeLabel(interval.start)} → ${timeLabel(interval.end)}\n` +
+      series.map(s => `${s.code}: ${s.values[i].value.toLocaleString("vi-VN", { maximumFractionDigits: 2 })} ${unit}`).join("\n");
+    Object.assign(tooltip.style, {
+      display: "block", opacity: 1, left: "12px", top: "12px",
+      whiteSpace: "pre-line", minWidth: "0", maxWidth: "calc(100% - 24px)",
+    });
+    tooltip.dataset.hourIndex = String(i);
+  };
+  svg.onpointermove = (event) => {
+    // SVG letterboxing changes with viewport size: invert its actual screen transform.
+    const matrix = svg.getScreenCTM();
+    if (!matrix) return;
+    const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
+    if (point.x < 64 || point.x > 920 || point.y < 42 || point.y > 290) {
+      hideTooltip();
+      return;
+    }
+    showHour(Math.min(hours - 1, Math.floor((point.x - 64) * hours / 856)));
+  };
+  svg.onpointerleave = svg.onpointercancel = hideTooltip;
   series.forEach((s, index) => {
     const color = index ? "#22d3ee" : "#a78bfa";
     add("polyline", {
@@ -788,18 +813,8 @@ function renderChart() {
       const title = document.createElementNS(ns, "title");
       title.textContent = label;
       circle.append(title);
-      circle.onfocus = circle.onmouseenter = () => {
-        put("chartTooltip", label);
-        Object.assign($("chartTooltip").style, {
-          display: "block",
-          opacity: 1,
-          left: "70px",
-          top: "12px",
-        });
-      };
-      circle.onblur = circle.onmouseleave = () => {
-        $("chartTooltip").style.display = "none";
-      };
+      circle.onfocus = circle.onmouseenter = () => showHour(i);
+      circle.onblur = hideTooltip;
     });
   });
   add(
