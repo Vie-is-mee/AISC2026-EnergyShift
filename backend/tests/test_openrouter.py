@@ -8,7 +8,7 @@ from unittest.mock import patch
 from urllib.error import HTTPError, URLError
 
 from backend.evaluate_openrouter import score
-from backend.openrouter import chat_json, load_config
+from backend.openrouter import chat_json, load_config, free_report_endpoint_status, REPORT_FREE_MODELS
 
 
 class OpenRouterTests(unittest.TestCase):
@@ -36,6 +36,75 @@ class OpenRouterTests(unittest.TestCase):
             self.assertEqual(sent["max_completion_tokens"],4000)
             self.assertEqual(sent["reasoning"],{"enabled":False,"exclude":True})
         with self.assertRaises(ValueError):chat_json([],max_completion_tokens=999999)
+
+    def test_mandatory_reasoning_accepts_bounded_effort_without_disabling_it(self):
+        payload = {"choices": [{"message": {"content": "{}"}}]}
+        with patch("urllib.request.urlopen", return_value=io.BytesIO(json.dumps(payload).encode())) as network:
+            result = chat_json([], config={"OPENROUTER_API_KEY": "fake", "OPENROUTER_MODEL": REPORT_FREE_MODELS[0]},
+                               free_only=True, reasoning_effort="low", max_completion_tokens=6000)
+            self.assertEqual(result["status"], "OK")
+            sent = json.loads(network.call_args.args[0].data)
+            self.assertEqual(sent["reasoning"], {"effort": "low", "exclude": True})
+            self.assertNotIn("enabled", sent["reasoning"])
+        with self.assertRaises(ValueError):
+            chat_json([], config={"OPENROUTER_API_KEY": "fake", "OPENROUTER_MODEL": "test"},
+                      reasoning_enabled=False, reasoning_effort="low")
+
+    def test_report_free_only_caps_all_provider_prices_and_blocks_paid_config(self):
+        self.assertEqual(REPORT_FREE_MODELS,
+                         ("minimax/minimax-m3.1-flash:free", "xingchen-agi/xing4.0-29b-a4b:free"))
+        payload = {"choices": [{"message": {"content": "{}"}}]}
+        for free_model in REPORT_FREE_MODELS:
+            with patch("urllib.request.urlopen",
+                       return_value=io.BytesIO(json.dumps(payload).encode())) as network:
+                result = chat_json([], config={"OPENROUTER_API_KEY": "fake",
+                                               "OPENROUTER_MODEL": free_model},
+                                   free_only=True, reasoning_enabled=False)
+                self.assertEqual(result["status"], "OK")
+                sent = json.loads(network.call_args.args[0].data)
+                self.assertEqual(sent["model"], free_model)
+                self.assertEqual(sent["provider"]["max_price"],
+                                 {"prompt": 0, "completion": 0, "request": 0})
+                self.assertTrue(sent["provider"]["require_parameters"])
+                self.assertEqual(sent["reasoning"], {"enabled": False, "exclude": True})
+                self.assertNotIn("models", sent)
+        for not_free in ("minimax/minimax-m3.1-flash", "xingchen-agi/xing4.0-29b-a4b",
+                         "qwen/qwen3.8-27b:free", "nvidia/nemotron-3-nano-30b-a3b:free",
+                         "openrouter/auto", "openai/gpt-5"):
+            with patch("urllib.request.urlopen") as network:
+                result = chat_json([], config={"OPENROUTER_API_KEY": "fake",
+                                               "OPENROUTER_MODEL": not_free}, free_only=True)
+                self.assertEqual(result["status"], "FREE_MODEL_REQUIRED")
+                network.assert_not_called()
+
+    def test_free_endpoint_catalog_is_read_only_and_reveals_no_available_hosts(self):
+        catalog = {"data": {"endpoints": []}}
+        with patch("urllib.request.urlopen",
+                   side_effect=lambda *a, **kw: io.BytesIO(json.dumps(catalog).encode())) as get:
+            report = free_report_endpoint_status()
+        self.assertEqual(report["status"], "OK")
+        self.assertEqual([x["model"] for x in report["models"]], list(REPORT_FREE_MODELS))
+        self.assertEqual([x["status"] for x in report["models"]], ["NO_ENDPOINTS", "NO_ENDPOINTS"])
+        self.assertEqual([x["endpoints"] for x in report["models"]], [0, 0])
+        self.assertEqual(get.call_count, 2)
+        for call in get.call_args_list:
+            self.assertEqual(len(call.args), 1)
+            self.assertTrue(call.args[0].endswith("/endpoints"))
+        with patch("urllib.request.urlopen", side_effect=URLError("temporary catalog offline")):
+            missing = free_report_endpoint_status()
+        self.assertEqual([x["status"] for x in missing["models"]], ["UNKNOWN", "UNKNOWN"])
+        self.assertEqual([x["endpoints"] for x in missing["models"]], [None, None])
+
+    def test_http_404_is_endpoint_unavailable_not_account_quota(self):
+        err = HTTPError("https://openrouter.ai/api/v1/chat/completions", 404, "not found", {},
+                        io.BytesIO(b'{"error":{"message":"No matching model endpoints"}}'))
+        with patch("urllib.request.urlopen", side_effect=err):
+            result = chat_json([], config={"OPENROUTER_API_KEY": "fake",
+                                            "OPENROUTER_MODEL": REPORT_FREE_MODELS[0]}, free_only=True)
+        self.assertEqual(result["status"], "HTTP_ERROR")
+        self.assertEqual(result["http_status"], 404)
+        self.assertEqual(result["error_category"], "MODEL_UNAVAILABLE")
+        self.assertNotIn("No matching model endpoints", json.dumps(result))
 
     def test_missing_config_does_not_call_network(self):
         with patch("urllib.request.urlopen") as request:
@@ -75,6 +144,40 @@ class OpenRouterTests(unittest.TestCase):
             result = chat_json([], config={"OPENROUTER_API_KEY": "test-secret", "OPENROUTER_MODEL": "sample"})
         self.assertEqual(result["status"], "TRANSPORT_ERROR")
         self.assertNotIn("test-secret", json.dumps(result))
+
+    def test_upstream_shared_pool_429_keeps_safe_diagnostic_fields(self):
+        body = {"error": {"message": "Provider returned error", "code": 429, "metadata": {
+            "limit_source": "upstream_provider_shared_pool", "provider_name": "Google AI Studio",
+            "raw": "model is temporarily rate-limited upstream; private test-secret",
+            "remedy_hint": "private diagnostics test-secret"}}}
+        error = HTTPError("https://openrouter.ai/api/v1/chat/completions", 429, "error", {}, io.BytesIO(json.dumps(body).encode()))
+        with patch("urllib.request.urlopen", side_effect=error):
+            result = chat_json([], config={"OPENROUTER_API_KEY": "test-secret", "OPENROUTER_MODEL": "sample"})
+        self.assertEqual(result["limit_source"], "upstream_provider_shared_pool")
+        self.assertEqual(result["provider_name"], "Google AI Studio")
+        self.assertEqual(result["rate_limit_scope"], "UPSTREAM_PROVIDER")
+        self.assertNotIn("test-secret", json.dumps(result))
+        self.assertNotIn("private diagnostics", json.dumps(result))
+
+    def test_invalid_provider_responses_are_classified_without_exposing_raw_content(self):
+        samples = [
+            ("", "stop", "EMPTY_CONTENT"),
+            (None, "length", "OUTPUT_TRUNCATED"),
+            ('{"summary":', "length", "OUTPUT_TRUNCATED"),
+            ("broken secret private-output", "stop", "MALFORMED_JSON"),
+            ("[]", "stop", "NON_OBJECT_JSON"),
+        ]
+        for body, finish_reason, category in samples:
+            with self.subTest(category=category):
+                payload = {"id": "provider-123", "choices": [
+                    {"message": {"content": body}, "finish_reason": finish_reason}]}
+                with patch("urllib.request.urlopen", return_value=io.BytesIO(json.dumps(payload).encode())):
+                    result = chat_json([], config={"OPENROUTER_API_KEY": "fake", "OPENROUTER_MODEL": "sample"})
+                self.assertEqual(result["status"], "INVALID_RESPONSE")
+                self.assertEqual(result["error_category"], category)
+                self.assertEqual(result["finish_reason"], finish_reason)
+                self.assertEqual(result["response_id"], "provider-123")
+                self.assertNotIn("private-output", json.dumps(result))
 
     def test_invalid_json_answer_fails_closed(self):
         with patch("urllib.request.urlopen", return_value=io.BytesIO(b'{"choices":[{"message":{"content":"not JSON"}}]}')):

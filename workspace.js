@@ -41,7 +41,7 @@ window.Workspace = (() => {
       pane.hidden = pane.id !== id;
       pane.classList.toggle("active", pane.id === id);
     });
-    document.querySelectorAll(".rail-item[data-tab]").forEach((button) => {
+    document.querySelectorAll(".rail-item[data-tab], .quick-nav-item[data-tab]").forEach((button) => {
       const selected = button.dataset.tab === id;
       button.classList.toggle("active", selected);
       if (selected) button.setAttribute("aria-current", "page");
@@ -64,7 +64,7 @@ window.Workspace = (() => {
     target.scrollIntoView({ block: "start", behavior: "smooth" });
   }
   document
-    .querySelectorAll(".rail-item[data-tab]")
+    .querySelectorAll(".rail-item[data-tab], .quick-nav-item[data-tab]")
     .forEach((button) =>
       button.addEventListener("click", () => show(button.dataset.tab, true)),
     );

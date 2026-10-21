@@ -18,3 +18,8 @@ work/ui-qa/
 *.sqlite3
 *.sqlite3-wal
 *.sqlite3-shm
+
+# Local interpreter, credentials bridge, and generated presentation evidence.
+.venv/
+.ai-bridge/
+work/demo-evidence/

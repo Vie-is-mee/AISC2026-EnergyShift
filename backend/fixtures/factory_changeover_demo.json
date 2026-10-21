@@ -1,0 +1,226 @@
+{
+  "schema_version": "factory-1",
+  "metadata": {
+    "plant_alias": "DEMO_PACKAGING_CHANGEOVER",
+    "industry": "Đóng gói thực phẩm giả lập",
+    "source_type": "SYNTHETIC",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "currency": "VND"
+  },
+  "horizon": {
+    "start": "2026-10-19T08:00:00+07:00",
+    "end": "2026-10-19T12:00:00+07:00"
+  },
+  "step_minutes": 30,
+  "machines": [
+    {
+      "id": "PACK-01",
+      "available": [
+        {
+          "start": "2026-10-19T08:00:00+07:00",
+          "end": "2026-10-19T12:00:00+07:00"
+        }
+      ],
+      "changeovers": {
+        "initial_family": "FORM",
+        "transitions": [
+          {
+            "from_family": "FORM",
+            "to_family": "FORM",
+            "duration_minutes": 0,
+            "flat_cost_vnd": 0,
+            "reference": "synthetic-changeover-PACK-01-FORM-FORM",
+            "demands": {}
+          },
+          {
+            "from_family": "FORM",
+            "to_family": "BOX",
+            "duration_minutes": 30,
+            "flat_cost_vnd": 7000,
+            "reference": "synthetic-changeover-PACK-01-FORM-BOX",
+            "demands": {
+              "CREW": 1
+            }
+          },
+          {
+            "from_family": "BOX",
+            "to_family": "FORM",
+            "duration_minutes": 30,
+            "flat_cost_vnd": 3000,
+            "reference": "synthetic-changeover-PACK-01-BOX-FORM",
+            "demands": {
+              "CREW": 1
+            }
+          },
+          {
+            "from_family": "BOX",
+            "to_family": "BOX",
+            "duration_minutes": 0,
+            "flat_cost_vnd": 0,
+            "reference": "synthetic-changeover-PACK-01-BOX-BOX",
+            "demands": {}
+          }
+        ]
+      }
+    },
+    {
+      "id": "LABEL-02",
+      "available": [
+        {
+          "start": "2026-10-19T08:00:00+07:00",
+          "end": "2026-10-19T12:00:00+07:00"
+        }
+      ],
+      "changeovers": {
+        "initial_family": "SEAL",
+        "transitions": [
+          {
+            "from_family": "SEAL",
+            "to_family": "SEAL",
+            "duration_minutes": 0,
+            "flat_cost_vnd": 0,
+            "reference": "synthetic-changeover-LABEL-02-SEAL-SEAL",
+            "demands": {}
+          },
+          {
+            "from_family": "SEAL",
+            "to_family": "BOX",
+            "duration_minutes": 30,
+            "flat_cost_vnd": 6500,
+            "reference": "synthetic-changeover-LABEL-02-SEAL-BOX",
+            "demands": {
+              "CREW": 1
+            }
+          },
+          {
+            "from_family": "BOX",
+            "to_family": "SEAL",
+            "duration_minutes": 30,
+            "flat_cost_vnd": 2500,
+            "reference": "synthetic-changeover-LABEL-02-BOX-SEAL",
+            "demands": {
+              "CREW": 1
+            }
+          },
+          {
+            "from_family": "BOX",
+            "to_family": "BOX",
+            "duration_minutes": 0,
+            "flat_cost_vnd": 0,
+            "reference": "synthetic-changeover-LABEL-02-BOX-BOX",
+            "demands": {}
+          }
+        ]
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "id": "FORM",
+      "release": "2026-10-19T08:00:00+07:00",
+      "due": "2026-10-19T12:00:00+07:00",
+      "eligible": {
+        "PACK-01": {
+          "duration_minutes": 60,
+          "average_kw": 12,
+          "power_source": "SYNTHETIC",
+          "reference": "sim-form-kw"
+        }
+      },
+      "demands": {
+        "CREW": 1
+      },
+      "setup_family": "FORM"
+    },
+    {
+      "id": "SEAL",
+      "release": "2026-10-19T08:00:00+07:00",
+      "due": "2026-10-19T12:00:00+07:00",
+      "eligible": {
+        "LABEL-02": {
+          "duration_minutes": 60,
+          "average_kw": 8,
+          "power_source": "SYNTHETIC",
+          "reference": "sim-seal-kw"
+        }
+      },
+      "demands": {
+        "CREW": 1
+      },
+      "setup_family": "SEAL"
+    },
+    {
+      "id": "BOX",
+      "release": "2026-10-19T08:00:00+07:00",
+      "due": "2026-10-19T12:00:00+07:00",
+      "eligible": {
+        "PACK-01": {
+          "duration_minutes": 60,
+          "average_kw": 6,
+          "power_source": "SYNTHETIC",
+          "reference": "sim-box-kw"
+        },
+        "LABEL-02": {
+          "duration_minutes": 60,
+          "average_kw": 5,
+          "power_source": "SYNTHETIC",
+          "reference": "sim-box-alt-kw"
+        }
+      },
+      "setup_family": "BOX"
+    }
+  ],
+  "current_schedule": [
+    {
+      "job_id": "FORM",
+      "machine_id": "PACK-01",
+      "start": "2026-10-19T08:00:00+07:00"
+    },
+    {
+      "job_id": "SEAL",
+      "machine_id": "LABEL-02",
+      "start": "2026-10-19T09:00:00+07:00"
+    },
+    {
+      "job_id": "BOX",
+      "machine_id": "PACK-01",
+      "start": "2026-10-19T10:30:00+07:00"
+    }
+  ],
+  "resources": [
+    {
+      "id": "CREW",
+      "capacity": 1,
+      "available": [
+        {
+          "start": "2026-10-19T08:00:00+07:00",
+          "end": "2026-10-19T12:00:00+07:00"
+        }
+      ]
+    }
+  ],
+  "precedence": [
+    {
+      "before": "FORM",
+      "after": "SEAL",
+      "min_lag_minutes": 0
+    }
+  ],
+  "tariffs": [
+    {
+      "start": "2026-10-19T08:00:00+07:00",
+      "end": "2026-10-19T10:00:00+07:00",
+      "band": "HIGH",
+      "vnd_per_kwh": 3200
+    },
+    {
+      "start": "2026-10-19T10:00:00+07:00",
+      "end": "2026-10-19T12:00:00+07:00",
+      "band": "LOW",
+      "vnd_per_kwh": 1000
+    }
+  ],
+  "tariff_reference": "SIMULATED-PACKAGING-TOU",
+  "setup_assumption": "DECLARED_CHANGEOVERS",
+  "unsupported_constraints": []
+}
