@@ -18,8 +18,15 @@
     <script defer="" src="/input-desk.js"></script>
     <script defer="" src="/assistant.js"></script>
     <script defer="" src="/ai-csv-import.js"></script>
+    <link href="/demo-studio.css" rel="stylesheet" />
+    <script defer="" src="/energy-chart.js"></script>
+    <script defer="" src="/demo-studio.js"></script>
+    <script defer="" src="/demo-view-model.js"></script>
+    <script defer="" src="/demo-workspace.js"></script>
+    <script defer="" src="/demo-interactive-gantt.js"></script>
+    <script defer="" src="/factory-lab.js"></script>
   </head>
-  <body data-view="tab-dispatch">
+  <body data-view="tab-dispatch" data-entry-mode="source-files">
     <a class="skip-link" href="#workspaceMain">Chuyển đến nội dung chính</a>
     <div
       aria-atomic="true"
@@ -96,7 +103,7 @@
           </div>
           <div class="header-divider"></div>
           <!-- Prominent Scenario Selector -->
-          <div class="header-scenario-wrap">
+          <div class="header-scenario-wrap" hidden>
             <label
               class="header-scenario-label"
               for="scenarioSelect"
@@ -140,7 +147,7 @@
           </div>
         </div>
         <!-- Center Live Status Pill -->
-        <div class="header-center-group">
+        <div class="header-center-group" hidden>
           <div class="live-status-pill">
             <span class="live-pulse-dot"></span>
             <span class="live-status-text">Giá điện tham chiếu</span>
@@ -154,7 +161,7 @@
         <div class="header-right-group">
           <!-- Data Readiness Indicator -->
           <div
-            class="data-quality-gauge"
+            class="data-quality-gauge" hidden
             id="dataQualityBox"
             title="Điểm sẵn sàng dữ liệu của kịch bản minh họa (không phải dữ liệu ERP trực tiếp)"
           >
@@ -168,7 +175,7 @@
             aria-label="Làm mới dữ liệu mô phỏng"
             class="icon-tool-btn"
             data-action="revalidateDashboard()"
-            id="btnSyncData"
+            id="btnSyncData" hidden
             title="Làm mới kịch bản minh họa"
           >
             <svg
@@ -259,10 +266,6 @@
           </div>
         </div>
       </header>
-      <div class="demo-ribbon" role="note">
-        Demo: số liệu mô hình từ đầu vào; B0/B1/B2 được kiểm tra độc lập. Không
-        phải dữ liệu vận hành thực tế.
-      </div>
       <div class="app-body">
         <div
           aria-hidden="true"
@@ -300,7 +303,7 @@
                 ></path>
                 <rect height="4" rx="1" ry="1" width="8" x="8" y="2"></rect>
               </svg>
-              <span>Điều Chuyển Đơn Hàng</span>
+              <span>Nhập dữ liệu</span>
             </button>
 <button
               class="rail-item"
@@ -368,7 +371,7 @@
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
                 <path d="m9 12 2 2 4-4"></path>
               </svg>
-              <span>5 Ràng Buộc Vật Lý</span>
+              <span>Kiểm chứng lịch</span>
             </button>
             <button
               class="rail-item"
@@ -396,7 +399,7 @@
               <div class="meta-row">
                 <span class="meta-label">Phiên bản:</span>
                 <span class="meta-value tabular"
-                  >demo-3 · kiểm tra độc lập</span
+                  >Kiểm chứng độc lập</span
                 >
               </div>
               <div class="meta-row">
@@ -408,11 +411,22 @@
         </aside>
         <!-- Main Workspace Viewport -->
         <main class="workspace-main" id="workspaceMain">
+
           <!-- ===================================================================
            TAB 1: OVERVIEW & THREE-TIER COMPARISON (B0 vs B1 vs B2)
            =================================================================== -->
           <div class="tab-pane" id="tab-overview">
-            <div
+          <details id="demoWorkspaceMemo" class="studio demo-workspace-memo ai-live-surface"><summary><span>Live AI &amp; tờ trình</span><span class="ai-live-summary-note">Phân tích trên bằng chứng đã kiểm chứng</span></summary>
+              <div class="ai-live-shell"><header class="ai-live-hero"><div class="ai-live-hero-copy"><h2>Hỏi sâu hơn về lịch sản xuất.</h2><p>Giải thích B0 / B1 / B2, chi phí điện và rủi ro vận hành. Tất cả lịch, số liệu và trạng thái kiểm chứng vẫn do engine cung cấp.</p></div><div class="ai-live-provider"><span class="ai-live-pulse" aria-hidden="true"></span><span>OpenRouter · gọi trực tiếp</span><small>Free models · không dùng đáp án lưu sẵn</small></div></header>
+              <details class="ai-live-evidence"><summary>Xem tờ trình và số liệu từ engine</summary><div id="demoWorkspaceMemoContent"></div></details>
+              <section class="ai-live-composer" aria-label="Soạn câu hỏi Live AI">
+                <div class="ai-live-composer-head"><h3>Điều gì cần được làm rõ?</h3><p>Chọn một chủ đề hoặc viết câu hỏi riêng.</p></div>
+                <div class="ai-live-suggestions" aria-label="Gợi ý câu hỏi"><button type="button" data-ai-prompt-for="demoWorkspaceQuestion" data-ai-prompt="So sánh B1 và B2: những công việc nào đổi thời điểm, điện mặt trời, điện lưới và chi phí biến động ra sao?">So sánh B1 / B2</button><button type="button" data-ai-prompt-for="demoWorkspaceQuestion" data-ai-prompt="Những rủi ro, giới hạn mô hình và giả định nào cần kỹ sư nhà máy xác nhận trước khi áp dụng lịch?">Rủi ro vận hành</button><button type="button" data-ai-prompt-for="demoWorkspaceQuestion" data-ai-prompt="Giải thích những kết quả đã được kiểm chứng và điều chưa thể kết luận để trình bày trong cuộc thi.">Chuẩn bị thuyết trình</button></div>
+            <label for="demoWorkspaceQuestion" class="ai-live-label">Câu hỏi dành cho AI</label><textarea id="demoWorkspaceQuestion" rows="4" maxlength="1200" placeholder="Ví dụ: B2 cải thiện chi phí thế nào so với B1 và còn rủi ro gì?"></textarea><div class="ai-live-input-meta"><span>Bằng chứng gắn với lịch đang xem</span><output data-ai-count-for="demoWorkspaceQuestion">0 / 1200</output></div>
+            <label class="studio-check ai-live-consent"><input id="demoWorkspaceConsent" type="checkbox"><span>Đồng ý gửi câu hỏi và bằng chứng tới OpenRouter (MiniMax M3.1 Flash Free, provider MiniMax; dự phòng XingChen Xing4.0 Free, provider Phala). <strong>Không gọi model trả phí.</strong></span></label>
+            <div class="studio-actions ai-live-actions"><button type="button" id="demoWorkspaceReportAI" class="ai-live-primary" disabled>Phân tích kết quả</button><button type="button" id="demoWorkspaceContextAI" class="ai-live-secondary" disabled>Đề xuất bước kiểm tra</button></div></section><section id="demoWorkspaceAILivePanel" class="ai-live-response" data-ai-state="idle" aria-label="Phản hồi Live AI"><div class="ai-live-response-head"><div><h3>Phản hồi từ Live AI</h3><p>Trạng thái và thông tin lần gọi provider luôn hiển thị.</p></div><span class="ai-live-state">Chờ câu hỏi</span></div>
+            <p id="demoWorkspaceAIStatus" class="ai-live-status" role="status" aria-live="polite">Chưa gửi câu hỏi. Bạn vẫn có thể xem kết quả engine phía trên.</p><div id="demoWorkspaceAIRecovery" class="ai-live-recovery"></div><div id="demoWorkspaceAIAnswer" class="ai-live-answer"><p class="ai-live-empty">Chọn câu hỏi, xác nhận gửi dữ liệu và nhấn phân tích để nhận diễn giải trực tiếp từ AI.</p></div></section><details class="ai-live-diagnostics"><summary>Kiểm tra kết nối, quota và nguyên nhân lỗi</summary><button type="button" id="demoWorkspaceAICheck">Kiểm tra endpoint miễn phí</button><p>Chỉ đọc trạng thái provider, không gửi câu hỏi đến model.</p></details></div>
+          </details>            <div
               class="manual-context-note overview-manual-warning"
               hidden=""
               id="overviewEditNotice"
@@ -691,6 +705,28 @@
                 </div>
               </div>
             </section>
+
+<details id="studioPanel-synthetic" class="studio demo-disclosure"><summary>Kịch bản mẫu & bằng chứng trình bày</summary>
+<section id="studio-synthetic" class="studio-stage" aria-labelledby="studioSyntheticTitle">
+                <div class="studio-section-head"><div><h3 id="studioSyntheticTitle">Kịch bản ép nhựa trong slide 10–12</h3><p>8 lô · 3 máy · SYNTHETIC. Đây là kịch bản riêng; chi phí này không thuộc nguồn ngành dệt.</p></div><button type="button" id="studioReplay">Đặt lại &amp; chạy kịch bản slide</button></div>
+                <div id="studioSyntheticResult" class="studio-empty">Chạy engine để xem B0, B1, B2 và lý do chọn lịch.</div>
+                <div class="studio-actions"><button id="studioOpenGantt" type="button" disabled>Mở Gantt B0 / B1</button><button id="studioOpenVerifier" type="button" disabled>Mở kiểm chứng độc lập</button><button id="studioOpenDecision" type="button" disabled>Mở quyết định &amp; so sánh</button></div>
+                <details><summary>Điều chỉnh slide để khớp bằng chứng</summary><ul><li>Slide 5: 167 dòng thiếu chế độ; thêm 17 dòng không tương thích máy.</li><li>Slide 6: phân biệt nhóm ngành dệt với fixture ép nhựa; biểu đồ phải thuộc đúng bộ dữ liệu.</li><li>Slide 11: dùng số lượng thực tế 8 công việc, thay ảnh 128/128.</li><li>Chỉ dùng kết quả có hash và ngày chạy trong gói bằng chứng. Không công bố tiết kiệm nhà máy đã đo.</li></ul></details>
+              </section>
+</details>
+
+<details id="studioPanel-explain" class="studio demo-disclosure"><summary>AI giải thích nguồn & kịch bản đã tính</summary>
+<section id="studio-explain" class="studio-stage ai-live-surface ai-live-embedded" aria-labelledby="studioExplainTitle"><div class="ai-live-shell">
+                <header class="ai-live-hero"><div class="ai-live-hero-copy"><h2 id="studioExplainTitle">Hỏi AI về dữ liệu thực tế.</h2><p>Nhận hướng kiểm tra và diễn giải kết quả dựa trên dữ liệu nguồn và lịch vừa tính. Mỗi lần nhấn là một yêu cầu API mới.</p></div><div class="ai-live-provider"><span class="ai-live-pulse" aria-hidden="true"></span><span id="studioAIConnection">Đang kiểm tra kết nối cấu hình…</span><small>Free models · chỉ khi bạn đồng ý</small></div></header>
+                <div class="ai-live-composer"><div class="ai-live-composer-head"><h3>Điều gì cần được làm rõ?</h3><p>Chọn phạm vi bằng chứng và đặt câu hỏi của bạn.</p></div>
+                <label for="studioAIScenario" class="ai-live-scope">Phạm vi bằng chứng<select id="studioAIScenario"><option value="source">Nguồn dữ liệu vừa nhập</option><option value="textile">Lịch sản xuất đã phân tích</option></select></label><div class="ai-live-suggestions" aria-label="Gợi ý câu hỏi"><button type="button" data-ai-prompt-for="studioAIMessage" data-ai-prompt="Bộ dữ liệu này có những giới hạn nào ảnh hưởng đến độ tin cậy của lịch B1 và B2?">Độ tin cậy dữ liệu</button><button type="button" data-ai-prompt-for="studioAIMessage" data-ai-prompt="Giải thích sự khác nhau giữa B1 và B2 dựa trên kết quả đang chọn, tác động tới điện mặt trời và điện lưới.">So sánh B1 / B2</button><button type="button" data-ai-prompt-for="studioAIMessage" data-ai-prompt="Đề xuất các bước xác minh thông số máy, biểu giá và ràng buộc trước khi triển khai lịch.">Bước kiểm tra</button></div>
+                <label for="studioAIMessage" class="ai-live-label">Câu hỏi dành cho AI</label><textarea id="studioAIMessage" rows="4" maxlength="1200" placeholder="Ví dụ: Vì sao B2 rẻ hơn nhưng vẫn cần rà soát chi phí phối hợp?"></textarea><div class="ai-live-input-meta"><span>Ngữ cảnh và bằng chứng được gắn hash</span><output data-ai-count-for="studioAIMessage">0 / 1200</output></div>
+                <label class="studio-check ai-live-consent"><input id="studioAIConsent" type="checkbox"><span>Đồng ý gửi câu hỏi và bằng chứng tới OpenRouter (MiniMax M3.1 Flash Free, provider MiniMax; dự phòng XingChen Xing4.0 Free, provider Phala). <strong>Không dùng model trả phí.</strong></span></label>
+                <div class="studio-actions ai-live-actions"><button type="button" id="studioAIReport" class="ai-live-primary">Phân tích kết quả</button><button type="button" id="studioAIContext" class="ai-live-secondary">Đề xuất hướng kiểm tra</button></div></div><section id="studioAILivePanel" class="ai-live-response" data-ai-state="idle" aria-label="Phản hồi Live AI"><div class="ai-live-response-head"><div><h3>Phản hồi từ Live AI</h3><p>Nội dung AI được đối chiếu với bằng chứng backend.</p></div><span class="ai-live-state">Chờ câu hỏi</span></div>
+                <p id="studioAITrace" class="ai-live-status" role="status" aria-live="polite">Chưa gửi câu hỏi. Tên model, thời gian và response ID sẽ xuất hiện sau khi gọi API.</p>
+                <div id="studioAIResult" class="ai-live-answer"><p class="ai-live-empty">Chọn phạm vi dữ liệu, đặt câu hỏi và xác nhận gửi để nhận câu trả lời trực tiếp từ AI.</p></div></section><details class="ai-live-diagnostics"><summary>Kiểm tra kết nối và hạn mức</summary><button type="button" id="studioAIDiagnostics">Kiểm tra endpoint miễn phí</button><p id="studioAIDiagnosticResult" role="status" class="studio-muted">Chỉ đọc thông tin quota và endpoint; không gửi câu hỏi tới model.</p></details></div>
+              </section>
+</details>
           </div>
           <!-- ===================================================================
            TAB 2: INTERACTIVE GANTT TIMELINE & EVN TARIFF
@@ -1272,7 +1308,7 @@
                     <option value="b1">B1 · Quy tắc</option>
                     <option selected="" value="b2">
                       B2 · Phối hợp
-                    </option></select
+                    </option><option value="manual">MANUAL · Cần rà soát</option></select
                   ><button
                     class="manual-btn"
                     data-action="showDecisionMemo()"
@@ -1300,6 +1336,7 @@
            TAB 5: SENSITIVITY & ROBUSTNESS SIMULATION
            =================================================================== -->
           <div class="tab-pane" id="tab-sensitivity">
+
             <section class="section-container">
               <div class="section-title-bar">
                 <div>
@@ -1349,10 +1386,35 @@
            TAB 6: DETAILED JOB DISPATCHING & TRUST MATRIX
            =================================================================== -->
           <div class="tab-pane active" id="tab-dispatch">
+            <details id="demoWelcome" class="demo-welcome studio" open>
+              <summary><h2>Đổi lịch có thực sự có lợi?</h2><span>Hướng dẫn nhanh</span></summary>
+              <div class="demo-welcome-body"><div>
+                <p>Chạy một lịch mẫu, xem chi phí và kiểm chứng phương án trước khi quyết định.</p>
+                <div class="studio-actions">
+                  <button id="demoWelcomeRun" type="button">Chạy ví dụ &amp; xem quyết định</button>
+                  <button id="demoWelcomeImport" type="button">Dùng dữ liệu của tôi</button>
+                  <button id="demoWelcomeTextile" type="button">Thử dữ liệu ngành dệt</button>
+                </div>
+                <p class="demo-welcome-scope">Ví dụ ép nhựa, CSV/Excel hoặc nguồn ngành dệt có lịch và bằng chứng riêng. Engine chạy không cần AI.</p>
+                <p id="demoWelcomeStatus" role="status" aria-live="polite">Chọn ví dụ hoặc chuẩn bị dữ liệu của bạn.</p>
+                <button id="demoWelcomeDismiss" class="demo-text-action" type="button">Thu gọn hướng dẫn</button>
+              </div><ol class="demo-welcome-route">
+                <li><strong>Chọn dữ liệu</strong><span>Dùng ví dụ hoặc nhập bảng của cơ sở.</span></li>
+                <li><strong>Tính phương án</strong><span>So sánh lịch gốc B0, thay đổi đơn B1 và phối hợp B2.</span></li>
+                <li><strong>Rà soát bằng chứng</strong><span>Xem lịch, chi phí, kiểm chứng và xuất kết quả.</span></li>
+              </ol></div>
+            </details>
+
+          <section id="demoWorkspaceBar" class="demo-workspace-bar" aria-label="Kịch bản dùng chung cho mọi tab">
+            <label for="demoWorkspaceScenario">Dữ liệu đang xem<select id="demoWorkspaceScenario"><option value="native">Kịch bản slide · SYNTHETIC</option><option value="textile" disabled>Nhóm nguồn ngành dệt · chưa tính</option><option value="factory" disabled>Factory Lab · chưa tính</option></select></label>
+            <label for="demoWorkspaceCase">Giả định cho lần chạy demo<select id="demoWorkspaceCase"><option value="base">Chi phí thêm = 0</option><option value="extra_cost">Chi phí thêm 200.000 đ</option><option value="unknown_cost">Chưa rõ chi phí thêm</option></select></label>
+            <div class="demo-workspace-actions"><button type="button" id="demoWorkspaceReplay">Tính lại ví dụ theo giả định</button><button type="button" id="demoWorkspaceSource">Nguồn &amp; đơn vị</button><button type="button" id="demoWorkspaceMemoButton" disabled>Tờ trình &amp; AI</button><button type="button" id="demoWorkspaceExport" disabled>Xuất kết quả</button></div>
+            <p id="demoWorkspaceStatus" role="status">Chạy một lần; cùng lịch và bằng chứng xuất hiện trong tất cả các tab.</p>
+          </section>
             <section
               aria-labelledby="inputTitle"
               class="live-panel"
-              id="inputPanel"
+              id="inputPanel" hidden
             >
               <div class="live-panel-head">
                 <div>
@@ -1832,6 +1894,53 @@
 
 
             </section>
+
+<details id="studioPanel-source" class="studio source-entry" open><summary>Nhập hai tệp dữ liệu sản xuất</summary>
+
+<div id="studioTools" class="studio studio-tools">
+  <div class="studio-actions"><button id="studioPresent" type="button" hidden>Chế độ trình chiếu</button><button id="studioExport" type="button" disabled>Xuất gói bằng chứng nguồn</button></div>
+  <p class="studio-status" id="studioStatus" role="status" aria-live="polite">Chọn tệp Input và Output của bạn để bắt đầu.</p>
+</div>
+<section id="studio-source" class="studio-stage" aria-labelledby="studioSourceTitle">
+                <div class="studio-section-head"><div><h3 id="studioSourceTitle">Nhập dữ liệu sản xuất</h3><p>Chọn tệp cấu hình và lịch hiện tại. Hệ thống đối chiếu máy, chế độ và công việc trước khi tính phương án.</p></div></div>
+                <div class="source-file-fields">
+                  <label for="sourceInputFile"><strong>Tệp cấu hình · Input JSON</strong><input id="sourceInputFile" type="file" accept=".json,application/json"><span>Máy, công suất, biểu giá và chuỗi điện mặt trời.</span></label>
+                  <label for="sourceOutputFile"><strong>Tệp lịch hiện tại · Output JSON</strong><input id="sourceOutputFile" type="file" accept=".json,application/json"><span>Phân công công việc, máy và thời điểm bắt đầu.</span></label>
+                </div>
+                <div class="studio-actions"><button type="button" id="studioAudit" disabled>Nhập &amp; kiểm tra hai tệp</button></div>
+                <p id="sourceFileStatus" role="status" aria-live="polite">Chưa chọn tệp nào.</p>
+                <div id="studioFunnel" class="studio-funnel" aria-label="Kết quả lọc nguồn"></div>
+                <div class="studio-selection-tools" aria-label="Chọn phạm vi phân tích"><label for="studioSelectionCount">Số dòng cần phân tích <input id="studioSelectionCount" type="number" min="1" max="256" value="8" step="1"></label><button id="studioSelectCount" type="button">Chọn theo số lượng</button><button id="studioSelectAll" type="button">Chọn tất cả đủ điều kiện</button><button id="studioClearSelection" type="button">Bỏ chọn</button></div>
+                <details id="sourceAuditReview"><summary>Chi tiết đối chiếu dữ liệu và phạm vi nhóm</summary>
+                <div id="studioWarnings" class="studio-notice" hidden></div>
+                <div id="studioAuditDetails" hidden>
+                <details id="studioProvenance"><summary>Nguồn tệp và mã kiểm tra</summary><div id="studioFiles"></div><div id="studioArchive"></div></details>
+                <div class="studio-section-head"><h4>Dấu vết từng công việc</h4><label for="studioFilter">Lọc kết quả <select id="studioFilter"><option value="ALL">Tất cả</option><option value="COMPATIBLE_CANDIDATE">Đúng chế độ &amp; máy</option><option value="UNKNOWN_MODE">Thiếu chế độ</option><option value="INCOMPATIBLE_MACHINE">Không đúng máy</option></select></label></div>
+                <p class="studio-muted">Chọn 1–256 dòng đủ điều kiện để chạy B1/B2. Những dòng không chọn không được tối ưu hay kiểm chứng. Với trên 8 dòng, B2 tìm kiếm phối hợp qua các mốc thời gian hợp lệ, có kiểm chứng độc lập; chưa khẳng định tối ưu toàn cục.</p>
+                <div class="studio-table-wrap" tabindex="0" aria-label="Bảng dấu vết nguồn"><table><thead><tr><th scope="col">Chọn</th><th scope="col">Dòng nguồn</th><th scope="col">Máy</th><th scope="col">Chế độ</th><th scope="col">Bắt đầu / ô</th><th scope="col">Kết quả</th></tr></thead><tbody id="studioRows"></tbody></table></div>
+                <div class="studio-pagination"><button id="studioPrevRows" type="button" disabled>Trang trước</button><span id="studioRowPage">Chưa có dữ liệu</span><button id="studioNextRows" type="button" disabled>Trang sau</button><button id="studioDefaultSelection" type="button" disabled hidden>Khôi phục nhóm ban đầu</button></div>
+              </div>
+                </details>
+</section>
+</details>
+
+<section id="studioPanel-textile" class="studio source-analysis" hidden>
+  <section id="studio-textile" aria-labelledby="studioTextileTitle">
+    <h3 id="studioTextileTitle">Tính lịch &amp; sử dụng điện mặt trời</h3>
+    <p id="sourceDefaults">Áp dụng: 5 phút/ô; công suất và điện mặt trời W; giá nguồn/Wh; đơn vị chi phí nguồn chưa xác minh (mã dữ liệu: SOURCE); phí đổi lịch mặc định = mô phỏng từ công suất máy, biểu giá nguồn và 1 phút tham chiếu cho mỗi công việc được dịch. Đây là chi phí quy ước, chưa phải phí vận hành đã xác minh.</p>
+    <p>Điện mặt trời chỉ cấp cho nhóm được chọn, không tính lưu trữ hoặc bán điện. Điện lưới bù phần nhu cầu còn thiếu.</p>
+    <form id="studioMapping">
+      <div hidden>
+        <input id="studioMinutes" type="hidden" value="5"><input id="studioPower" type="hidden" value="W">
+        <input id="studioPrice" type="hidden" value="Wh"><input id="studioCurrency" type="hidden" value="SOURCE">
+        <input id="studioMoveCost" type="hidden" value="0"><input id="studioSolarUnit" type="hidden" value="W">
+        <input id="studioSolar" type="checkbox" checked><input id="studioUnitsConfirmed" type="checkbox" checked><input id="studioScopeConfirmed" type="checkbox" checked>
+      </div>
+      <div class="studio-actions"><button id="studioRunTextile" type="submit" disabled>Phân tích lịch &amp; điện mặt trời</button><span id="studioSelectedCount">Chưa nhập dữ liệu</span></div>
+    </form>
+    <div id="studioTextileResult" hidden></div>
+  </section>
+</section>
           </div>
         </main>
       </div>

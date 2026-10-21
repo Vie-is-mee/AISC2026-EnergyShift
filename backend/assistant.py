@@ -177,7 +177,9 @@ class AssistantService:
                 # Do not send unrelated tariffs/cost-policy to a column-mapping model.
                 evidence = {"csv_source":source,"user_notes":message,"work_context":work_context,"solver_scope":SOLVER_SCOPE,"scope_review":inspect_scope(work_context,message),"profile":{"source_type":snapshot["metadata"]["source_type"],"horizon":snapshot["horizon"],"templates":[{"template_id":j["id"],"quantity":j["quantity"],"release":j["release"],"due":j["due"],"machines":list(j["eligible"])} for j in snapshot["jobs"]]}}
                 system, schema = csv_import.SYSTEM, csv_import.CSVProposal.model_json_schema()
-            response = self.client([{"role":"system", "content":system}, {"role":"user", "content":json.dumps(evidence, ensure_ascii=False)}], config=config, timeout=75, max_completion_tokens=6000, response_schema=schema)
+            response = self.client([{"role":"system", "content":system}, {"role":"user", "content":json.dumps(evidence, ensure_ascii=False)}],
+                                   config=config, timeout=75, max_completion_tokens=6000, response_schema=schema,
+                                   reasoning_enabled=False if config["OPENROUTER_MODEL"] == "dots-studio/dots-3-note-preview:free" else None)
             meta = {"status": response.get("status"), "requested_model": config["OPENROUTER_MODEL"], "response_id": response.get("response_id"), "model": response.get("served_model"), "latency_seconds": response.get("latency_seconds"), "http_status": response.get("http_status"), "error_category": response.get("error_category"), "finish_reason":response.get("finish_reason")}
             usage = response.get("usage")
             meta["usage"] = {k: usage[k] for k in ("prompt_tokens","completion_tokens","total_tokens") if isinstance(usage, dict) and type(usage.get(k)) is int}

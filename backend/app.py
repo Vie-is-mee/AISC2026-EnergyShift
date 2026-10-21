@@ -25,12 +25,14 @@ from pydantic import ValidationError
 from .team import TeamService, TeamError
 from .schemas import Model
 from .assistant import AssistantService
+from .demo_registry import remember_report
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ID = "editable-cell"
 FIXTURE_FILES = {"editable-cell": "editable_cell.json", "coordinated-cell": "coordinated_cell.json"}
 MAX_BYTES = 512 * 1024
 analysis_lock = Lock()
+ai_lock = Lock()
 team_lock = Lock()
 team_service = None
 assistant_service = None
@@ -40,6 +42,9 @@ app = FastAPI(title="EnergyShift demo", docs_url=None, redoc_url=None, openapi_u
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts())
 app.add_middleware(CORSMiddleware, allow_origins=FRONTEND_ORIGINS,
                    allow_methods=["GET", "POST", "DELETE"], allow_headers=["Content-Type", "Authorization"], allow_credentials=False)
+
+from .demo_routes import create_router
+app.include_router(create_router(analysis_lock, ai_lock))
 
 
 def error(status, code, why, field="$", fix="Correct the input and try again"):
@@ -168,6 +173,8 @@ async def analyze_request(request: Request):
     try:
         report = await run_in_threadpool(analyze, data, max_candidates=2000, enable_b2=True, b2_neighborhood_limit=12)
         report["input_snapshot"] = data
+        if report.get("status") == "COMPLETED":
+            remember_report(report)
         return report
     except Exception:
         return JSONResponse({"status": "ERROR", "errors": [{"code": "ANALYSIS_ERROR", "why": "Analysis failed; no recommendation was produced"}]}, status_code=500)

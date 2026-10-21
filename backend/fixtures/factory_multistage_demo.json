@@ -1,0 +1,175 @@
+{
+  "schema_version": "factory-2",
+  "metadata": {
+    "plant_alias": "MULTISTAGE_PACKAGING_SYNTHETIC",
+    "industry": "Đóng gói thực phẩm đa công đoạn (giả lập)",
+    "source_type": "SYNTHETIC",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "currency": "VND"
+  },
+  "horizon": {
+    "start": "2026-10-19T08:00:00+07:00",
+    "end": "2026-10-19T12:00:00+07:00"
+  },
+  "step_minutes": 30,
+  "machines": [
+    {
+      "id": "PACK-01",
+      "available": [
+        {
+          "start": "2026-10-19T08:00:00+07:00",
+          "end": "2026-10-19T12:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "LABEL-02",
+      "available": [
+        {
+          "start": "2026-10-19T08:00:00+07:00",
+          "end": "2026-10-19T12:00:00+07:00"
+        }
+      ]
+    }
+  ],
+  "work_orders": [
+    {
+      "id": "ORDER-A",
+      "release": "2026-10-19T08:00:00+07:00",
+      "due": "2026-10-19T12:00:00+07:00",
+      "operations": [
+        {
+          "id": "FORM",
+          "eligible": {
+            "PACK-01": {
+              "duration_minutes": 60,
+              "average_kw": 12,
+              "power_source": "SYNTHETIC",
+              "reference": "sim-form-kw"
+            }
+          },
+          "demands": {
+            "CREW": 1
+          }
+        },
+        {
+          "id": "SEAL",
+          "eligible": {
+            "LABEL-02": {
+              "duration_minutes": 60,
+              "average_kw": 8,
+              "power_source": "SYNTHETIC",
+              "reference": "sim-seal-kw"
+            }
+          },
+          "demands": {
+            "CREW": 1
+          }
+        }
+      ],
+      "precedence": [
+        {
+          "before": "FORM",
+          "after": "SEAL",
+          "min_lag_minutes": 0
+        }
+      ]
+    },
+    {
+      "id": "ORDER-B",
+      "release": "2026-10-19T08:00:00+07:00",
+      "due": "2026-10-19T12:00:00+07:00",
+      "operations": [
+        {
+          "id": "BOX",
+          "eligible": {
+            "PACK-01": {
+              "duration_minutes": 60,
+              "average_kw": 6,
+              "power_source": "SYNTHETIC",
+              "reference": "sim-box-kw"
+            },
+            "LABEL-02": {
+              "duration_minutes": 60,
+              "average_kw": 5,
+              "power_source": "SYNTHETIC",
+              "reference": "sim-box-alt-kw"
+            }
+          },
+          "demands": {}
+        },
+        {
+          "id": "WRAP",
+          "eligible": {
+            "LABEL-02": {
+              "duration_minutes": 30,
+              "average_kw": 9,
+              "power_source": "SYNTHETIC",
+              "reference": "synthetic-wrap-power"
+            }
+          },
+          "demands": {}
+        }
+      ],
+      "precedence": [
+        {
+          "before": "BOX",
+          "after": "WRAP",
+          "min_lag_minutes": 0
+        }
+      ]
+    }
+  ],
+  "current_schedule": [
+    {
+      "operation_id": "FORM",
+      "machine_id": "PACK-01",
+      "start": "2026-10-19T08:00:00+07:00"
+    },
+    {
+      "operation_id": "SEAL",
+      "machine_id": "LABEL-02",
+      "start": "2026-10-19T09:00:00+07:00"
+    },
+    {
+      "operation_id": "BOX",
+      "machine_id": "PACK-01",
+      "start": "2026-10-19T10:00:00+07:00"
+    },
+    {
+      "operation_id": "WRAP",
+      "machine_id": "LABEL-02",
+      "start": "2026-10-19T11:00:00+07:00"
+    }
+  ],
+  "tariffs": [
+    {
+      "start": "2026-10-19T08:00:00+07:00",
+      "end": "2026-10-19T10:00:00+07:00",
+      "band": "HIGH",
+      "vnd_per_kwh": 3200
+    },
+    {
+      "start": "2026-10-19T10:00:00+07:00",
+      "end": "2026-10-19T12:00:00+07:00",
+      "band": "LOW",
+      "vnd_per_kwh": 1000
+    }
+  ],
+  "tariff_reference": "SIMULATED-PACKAGING-TOU",
+  "setup_assumption": "NO_SETUP_REQUIRED_CONFIRMED",
+  "buffer_assumption": "UNLIMITED_INTERSTAGE_BUFFER_CONFIRMED",
+  "resources": [
+    {
+      "id": "CREW",
+      "capacity": 1,
+      "available": [
+        {
+          "start": "2026-10-19T08:00:00+07:00",
+          "end": "2026-10-19T12:00:00+07:00"
+        }
+      ]
+    }
+  ],
+  "unsupported_constraints": []
+}

@@ -26,14 +26,25 @@ let currentReport = null,
   fixtureRequest = 0,
   lastFocus = null;
 function switchMainTab(id) {
+  if (!document.getElementById(id)?.classList.contains("tab-pane")) return;
+  const changed = document.body.dataset.view !== id;
   document.body.dataset.view = id;
   document
     .querySelectorAll(".tab-pane")
     .forEach((e) => e.classList.toggle("active", e.id === id));
   document
     .querySelectorAll("[data-tab]")
-    .forEach((e) => e.classList.toggle("active", e.dataset.tab === id));
+    .forEach((e) => {
+      const selected=e.dataset.tab === id;
+      e.classList.toggle("active",selected);
+      if(selected)e.setAttribute("aria-current","page");else e.removeAttribute("aria-current");
+    });
   closeMobileNav();
+  if (changed) {
+    $("workspaceMain")?.scrollTo({top: 0, behavior: "instant"});
+    window.scrollTo({top: 0, behavior: "instant"});
+  }
+  globalThis.DemoWorkspace?.onTab?.(id);
 }
 window.Workspace = { show: switchMainTab };
 function closeMobileNav() {
@@ -154,6 +165,7 @@ function clearResult() {
   put("transSafetyBadge", "Chưa xác định");
   put("circuitModeBadge", "Mô hình · chưa phân tích");
   for (let i = 1; i <= 5; i++) put("kwM" + i, "—");
+  globalThis.DemoWorkspace?.onNativeClear?.();
 }
 function syncQuick(data) {
   $("minSaving").value = data.policy.min_net_saving_vnd;
@@ -266,8 +278,16 @@ function renderReport(report) {
     `Đề xuất ${chosen}. Nguồn ${report.source_type}; chi phí gồm điện và chuyển đổi đã khai báo. ${report.decision.reason_codes
       .map((c) => reasons[c])
       .filter(Boolean)
-      .join(" ")} ${solverScope(report)}`,
+      .join(" ")}`,
   );
+  let rationale=$("demoDecisionRationale");
+  if(!rationale){
+    rationale=node("details",null,"demo-decision-rationale demo-original-content");
+    rationale.id="demoDecisionRationale";
+    rationale.append(node("summary","Phạm vi tìm kiếm & cách đọc kết quả"),node("p"));
+    $("verdictHeroCard").insertAdjacentElement("afterend",rationale);
+  }
+  rationale.querySelector("p").textContent=solverScope(report);
   put("kpiPlanTag", `Đề xuất ${chosen}`);
   put("kpiTotalCost", money(selected.total_vnd));
   put("kpiDeltaCost", money(base.total_vnd - selected.total_vnd));
@@ -391,8 +411,10 @@ function renderReport(report) {
       `Đỉnh phụ tải chạy theo lịch ${ref}: ${peak(plans[ref]).toFixed(2)} kW. Chưa có công suất nền và định mức TBA để kết luận an toàn.`,
     ),
   );
+  globalThis.DemoWorkspace?.onNativeReport?.(report);
 }
 async function selectGanttPlan(value) {
+  if ($("demoSourceSchedule")) $("demoSourceSchedule").open = true;
   if (scheduleEditorState) {
     toast("Lưu hoặc đóng chỉnh sửa trước khi đổi phương án.");
     return;
@@ -1547,8 +1569,15 @@ function renderChart() {
 }
 function renderValidation() {
   if (!currentReport) return;
-  const code = $("validationPlanSelect").value.toUpperCase(),
-    v = currentReport.plans[code].verification;
+  const select = $("validationPlanSelect");
+  for (const option of select.options)
+    option.disabled = !currentReport.plans[option.value.toUpperCase()];
+  let code = select.value.toUpperCase();
+  if (!currentReport.plans[code]) {
+    code = currentReport.decision.selected_plan;
+    select.value = code.toLowerCase();
+  }
+  const v = currentReport.plans[code].verification;
   const rules = [
     ["Đủ công việc", ["JOB_CONSERVATION", "UNKNOWN_JOB"]],
     ["Máy phù hợp", ["UNKNOWN_MACHINE", "INELIGIBLE_MACHINE"]],
@@ -1732,6 +1761,8 @@ function renderRisk() {
   $("sensitivityNote").append(edit);
 }
 function showDecisionMemo() {
+  if(globalThis.DemoWorkspace?.isTextile())return globalThis.DemoWorkspace.openMemo();
+  if (globalThis.DemoWorkspace?.isTextile?.()) { globalThis.DemoWorkspace.openMemo(); return; }
   if (!currentReport) {
     toast("Hãy phân tích kế hoạch trước.");
     return;
@@ -2412,6 +2443,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           "Demo: số liệu mô hình từ đầu vào; B0/B1/B2 được kiểm tra độc lập. Không phải dữ liệu vận hành thực tế."),
     );
   try {
+    if(document.body.dataset.entryMode==="source-files"){
+      const response=await apiFetch("/api/demo/health");
+      if(!response.ok)throw Error("Backend chưa sẵn sàng");
+      switchMainTab("tab-dispatch");
+      return;
+    }
     const response = await apiFetch("/api/demo/fixtures");
     if (!response.ok) throw Error("Backend chưa sẵn sàng");
     const fixtures = await response.json();
@@ -2423,6 +2460,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }),
     );
     await loadFixture(fixtures[0].id);
+    if (new URLSearchParams(location.search).has("demo")) switchMainTab("tab-dispatch");
   } catch (e) {
     errors([
       `Không kết nối backend: ${e.message}. Với Render miễn phí, thử lại khi dịch vụ khởi động xong.`,

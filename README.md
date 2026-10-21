@@ -1,5 +1,9 @@
 # EnergyShift VN
 
+**Demo AISC:** mở `http://127.0.0.1:8000/?demo=1` sau khi chạy `.\.venv\Scripts\python.exe ops/run-demo.py`.
+Luồng mới gồm kiểm tra nguồn 275 → 108 → 91, thử nghiệm nhóm ngành dệt, kịch bản slide SYNTHETIC và giải thích Gemma.
+Xem [hướng dẫn trình chiếu, phạm vi và cấu hình](docs/AISC_DEMO.md).
+
 Hỗ trợ quyết định điều chỉnh lịch sản xuất dựa trên tính khả thi và chi phí.
 
 Frontend HTML/CSS/JavaScript hiện tại nhận kết quả tính thật từ API local.

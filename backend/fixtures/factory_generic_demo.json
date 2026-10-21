@@ -1,0 +1,128 @@
+{
+  "schema_version": "factory-1",
+  "metadata": {
+    "plant_alias": "DEMO_CNC_CELL",
+    "industry": "Gia công cơ khí một công đoạn",
+    "source_type": "SYNTHETIC",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "currency": "VND"
+  },
+  "horizon": {
+    "start": "2026-10-19T08:00:00+07:00",
+    "end": "2026-10-19T16:00:00+07:00"
+  },
+  "step_minutes": 30,
+  "machines": [
+    {
+      "id": "CNC-A",
+      "available": [
+        {
+          "start": "2026-10-19T08:00:00+07:00",
+          "end": "2026-10-19T16:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "CNC-B",
+      "available": [
+        {
+          "start": "2026-10-19T08:00:00+07:00",
+          "end": "2026-10-19T16:00:00+07:00"
+        }
+      ]
+    }
+  ],
+  "jobs": [
+    {
+      "id": "J1",
+      "release": "2026-10-19T08:00:00+07:00",
+      "due": "2026-10-19T16:00:00+07:00",
+      "eligible": {
+        "CNC-A": {
+          "duration_minutes": 60,
+          "average_kw": 20,
+          "power_source": "SYNTHETIC",
+          "reference": "demo-estimate-J1-A"
+        },
+        "CNC-B": {
+          "duration_minutes": 90,
+          "average_kw": 12,
+          "power_source": "SYNTHETIC",
+          "reference": "demo-estimate-J1-B"
+        }
+      }
+    },
+    {
+      "id": "J2",
+      "release": "2026-10-19T08:00:00+07:00",
+      "due": "2026-10-19T16:00:00+07:00",
+      "eligible": {
+        "CNC-A": {
+          "duration_minutes": 60,
+          "average_kw": 18,
+          "power_source": "SYNTHETIC",
+          "reference": "demo-estimate-J2-A"
+        },
+        "CNC-B": {
+          "duration_minutes": 60,
+          "average_kw": 25,
+          "power_source": "SYNTHETIC",
+          "reference": "demo-estimate-J2-B"
+        }
+      }
+    },
+    {
+      "id": "J3",
+      "release": "2026-10-19T08:00:00+07:00",
+      "due": "2026-10-19T16:00:00+07:00",
+      "eligible": {
+        "CNC-A": {
+          "duration_minutes": 60,
+          "average_kw": 22,
+          "power_source": "SYNTHETIC",
+          "reference": "demo-estimate-J3-A"
+        },
+        "CNC-B": {
+          "duration_minutes": 60,
+          "average_kw": 14,
+          "power_source": "SYNTHETIC",
+          "reference": "demo-estimate-J3-B"
+        }
+      }
+    }
+  ],
+  "current_schedule": [
+    {
+      "job_id": "J1",
+      "machine_id": "CNC-A",
+      "start": "2026-10-19T08:00:00+07:00"
+    },
+    {
+      "job_id": "J2",
+      "machine_id": "CNC-A",
+      "start": "2026-10-19T10:00:00+07:00"
+    },
+    {
+      "job_id": "J3",
+      "machine_id": "CNC-B",
+      "start": "2026-10-19T09:00:00+07:00"
+    }
+  ],
+  "tariffs": [
+    {
+      "start": "2026-10-19T08:00:00+07:00",
+      "end": "2026-10-19T12:00:00+07:00",
+      "band": "PEAK",
+      "vnd_per_kwh": 4000
+    },
+    {
+      "start": "2026-10-19T12:00:00+07:00",
+      "end": "2026-10-19T16:00:00+07:00",
+      "band": "OFF_PEAK",
+      "vnd_per_kwh": 1000
+    }
+  ],
+  "tariff_reference": "SYNTHETIC-TOU-NOT-ACTUAL-UTILITY",
+  "setup_assumption": "NO_SETUP_REQUIRED_CONFIRMED",
+  "unsupported_constraints": []
+}
